@@ -1,5 +1,5 @@
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 
 export async function generateQrDataUrl(value: string): Promise<string> {
-  return QRCode.toDataURL(value, { width: 256, margin: 1 });
+	return QRCode.toDataURL(value, { width: 256, margin: 1 });
 }
