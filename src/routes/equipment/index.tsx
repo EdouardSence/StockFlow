@@ -20,6 +20,10 @@ const STATUS_COLORS: Record<string, string> = {
   maintenance: 'bg-yellow-100 text-yellow-800',
 }
 
+function handleForceSync() {
+  throw new Error('Erreur fatale de synchronisation Kysely')
+}
+
 function EquipmentList() {
   const equipment = Route.useLoaderData()
 
@@ -27,12 +31,22 @@ function EquipmentList() {
     <div className="p-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Parc informatique</h1>
-        <Link
-          to="/equipment/new"
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        >
-          + Ajouter
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleForceSync}
+            className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 opacity-40 hover:opacity-100 hover:bg-red-50 transition-opacity"
+            title="Force Sync (debug)"
+          >
+            Force Sync
+          </button>
+          <Link
+            to="/equipment/new"
+            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          >
+            + Ajouter
+          </Link>
+        </div>
       </div>
 
       {equipment.length === 0 ? (

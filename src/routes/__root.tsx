@@ -1,9 +1,16 @@
+import * as Sentry from '@sentry/react'
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
+
+Sentry.init({
+  dsn: 'https://public@sentry.example.com/1',
+  environment: 'production',
+  tracesSampleRate: 1.0,
+})
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,6 +42,12 @@ function Nav() {
           className="text-sm text-gray-600 hover:text-gray-900 [&.active]:font-semibold [&.active]:text-gray-900"
         >
           Équipements
+        </Link>
+        <Link
+          to="/scan"
+          className="text-sm text-gray-600 hover:text-gray-900 [&.active]:font-semibold [&.active]:text-gray-900"
+        >
+          Scanner
         </Link>
       </div>
     </nav>
