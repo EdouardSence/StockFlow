@@ -1,16 +1,15 @@
-import * as Sentry from '@sentry/react'
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-
+import * as Sentry from '@sentry/react'
 import appCss from '../styles.css?url'
 
-Sentry.init({
-  dsn: 'https://public@sentry.example.com/1',
-  environment: 'production',
-  tracesSampleRate: 1.0,
-})
+if (typeof window !== 'undefined') {
+  Sentry.init({
+    dsn: 'https://a5aa84c6101cec76642281e1df17f325@o4511350832824320.ingest.de.sentry.io/4511350837149776',
+    sendDefaultPii: true,
+  })
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -19,50 +18,27 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'StockFlow' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+      },
+    ],
   }),
   shellComponent: RootDocument,
 })
 
-function Nav() {
-  return (
-    <nav className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
-        <Link to="/" className="text-lg font-bold text-indigo-600">
-          StockFlow
-        </Link>
-        <Link
-          to="/"
-          className="text-sm text-gray-600 hover:text-gray-900 [&.active]:font-semibold [&.active]:text-gray-900"
-        >
-          Dashboard
-        </Link>
-        <Link
-          to="/equipment"
-          className="text-sm text-gray-600 hover:text-gray-900 [&.active]:font-semibold [&.active]:text-gray-900"
-        >
-          Équipements
-        </Link>
-        <Link
-          to="/scan"
-          className="text-sm text-gray-600 hover:text-gray-900 [&.active]:font-semibold [&.active]:text-gray-900"
-        >
-          Scanner
-        </Link>
-      </div>
-    </nav>
-  )
-}
-
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="fr" style={{ height: '100%' }}>
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-screen bg-gray-50">
-        <Nav />
-        <main className="mx-auto max-w-6xl">{children}</main>
+      <body style={{ margin: 0, height: '100%' }}>
+        {children}
         <TanStackDevtools
           config={{ position: 'bottom-right' }}
           plugins={[{ name: 'Tanstack Router', render: <TanStackRouterDevtoolsPanel /> }]}
