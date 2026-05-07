@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
@@ -155,7 +154,7 @@ function EquipmentList() {
 							const err = new Error(
 								"StockFlow: impression étiquettes non implémentée",
 							);
-							Sentry.captureException(err);
+							import("@sentry/react").then((Sentry) => Sentry.captureException(err));
 							alert("Erreur envoyée à Sentry ✓");
 						}}
 						style={{

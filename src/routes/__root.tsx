@@ -1,13 +1,14 @@
-import * as Sentry from "@sentry/react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import appCss from "../styles.css?url";
 
 if (typeof window !== "undefined") {
-	Sentry.init({
-		dsn: "https://a5aa84c6101cec76642281e1df17f325@o4511350832824320.ingest.de.sentry.io/4511350837149776",
-		sendDefaultPii: true,
+	import("@sentry/react").then((Sentry) => {
+		Sentry.init({
+			dsn: "https://a5aa84c6101cec76642281e1df17f325@o4511350832824320.ingest.de.sentry.io/4511350837149776",
+			sendDefaultPii: true,
+		});
 	});
 }
 
