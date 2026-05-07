@@ -154,7 +154,9 @@ function EquipmentList() {
 							const err = new Error(
 								"StockFlow: impression étiquettes non implémentée",
 							);
-							import("@sentry/react").then((Sentry) => Sentry.captureException(err));
+							import("@sentry/react").then((Sentry) =>
+								Sentry.captureException(err),
+							);
 							alert("Erreur envoyée à Sentry ✓");
 						}}
 						style={{
