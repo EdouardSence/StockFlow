@@ -6,8 +6,12 @@ import type { Database } from "./types";
 pg.types.setTypeParser(1114, (str: string) => str);
 pg.types.setTypeParser(1184, (str: string) => str);
 
+// Strip sslmode from URL so our explicit ssl config wins (Supabase pooler uses self-signed cert)
+const rawUrl = process.env.POSTGRES_URL ?? process.env.DATABASE_URL ?? "";
+const connectionString = rawUrl.replace(/([?&])sslmode=[^&]*/g, "$1").replace(/[?&]$/, "");
+
 const pool = new pg.Pool({
-	connectionString: process.env.POSTGRES_URL ?? process.env.DATABASE_URL,
+	connectionString,
 	ssl: { rejectUnauthorized: false },
 	max: 10,
 });
