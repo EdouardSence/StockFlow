@@ -1,19 +1,16 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import Database from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
-import type { Database as DB } from "./types";
+import pg from "pg";
+import { Kysely, PostgresDialect } from "kysely";
+import type { Database } from "./types";
 
-const sqlite = new Database(join(process.cwd(), "stockflow.db"));
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+// Return timestamps as ISO strings instead of Date objects
+pg.types.setTypeParser(1114, (str: string) => str);
+pg.types.setTypeParser(1184, (str: string) => str);
 
-const migration = readFileSync(
-	join(import.meta.dirname, "migrations/001_init.sql"),
-	"utf-8",
-);
-sqlite.exec(migration);
+const pool = new pg.Pool({
+	connectionString: process.env.DATABASE_URL,
+	max: 10,
+});
 
-export const db = new Kysely<DB>({
-	dialect: new SqliteDialect({ database: sqlite }),
+export const db = new Kysely<Database>({
+	dialect: new PostgresDialect({ pool }),
 });

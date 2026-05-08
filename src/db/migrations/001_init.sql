@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   name       TEXT NOT NULL,
   email      TEXT NOT NULL UNIQUE,
   role       TEXT NOT NULL CHECK (role IN ('admin', 'technician')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS equipment (
@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS equipment (
                   CHECK (status IN ('available', 'assigned', 'broken', 'maintenance')),
   assigned_to   TEXT REFERENCES users(id) ON DELETE SET NULL,
   notes         TEXT,
-  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS incidents (
@@ -29,6 +29,6 @@ CREATE TABLE IF NOT EXISTS incidents (
   description  TEXT,
   status       TEXT NOT NULL DEFAULT 'open'
                  CHECK (status IN ('open', 'in_progress', 'resolved')),
-  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
-  resolved_at  TEXT
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  resolved_at  TIMESTAMPTZ
 );
