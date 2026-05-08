@@ -8,6 +8,7 @@ pg.types.setTypeParser(1184, (str: string) => str);
 
 const pool = new pg.Pool({
 	connectionString: process.env.POSTGRES_URL ?? process.env.DATABASE_URL,
+	ssl: { rejectUnauthorized: false },
 	max: 10,
 });
 
