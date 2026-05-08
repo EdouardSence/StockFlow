@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { FakeQR } from "../../components/FakeQR";
+import { useEffect, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
 import type { EquipmentTable } from "../../db/types";
 import { createEquipmentFn } from "../../lib/equipment";
@@ -8,6 +7,52 @@ import { createEquipmentFn } from "../../lib/equipment";
 export const Route = createFileRoute("/equipment/new")({
 	component: NewEquipmentPage,
 });
+
+function QRCodeImage({ url, size = 140 }: { url: string; size?: number }) {
+	const [dataUrl, setDataUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!url) return;
+		let active = true;
+		import("qrcode").then((m) => {
+			m.default
+				.toDataURL(url, { width: size * 2, margin: 1 })
+				.then((u: string) => {
+					if (active) setDataUrl(u);
+				});
+		});
+		return () => {
+			active = false;
+		};
+	}, [url, size]);
+
+	if (!dataUrl) {
+		return (
+			<div
+				style={{
+					width: size,
+					height: size,
+					background: "oklch(0.95 0.01 255)",
+					borderRadius: 4,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+			>
+				<span style={{ fontSize: 10, color: "var(--sf-fg-muted)" }}>…</span>
+			</div>
+		);
+	}
+	return (
+		<img
+			src={dataUrl}
+			width={size}
+			height={size}
+			alt={`QR code — ${url}`}
+			style={{ display: "block", imageRendering: "pixelated" }}
+		/>
+	);
+}
 
 const fieldStyle: React.CSSProperties = {
 	width: "100%",
@@ -567,10 +612,36 @@ function NewEquipmentPage() {
 											border: "1px solid var(--sf-border)",
 										}}
 									>
-										<FakeQR
-											value={created?.qr_code || form.name || "preview"}
-											size={140}
-										/>
+										{phase === "created" && created ? (
+											<QRCodeImage
+												url={`${typeof window !== "undefined" ? window.location.origin : ""}/equipment/${created.id}`}
+												size={140}
+											/>
+										) : (
+											<div
+												style={{
+													width: 140,
+													height: 140,
+													background: "oklch(0.96 0.01 255)",
+													borderRadius: 4,
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+												}}
+											>
+												<span
+													style={{
+														fontSize: 11,
+														color: "var(--sf-fg-muted)",
+														textAlign: "center",
+														padding: "0 12px",
+														lineHeight: 1.4,
+													}}
+												>
+													QR généré après enregistrement
+												</span>
+											</div>
+										)}
 									</div>
 									<div style={{ textAlign: "center", lineHeight: 1.35 }}>
 										<div
