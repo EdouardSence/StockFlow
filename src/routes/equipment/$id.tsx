@@ -64,7 +64,7 @@ function EquipmentDetailPage() {
 					<button
 						type="button"
 						onClick={() =>
-							navigate({ to: isMobile ? "/mobile" : "/equipment" })
+							navigate({ to: isMobile ? "/" : "/equipment" })
 						}
 						style={{
 							padding: "8px 16px",
@@ -110,7 +110,7 @@ function EquipmentDetailPage() {
 				updateError={updateError}
 				actionTaken={actionTaken}
 				onStatusChange={handleMobileAction}
-				onBack={() => navigate({ to: "/mobile" })}
+				onBack={() => navigate({ to: "/" })}
 			/>
 		);
 	}

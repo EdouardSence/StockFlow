@@ -182,7 +182,7 @@ function ScannerScreen({
 					color: "white",
 				}}
 			>
-				<Link to="/mobile" style={{ textDecoration: "none" }}>
+				<Link to="/" style={{ textDecoration: "none" }}>
 					<button type="button" style={mobIconBtn}>
 						<XIcon />
 					</button>
@@ -370,7 +370,7 @@ function RawResultScreen({
 				fontFamily: "var(--sf-sans)",
 			}}
 		>
-			<Link to="/mobile" style={{ alignSelf: "flex-start", textDecoration: "none" }}>
+			<Link to="/" style={{ alignSelf: "flex-start", textDecoration: "none" }}>
 				<button
 					type="button"
 					style={{

@@ -129,7 +129,7 @@ function NavIcon({
 
 export function MobileBottomNav({ active }: { active: "home" | "scan" | "stock" | "profile" }) {
 	const tabs: NavTab[] = [
-		{ href: "/mobile", iconName: "home", label: "Accueil", active: active === "home" },
+		{ href: "/", iconName: "home", label: "Accueil", active: active === "home" },
 		{ href: "/scan", iconName: "scan", label: "Scanner", active: active === "scan" },
 		{ href: "/equipment", iconName: "box", label: "Stock", active: active === "stock" },
 		{ href: null, iconName: "user", label: "Profil", active: active === "profile" },
