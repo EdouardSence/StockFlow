@@ -9,11 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EquipmentIndexRouteImport } from './routes/equipment/index'
 import { Route as EquipmentNewRouteImport } from './routes/equipment/new'
+import { Route as EquipmentIdRouteImport } from './routes/equipment/$id'
 
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
@@ -34,43 +41,63 @@ const EquipmentNewRoute = EquipmentNewRouteImport.update({
   path: '/equipment/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EquipmentIdRoute = EquipmentIdRouteImport.update({
+  id: '/equipment/$id',
+  path: '/equipment/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/scan': typeof ScanRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
+  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/scan': typeof ScanRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment': typeof EquipmentIndexRoute
+  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/scan': typeof ScanRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
+  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scan' | '/equipment/new' | '/equipment/'
+  fullPaths: '/' | '/mobile' | '/scan' | '/equipment/new' | '/equipment/' | '/equipment/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scan' | '/equipment/new' | '/equipment'
-  id: '__root__' | '/' | '/scan' | '/equipment/new' | '/equipment/'
+  to: '/' | '/mobile' | '/scan' | '/equipment/new' | '/equipment' | '/equipment/$id'
+  id: '__root__' | '/' | '/mobile' | '/scan' | '/equipment/new' | '/equipment/' | '/equipment/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MobileRoute: typeof MobileRoute
   ScanRoute: typeof ScanRoute
   EquipmentNewRoute: typeof EquipmentNewRoute
   EquipmentIndexRoute: typeof EquipmentIndexRoute
+  EquipmentIdRoute: typeof EquipmentIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scan': {
       id: '/scan'
       path: '/scan'
@@ -99,14 +126,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipmentNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/equipment/$id': {
+      id: '/equipment/$id'
+      path: '/equipment/$id'
+      fullPath: '/equipment/$id'
+      preLoaderRoute: typeof EquipmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MobileRoute: MobileRoute,
   ScanRoute: ScanRoute,
   EquipmentNewRoute: EquipmentNewRoute,
   EquipmentIndexRoute: EquipmentIndexRoute,
+  EquipmentIdRoute: EquipmentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
