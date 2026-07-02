@@ -78,6 +78,7 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 				</div>
 				<button
 					type="button"
+					aria-label="Profil"
 					style={{
 						width: 34,
 						height: 34,
@@ -99,6 +100,7 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 						strokeWidth={1.6}
 						strokeLinecap="round"
 						strokeLinejoin="round"
+						aria-hidden="true"
 					>
 						<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
 						<circle cx="12" cy="7" r="4" />
@@ -317,7 +319,7 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 
 function ScanIcon({ size = 20, stroke = "currentColor" }: { size?: number; stroke?: string }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" />
 			<path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" />
 			<line x1="7" y1="12" x2="17" y2="12" />
@@ -327,7 +329,7 @@ function ScanIcon({ size = 20, stroke = "currentColor" }: { size?: number; strok
 
 function PlusIcon({ size = 20, stroke = "currentColor" }: { size?: number; stroke?: string }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
 		</svg>
 	);
@@ -335,7 +337,7 @@ function PlusIcon({ size = 20, stroke = "currentColor" }: { size?: number; strok
 
 function AlertIcon({ size = 20, stroke = "currentColor" }: { size?: number; stroke?: string }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
 			<line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
 		</svg>
@@ -344,7 +346,7 @@ function AlertIcon({ size = 20, stroke = "currentColor" }: { size?: number; stro
 
 function ChevronRightIcon({ size = 16, stroke = "currentColor" }: { size?: number; stroke?: string }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<polyline points="9 18 15 12 9 6" />
 		</svg>
 	);

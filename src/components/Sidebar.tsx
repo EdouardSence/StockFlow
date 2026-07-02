@@ -11,7 +11,8 @@ import {
 
 function StockFlowLogo() {
   return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" role="img">
+      <title>StockFlow</title>
       <rect x="3" y="3" width="11" height="11" rx="2" fill="oklch(0.55 0.16 255)" />
       <rect x="10" y="10" width="11" height="11" rx="2" fill="oklch(0.20 0.02 255)" />
     </svg>
@@ -187,7 +188,7 @@ export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
             )
           }
           return (
-            <button key={item.label} style={itemStyle} disabled>
+            <button key={item.label} type="button" style={itemStyle} disabled>
               {content}
             </button>
           )

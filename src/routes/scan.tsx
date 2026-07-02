@@ -29,6 +29,7 @@ function ScanPage() {
 	const [cameraError, setCameraError] = useState<string | null>(null);
 	const scannerRef = useRef<{ stop: () => Promise<void>; clear: () => void } | null>(null);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies(scanKey): scanKey n'est pas lu dans l'effet, il sert de trigger volontaire pour relancer le scanner (bouton Rescanner)
 	useEffect(() => {
 		let cancelled = false;
 
@@ -183,7 +184,7 @@ function ScannerScreen({
 				}}
 			>
 				<Link to="/" style={{ textDecoration: "none" }}>
-					<button type="button" style={mobIconBtn}>
+					<button type="button" aria-label="Fermer" style={mobIconBtn}>
 						<XIcon />
 					</button>
 				</Link>
@@ -320,7 +321,11 @@ function ScannerScreen({
 					gap: 12,
 				}}
 			>
-				<button type="button" style={{ ...mobIconBtn, width: 44, height: 44 }}>
+				<button
+					type="button"
+					aria-label="Mode QR"
+					style={{ ...mobIconBtn, width: 44, height: 44 }}
+				>
 					<QRIcon />
 				</button>
 				<button
@@ -396,6 +401,7 @@ function RawResultScreen({
 						strokeWidth={1.8}
 						strokeLinecap="round"
 						strokeLinejoin="round"
+						aria-hidden="true"
 					>
 						<line x1="19" y1="12" x2="5" y2="12" />
 						<polyline points="12 19 5 12 12 5" />
@@ -483,6 +489,7 @@ function XIcon() {
 			strokeWidth={1.8}
 			strokeLinecap="round"
 			strokeLinejoin="round"
+			aria-hidden="true"
 		>
 			<line x1="18" y1="6" x2="6" y2="18" />
 			<line x1="6" y1="6" x2="18" y2="18" />
@@ -501,6 +508,7 @@ function QRIcon() {
 			strokeWidth={1.6}
 			strokeLinecap="round"
 			strokeLinejoin="round"
+			aria-hidden="true"
 		>
 			<rect x="3" y="3" width="7" height="7" rx="1" />
 			<rect x="14" y="3" width="7" height="7" rx="1" />
@@ -524,6 +532,7 @@ function EditIcon() {
 			strokeWidth={1.8}
 			strokeLinecap="round"
 			strokeLinejoin="round"
+			aria-hidden="true"
 		>
 			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
 			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />

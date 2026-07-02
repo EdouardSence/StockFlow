@@ -35,11 +35,17 @@ export function FakeQR({ value, size = 200 }: FakeQRProps) {
 		}
 	}
 	return (
-		<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+		<svg
+			width={size}
+			height={size}
+			viewBox={`0 0 ${size} ${size}`}
+			role="img"
+		>
+			<title>QR code (aperçu)</title>
 			<rect width={size} height={size} fill="white" />
-			{dots.map(([x, y], i) => (
+			{dots.map(([x, y]) => (
 				<rect
-					key={i}
+					key={`${x}-${y}`}
 					x={x * cell}
 					y={y * cell}
 					width={cell}
