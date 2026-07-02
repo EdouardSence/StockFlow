@@ -82,40 +82,56 @@ type Created = { id: string; qr_code: string };
 
 interface FormFieldProps {
 	label: string;
+	/** id du contrôle associé — omis pour un groupe de contrôles (ex: boutons toggle) */
+	htmlFor?: string;
 	required?: boolean;
 	hint?: string;
 	children: React.ReactNode;
 }
 
-function FormField({ label, required, hint, children }: FormFieldProps) {
+function FormField({
+	label,
+	htmlFor,
+	required,
+	hint,
+	children,
+}: FormFieldProps) {
+	const labelStyle: React.CSSProperties = {
+		fontSize: 12.5,
+		fontWeight: 500,
+		color: "var(--sf-fg)",
+		letterSpacing: "-0.005em",
+		display: "flex",
+		alignItems: "center",
+		gap: 4,
+	};
+	const labelContent = (
+		<>
+			{label}
+			{required && <span style={{ color: "oklch(0.55 0.18 25)" }}>*</span>}
+			{hint && (
+				<span
+					style={{
+						marginLeft: "auto",
+						fontSize: 11,
+						color: "var(--sf-fg-muted)",
+						fontWeight: 400,
+					}}
+				>
+					{hint}
+				</span>
+			)}
+		</>
+	);
 	return (
 		<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-			<label
-				style={{
-					fontSize: 12.5,
-					fontWeight: 500,
-					color: "var(--sf-fg)",
-					letterSpacing: "-0.005em",
-					display: "flex",
-					alignItems: "center",
-					gap: 4,
-				}}
-			>
-				{label}
-				{required && <span style={{ color: "oklch(0.55 0.18 25)" }}>*</span>}
-				{hint && (
-					<span
-						style={{
-							marginLeft: "auto",
-							fontSize: 11,
-							color: "var(--sf-fg-muted)",
-							fontWeight: 400,
-						}}
-					>
-						{hint}
-					</span>
-				)}
-			</label>
+			{htmlFor ? (
+				<label htmlFor={htmlFor} style={labelStyle}>
+					{labelContent}
+				</label>
+			) : (
+				<span style={labelStyle}>{labelContent}</span>
+			)}
 			{children}
 		</div>
 	);
@@ -167,11 +183,9 @@ function SectionHeader({ index, title, desc }: SectionHeaderProps) {
 }
 
 const TYPES: { id: EquipmentTable["type"]; label: string }[] = [
-	{ id: "laptop", label: "Portable" },
 	{ id: "pc", label: "Fixe" },
 	{ id: "screen", label: "Écran" },
 	{ id: "printer", label: "Imprimante" },
-	{ id: "phone", label: "Téléphone" },
 	{ id: "other", label: "Autre" },
 ];
 
@@ -179,7 +193,7 @@ function NewEquipmentPage() {
 	const navigate = useNavigate();
 	const [form, setForm] = useState({
 		name: "",
-		type: "laptop" as EquipmentTable["type"],
+		type: "pc" as EquipmentTable["type"],
 		brand: "",
 		model: "",
 		serial: "",
@@ -272,7 +286,9 @@ function NewEquipmentPage() {
 							strokeWidth={1.8}
 							strokeLinecap="round"
 							strokeLinejoin="round"
+							aria-hidden="true"
 						>
+							<title>Retour</title>
 							<line x1="19" y1="12" x2="5" y2="12" />
 							<polyline points="12 19 5 12 12 5" />
 						</svg>
@@ -297,7 +313,9 @@ function NewEquipmentPage() {
 							strokeWidth={1.6}
 							strokeLinecap="round"
 							strokeLinejoin="round"
+							aria-hidden="true"
 						>
+							<title>Séparateur de fil d'ariane</title>
 							<polyline points="9 18 15 12 9 6" />
 						</svg>
 						<span style={{ color: "var(--sf-fg)", fontWeight: 500 }}>
@@ -363,10 +381,12 @@ function NewEquipmentPage() {
 								>
 									<FormField
 										label="Nom de l'équipement"
+										htmlFor="equipment-name"
 										required
 										hint="visible dans la liste"
 									>
 										<input
+											id="equipment-name"
 											style={fieldStyle}
 											value={form.name}
 											onChange={(e) => update("name", e.target.value)}
@@ -374,13 +394,31 @@ function NewEquipmentPage() {
 										/>
 									</FormField>
 									<FormField label="Type d'équipement">
-										<div
+										<fieldset
 											style={{
 												display: "grid",
 												gridTemplateColumns: "repeat(6, 1fr)",
 												gap: 8,
+												border: "none",
+												margin: 0,
+												padding: 0,
 											}}
 										>
+											<legend
+												style={{
+													position: "absolute",
+													width: 1,
+													height: 1,
+													padding: 0,
+													margin: -1,
+													overflow: "hidden",
+													clip: "rect(0, 0, 0, 0)",
+													whiteSpace: "nowrap",
+													border: 0,
+												}}
+											>
+												Type d'équipement
+											</legend>
 											{TYPES.map((t) => {
 												const sel = form.type === t.id;
 												return (
@@ -415,7 +453,7 @@ function NewEquipmentPage() {
 													</button>
 												);
 											})}
-										</div>
+										</fieldset>
 									</FormField>
 								</div>
 							</section>
@@ -435,24 +473,31 @@ function NewEquipmentPage() {
 										marginTop: 18,
 									}}
 								>
-									<FormField label="Marque">
+									<FormField label="Marque" htmlFor="equipment-brand">
 										<input
+											id="equipment-brand"
 											style={fieldStyle}
 											value={form.brand}
 											onChange={(e) => update("brand", e.target.value)}
 											placeholder="Apple, Dell, HP…"
 										/>
 									</FormField>
-									<FormField label="Modèle">
+									<FormField label="Modèle" htmlFor="equipment-model">
 										<input
+											id="equipment-model"
 											style={fieldStyle}
 											value={form.model}
 											onChange={(e) => update("model", e.target.value)}
 											placeholder="MacBook Pro 14 (2023)"
 										/>
 									</FormField>
-									<FormField label="Numéro de série" hint="unique">
+									<FormField
+										label="Numéro de série"
+										htmlFor="equipment-serial"
+										hint="unique"
+									>
 										<input
+											id="equipment-serial"
 											style={{
 												...fieldStyle,
 												fontFamily: "var(--sf-mono)",
@@ -463,8 +508,9 @@ function NewEquipmentPage() {
 											placeholder="C02XK1234ABC"
 										/>
 									</FormField>
-									<FormField label="Localisation">
+									<FormField label="Localisation" htmlFor="equipment-location">
 										<input
+											id="equipment-location"
 											style={fieldStyle}
 											value={form.location}
 											onChange={(e) => update("location", e.target.value)}

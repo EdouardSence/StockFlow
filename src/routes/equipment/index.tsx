@@ -12,10 +12,8 @@ export const Route = createFileRoute("/equipment/")({
 
 const TYPE_LABELS: Record<EquipmentTable["type"], string> = {
 	pc: "Fixe",
-	laptop: "Portable",
 	screen: "Écran",
 	printer: "Imprimante",
-	phone: "Téléphone",
 	other: "Autre",
 };
 
@@ -140,7 +138,9 @@ function EquipmentList() {
 							strokeWidth={1.6}
 							strokeLinecap="round"
 							strokeLinejoin="round"
+							aria-hidden="true"
 						>
+							<title>Séparateur de fil d'ariane</title>
 							<polyline points="9 18 15 12 9 6" />
 						</svg>
 						<span style={{ color: "var(--sf-fg)", fontWeight: 500 }}>
@@ -182,7 +182,9 @@ function EquipmentList() {
 							strokeWidth={1.6}
 							strokeLinecap="round"
 							strokeLinejoin="round"
+							aria-hidden="true"
 						>
+							<title>Imprimer</title>
 							<rect x="3" y="3" width="7" height="7" />
 							<rect x="14" y="3" width="7" height="7" />
 							<rect x="14" y="14" width="7" height="7" />
@@ -219,7 +221,9 @@ function EquipmentList() {
 							strokeWidth={2}
 							strokeLinecap="round"
 							strokeLinejoin="round"
+							aria-hidden="true"
 						>
+							<title>Ajouter</title>
 							<line x1="12" y1="5" x2="12" y2="19" />
 							<line x1="5" y1="12" x2="19" y2="12" />
 						</svg>
@@ -464,7 +468,9 @@ function EquipmentList() {
 									strokeWidth={1.8}
 									strokeLinecap="round"
 									strokeLinejoin="round"
+									aria-hidden="true"
 								>
+									<title>Rechercher</title>
 									<circle cx="11" cy="11" r="8" />
 									<line x1="21" y1="21" x2="16.65" y2="16.65" />
 								</svg>

@@ -7,13 +7,13 @@ import {
 
 describe("validateNewEquipmentInput", () => {
 	it("returns error for empty name", () => {
-		expect(validateNewEquipmentInput({ name: "", type: "laptop" })).toBe(
+		expect(validateNewEquipmentInput({ name: "", type: "pc" })).toBe(
 			"Le nom est requis",
 		);
 	});
 
 	it("returns error for whitespace-only name", () => {
-		expect(validateNewEquipmentInput({ name: "   ", type: "laptop" })).toBe(
+		expect(validateNewEquipmentInput({ name: "   ", type: "pc" })).toBe(
 			"Le nom est requis",
 		);
 	});
@@ -29,18 +29,13 @@ describe("validateNewEquipmentInput", () => {
 	});
 
 	it("returns null for valid input", () => {
-		expect(validateNewEquipmentInput({ name: "MacBook", type: "laptop" })).toBeNull();
+		expect(
+			validateNewEquipmentInput({ name: "MacBook", type: "pc" }),
+		).toBeNull();
 	});
 
 	it("accepts all valid types", () => {
-		const types: NewEquipmentInput["type"][] = [
-			"pc",
-			"laptop",
-			"screen",
-			"printer",
-			"phone",
-			"other",
-		];
+		const types: NewEquipmentInput["type"][] = ["pc", "screen", "printer", "other"];
 		for (const type of types) {
 			expect(validateNewEquipmentInput({ name: "Test", type })).toBeNull();
 		}
@@ -74,7 +69,7 @@ describe("applyEquipmentDefaults", () => {
 	it("preserves provided optional fields", () => {
 		const result = applyEquipmentDefaults({
 			name: "Dell XPS",
-			type: "laptop",
+			type: "pc",
 			brand: "Dell",
 			model: "XPS 15",
 			serial_number: "SN-1234",

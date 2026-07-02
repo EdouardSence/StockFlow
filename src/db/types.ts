@@ -9,7 +9,7 @@ export interface UsersTable {
 export interface EquipmentTable {
   id: string
   name: string
-  type: 'pc' | 'laptop' | 'screen' | 'printer' | 'phone' | 'other'
+  type: 'pc' | 'screen' | 'printer' | 'other'
   brand: string | null
   model: string | null
   serial_number: string | null

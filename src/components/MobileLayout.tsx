@@ -2,7 +2,7 @@ import type { EquipmentTable } from "../db/types";
 
 export function StockFlowLogo({ size = 20 }: { size?: number }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
 			<rect x="3" y="3" width="11" height="11" rx="2" fill="oklch(0.55 0.16 255)" />
 			<rect x="10" y="10" width="11" height="11" rx="2" fill="oklch(0.20 0.02 255)" />
 		</svg>
@@ -21,16 +21,9 @@ export function TypeIcon({ type, size = 18 }: { type: EquipmentTable["type"]; si
 		strokeLinejoin: "round" as const,
 	};
 	switch (type) {
-		case "laptop":
-			return (
-				<svg {...s}>
-					<rect x="3" y="4" width="18" height="12" rx="2" />
-					<path d="M2 20h20" />
-				</svg>
-			);
 		case "screen":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<rect x="2" y="3" width="20" height="14" rx="2" />
 					<line x1="8" y1="21" x2="16" y2="21" />
 					<line x1="12" y1="17" x2="12" y2="21" />
@@ -38,22 +31,15 @@ export function TypeIcon({ type, size = 18 }: { type: EquipmentTable["type"]; si
 			);
 		case "printer":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<polyline points="6 9 6 2 18 2 18 9" />
 					<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
 					<rect x="6" y="14" width="12" height="8" />
 				</svg>
 			);
-		case "phone":
-			return (
-				<svg {...s}>
-					<rect x="6" y="2" width="12" height="20" rx="2" />
-					<line x1="12" y1="18" x2="12.01" y2="18" />
-				</svg>
-			);
 		case "pc":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<rect x="2" y="3" width="20" height="14" rx="2" />
 					<line x1="8" y1="21" x2="16" y2="21" />
 					<line x1="12" y1="17" x2="12" y2="21" />
@@ -61,7 +47,7 @@ export function TypeIcon({ type, size = 18 }: { type: EquipmentTable["type"]; si
 			);
 		default:
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<rect x="3" y="3" width="18" height="18" rx="2" />
 				</svg>
 			);
@@ -92,7 +78,7 @@ function NavIcon({
 	switch (name) {
 		case "home":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<rect x="3" y="3" width="7" height="9" rx="1.5" />
 					<rect x="14" y="3" width="7" height="5" rx="1.5" />
 					<rect x="14" y="12" width="7" height="9" rx="1.5" />
@@ -101,7 +87,7 @@ function NavIcon({
 			);
 		case "scan":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<path d="M3 7V5a2 2 0 0 1 2-2h2" />
 					<path d="M17 3h2a2 2 0 0 1 2 2v2" />
 					<path d="M21 17v2a2 2 0 0 1-2 2h-2" />
@@ -111,7 +97,7 @@ function NavIcon({
 			);
 		case "box":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<path d="M21 8 12 3 3 8v8l9 5 9-5z" />
 					<path d="m3.3 8 8.7 5 8.7-5" />
 					<path d="M12 13v8" />
@@ -119,7 +105,7 @@ function NavIcon({
 			);
 		case "user":
 			return (
-				<svg {...s}>
+				<svg {...s} aria-hidden="true">
 					<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
 					<circle cx="12" cy="7" r="4" />
 				</svg>
