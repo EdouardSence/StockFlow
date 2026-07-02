@@ -44,39 +44,45 @@ const EquipmentIdRoute = EquipmentIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/scan': typeof ScanRoute
+  '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
-  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/scan': typeof ScanRoute
+  '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment': typeof EquipmentIndexRoute
-  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/scan': typeof ScanRoute
+  '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
-  '/equipment/$id': typeof EquipmentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scan' | '/equipment/new' | '/equipment/' | '/equipment/$id'
+  fullPaths: '/' | '/scan' | '/equipment/$id' | '/equipment/new' | '/equipment/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scan' | '/equipment/new' | '/equipment' | '/equipment/$id'
-  id: '__root__' | '/' | '/scan' | '/equipment/new' | '/equipment/' | '/equipment/$id'
+  to: '/' | '/scan' | '/equipment/$id' | '/equipment/new' | '/equipment'
+  id:
+    | '__root__'
+    | '/'
+    | '/scan'
+    | '/equipment/$id'
+    | '/equipment/new'
+    | '/equipment/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ScanRoute: typeof ScanRoute
+  EquipmentIdRoute: typeof EquipmentIdRoute
   EquipmentNewRoute: typeof EquipmentNewRoute
   EquipmentIndexRoute: typeof EquipmentIndexRoute
-  EquipmentIdRoute: typeof EquipmentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -122,9 +128,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ScanRoute: ScanRoute,
+  EquipmentIdRoute: EquipmentIdRoute,
   EquipmentNewRoute: EquipmentNewRoute,
   EquipmentIndexRoute: EquipmentIndexRoute,
-  EquipmentIdRoute: EquipmentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
