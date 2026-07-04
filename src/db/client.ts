@@ -9,12 +9,15 @@ pg.types.setTypeParser(1184, (str: string) => str);
 
 // Runtime : rôle applicatif `stockflow_app` (APP_POSTGRES_URL), soumis à RLS.
 // POSTGRES_URL/DATABASE_URL (rôle postgres, BYPASSRLS) ne servent qu'aux
-// migrations/seeds — si l'app tourne avec, le test d'intégration RLS échoue.
-const rawUrl =
-	process.env.APP_POSTGRES_URL ??
-	process.env.POSTGRES_URL ??
-	process.env.DATABASE_URL ??
-	"";
+// migrations/seeds. Pas de fallback silencieux : un déploiement qui oublie
+// APP_POSTGRES_URL désactiverait toute la RLS sans la moindre erreur.
+const rawUrl = process.env.APP_POSTGRES_URL;
+if (!rawUrl) {
+	throw new Error(
+		"APP_POSTGRES_URL manquant : le runtime ne doit jamais se connecter " +
+			"avec POSTGRES_URL/DATABASE_URL (rôle postgres, BYPASSRLS), réservé aux migrations/seeds.",
+	);
+}
 
 // Strip sslmode from URL so our explicit ssl config wins (Supabase pooler uses self-signed cert)
 const connectionString = rawUrl
