@@ -6,8 +6,9 @@ import {
   AlertTriangle,
   Settings,
   Search,
-  MoreHorizontal,
+  LogOut,
 } from 'lucide-react'
+import { logoutFn } from '../lib/auth'
 
 function StockFlowLogo() {
   return (
@@ -231,7 +232,23 @@ export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
           <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--sf-fg)' }}>Édouard S.</span>
           <span style={{ fontSize: 11, color: 'var(--sf-fg-muted)' }}>Administrateur</span>
         </div>
-        <MoreHorizontal size={14} color="var(--sf-fg-muted)" />
+        <button
+          type="button"
+          aria-label="Se déconnecter"
+          onClick={async () => {
+            await logoutFn()
+            window.location.href = '/login'
+          }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: 4,
+            display: 'inline-flex',
+          }}
+        >
+          <LogOut size={14} color="var(--sf-fg-muted)" aria-hidden="true" />
+        </button>
       </div>
     </aside>
   )

@@ -3,6 +3,16 @@ export interface UsersTable {
   name: string
   email: string
   role: 'admin' | 'technician'
+  password_hash: string | null
+  created_at: string
+}
+
+export interface RefreshTokensTable {
+  id: string
+  user_id: string
+  token_hash: string
+  expires_at: string
+  revoked_at: string | null
   created_at: string
 }
 
@@ -35,4 +45,5 @@ export interface Database {
   users: UsersTable
   equipment: EquipmentTable
   incidents: IncidentsTable
+  refresh_tokens: RefreshTokensTable
 }

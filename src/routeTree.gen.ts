@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScanRouteImport } from './routes/scan'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EquipmentIndexRouteImport } from './routes/equipment/index'
 import { Route as EquipmentNewRouteImport } from './routes/equipment/new'
@@ -18,6 +19,11 @@ import { Route as EquipmentIdRouteImport } from './routes/equipment/$id'
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const EquipmentIdRoute = EquipmentIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
@@ -65,12 +74,25 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scan' | '/equipment/$id' | '/equipment/new' | '/equipment/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/scan'
+    | '/equipment/$id'
+    | '/equipment/new'
+    | '/equipment/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scan' | '/equipment/$id' | '/equipment/new' | '/equipment'
+  to:
+    | '/'
+    | '/login'
+    | '/scan'
+    | '/equipment/$id'
+    | '/equipment/new'
+    | '/equipment'
   id:
     | '__root__'
     | '/'
+    | '/login'
     | '/scan'
     | '/equipment/$id'
     | '/equipment/new'
@@ -79,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   ScanRoute: typeof ScanRoute
   EquipmentIdRoute: typeof EquipmentIdRoute
   EquipmentNewRoute: typeof EquipmentNewRoute
@@ -92,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/scan'
       fullPath: '/scan'
       preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -127,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   ScanRoute: ScanRoute,
   EquipmentIdRoute: EquipmentIdRoute,
   EquipmentNewRoute: EquipmentNewRoute,

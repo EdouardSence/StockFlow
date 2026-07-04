@@ -1,6 +1,12 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import {
+	createRootRoute,
+	HeadContent,
+	redirect,
+	Scripts,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { getSessionFn } from "../lib/auth";
 import appCss from "../styles.css?url";
 
 if (typeof window !== "undefined") {
@@ -13,6 +19,14 @@ if (typeof window !== "undefined") {
 }
 
 export const Route = createRootRoute({
+	// Garde UX : redirige vers /login sans session. La vraie barrière de
+	// sécurité reste côté serveur (authMiddleware sur les server functions).
+	beforeLoad: async ({ location }) => {
+		if (location.pathname === "/login") return {};
+		const user = await getSessionFn();
+		if (!user) throw redirect({ to: "/login" });
+		return { user };
+	},
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
