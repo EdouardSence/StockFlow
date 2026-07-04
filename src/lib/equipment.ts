@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { v4 as uuidv4 } from "uuid";
-import { db } from "../db/client";
+import { withAuthContext } from "../db/client";
 import type { EquipmentTable } from "../db/types";
+import { authMiddleware } from "./auth";
 
 export type NewEquipmentInput = {
 	name: string;
@@ -36,64 +37,75 @@ export function applyEquipmentDefaults(input: NewEquipmentInput) {
 	};
 }
 
-export const getEquipments = createServerFn({ method: "GET" }).handler(
-	async () => {
-		return db
-			.selectFrom("equipment")
-			.selectAll()
-			.orderBy("created_at", "desc")
-			.execute();
-	},
-);
+export const getEquipments = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		return withAuthContext(context.user, (trx) =>
+			trx
+				.selectFrom("equipment")
+				.selectAll()
+				.orderBy("created_at", "desc")
+				.execute(),
+		);
+	});
 
 export const getEquipmentById = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
 	.inputValidator((data: unknown) => data as { id: string })
-	.handler(async ({ data }) => {
-		const row = await db
-			.selectFrom("equipment")
-			.selectAll()
-			.where("id", "=", data.id)
-			.executeTakeFirst();
+	.handler(async ({ data, context }) => {
+		const row = await withAuthContext(context.user, (trx) =>
+			trx
+				.selectFrom("equipment")
+				.selectAll()
+				.where("id", "=", data.id)
+				.executeTakeFirst(),
+		);
 		return row ?? null;
 	});
 
 export const createEquipmentFn = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
 	.inputValidator((data: unknown) => data as NewEquipmentInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const id = uuidv4();
 		const qr_code = uuidv4();
 		const now = new Date().toISOString();
 
-		await db
-			.insertInto("equipment")
-			.values({
-				id,
-				qr_code,
-				name: data.name,
-				type: data.type,
-				status: data.status ?? "available",
-				brand: data.brand ?? null,
-				model: data.model ?? null,
-				serial_number: data.serial_number ?? null,
-				notes: data.notes ?? null,
-				assigned_to: data.assigned_to ?? null,
-				created_at: now,
-				updated_at: now,
-			})
-			.execute();
+		await withAuthContext(context.user, (trx) =>
+			trx
+				.insertInto("equipment")
+				.values({
+					id,
+					qr_code,
+					name: data.name,
+					type: data.type,
+					status: data.status ?? "available",
+					brand: data.brand ?? null,
+					model: data.model ?? null,
+					serial_number: data.serial_number ?? null,
+					notes: data.notes ?? null,
+					assigned_to: data.assigned_to ?? null,
+					created_at: now,
+					updated_at: now,
+				})
+				.execute(),
+		);
 
 		return { id, qr_code };
 	});
 
 export const updateEquipmentStatus = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
 	.inputValidator(
 		(data: unknown) => data as { id: string; status: EquipmentTable["status"] },
 	)
-	.handler(async ({ data }) => {
-		await db
-			.updateTable("equipment")
-			.set({ status: data.status, updated_at: new Date().toISOString() })
-			.where("id", "=", data.id)
-			.execute();
+	.handler(async ({ data, context }) => {
+		await withAuthContext(context.user, (trx) =>
+			trx
+				.updateTable("equipment")
+				.set({ status: data.status, updated_at: new Date().toISOString() })
+				.where("id", "=", data.id)
+				.execute(),
+		);
 		return { success: true };
 	});
