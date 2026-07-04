@@ -13,7 +13,8 @@ if (typeof window !== "undefined") {
 	import("@sentry/react").then((Sentry) => {
 		Sentry.init({
 			dsn: "https://a5aa84c6101cec76642281e1df17f325@o4511350832824320.ingest.de.sentry.io/4511350837149776",
-			sendDefaultPii: true,
+			// RGPD/minimisation : ne pas envoyer IP + PII par défaut à Sentry (tiers).
+			sendDefaultPii: false,
 		});
 	});
 }
