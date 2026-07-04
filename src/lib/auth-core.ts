@@ -140,7 +140,10 @@ export function createLoginRateLimiter(
 	return {
 		isLimited(key: string, now: number = Date.now()): boolean {
 			const entry = attempts.get(key);
-			if (!entry || entry.resetAt < now) return false;
+			if (!entry || entry.resetAt < now) {
+				if (entry) attempts.delete(key); // éviction des entrées expirées
+				return false;
+			}
 			return entry.count >= max;
 		},
 		recordFailure(key: string, now: number = Date.now()): void {

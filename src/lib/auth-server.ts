@@ -5,6 +5,7 @@
 import {
 	deleteCookie,
 	getCookie,
+	getRequestIP,
 	setCookie,
 } from "@tanstack/react-start/server";
 import { sql } from "kysely";
@@ -215,7 +216,11 @@ export async function doLogin(data: {
 	email: string;
 	password: string;
 }): Promise<SessionUser> {
-	if (loginLimiter.isLimited(data.email)) {
+	// Clé composite IP+email : une seule adresse ne peut pas verrouiller le
+	// compte d'un tiers à distance en pulvérisant des échecs sur son email.
+	const ip = getRequestIP({ xForwardedFor: true }) ?? "unknown";
+	const limiterKey = `${ip}:${data.email}`;
+	if (loginLimiter.isLimited(limiterKey)) {
 		throw new Error("Trop de tentatives. Réessayez dans 15 minutes.");
 	}
 
@@ -226,11 +231,11 @@ export async function doLogin(data: {
 	const valid = await verifyPassword(hashToCheck, data.password);
 
 	if (!row || !row.password_hash || !valid) {
-		loginLimiter.recordFailure(data.email);
+		loginLimiter.recordFailure(limiterKey);
 		throw new Error(GENERIC_LOGIN_ERROR);
 	}
 
-	loginLimiter.reset(data.email);
+	loginLimiter.reset(limiterKey);
 	const user: SessionUser = {
 		id: row.id,
 		name: row.name,
