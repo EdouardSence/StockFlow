@@ -100,8 +100,66 @@ vérifiée par un moyen concret listé dans les remarques.
       ligne users, `SELECT password_hash` → permission denied ; admin → DELETE ok, hash
       toujours illisible. Tous verts le 2026-07-03.
 - [x] `postgres` (BYPASSRLS confirmé par requête pg_roles) réservé aux migrations/seeds ;
-      le runtime utilise `APP_POSTGRES_URL`. ⚠️ Si `APP_POSTGRES_URL` manque, l'app retombe
-      sur `POSTGRES_URL` et RLS ne s'applique plus — le test d'intégration le détecterait.
+      le runtime utilise `APP_POSTGRES_URL`. Corrigé session 3 : `src/db/client.ts` lève une
+      erreur au démarrage si `APP_POSTGRES_URL` est absent (fail-closed, plus de fallback
+      silencieux vers `POSTGRES_URL`/BYPASSRLS).
+- [x] **Limite honnête du modèle de menace documentée** (revue adversariale session 3,
+      voir docs/certification/09-securisation.md) : les policies basées sur `current_setting`
+      protègent contre un oubli de `withAuthContext` (fail-closed) et contre la surface
+      PostgREST/anon — **pas** contre une connexion `stockflow_app` elle-même compromise
+      (SQL arbitraire), qui peut forger `set_config('app.role','admin')` et s'auto-promouvoir
+      via `UPDATE users`. C'est une propriété connue de toute RLS à claims auto-déclarés, pas
+      un oubli de cette implémentation — mais le dossier de certification doit le présenter
+      ainsi plutôt que comme une garantie absolue.
+
+## Lot Auth — revue de sécurité adversariale (session 3, 2026-07-04)
+
+Revue multi-agents (findings → réfutation indépendante Sonnet 5, 14 findings distincts jugés,
+0 erreur de vérification) sur le diff auth+RLS de la session 2. Détail complet, verdicts et
+correctifs : docs/certification/09-securisation.md.
+
+- [x] **5 corrections appliquées et vérifiées** (tsc/lint/41 tests/build verts + smoke test
+      direct contre la vraie base) :
+  - Fail-open RLS (`APP_POSTGRES_URL` absent → BYPASSRLS silencieux) → throw au démarrage.
+  - Fenêtre de grâce (10 s) de rotation du refresh token s'appliquait aussi aux tokens révoqués
+    par **logout** → un cookie volé rejoué juste après un logout légitime obtenait quand même
+    un access token. Logout revoque désormais hors fenêtre de grâce (traité comme vol si rejoué).
+  - Fenêtre de grâce ne vérifiait pas `expires_at` → corrigé au passage.
+  - Rotation du refresh token non atomique (deux requêtes concurrentes avec le même token
+    pouvaient toutes deux tourner et laisser un token orphelin valide 7 j) → `UPDATE ... WHERE
+    revoked_at IS NULL` conditionnel (compare-and-swap sur `numUpdatedRows`).
+  - Rate limiter de login clé sur l'email seul, vérifié avant les identifiants → un attaquant
+    distant pouvait verrouiller le compte de quiconque pendant 15 min en connaissant juste son
+    email (DoS ciblé). Clé recomposée en `IP:email` (`getRequestIP({xForwardedFor:true})`).
+  - Map du rate limiter jamais purgée (croissance mémoire non bornée) → éviction des entrées
+    expirées à la lecture.
+- [x] Sentry `sendDefaultPii` passé à `false` (était `true` — fuite IP/PII par défaut vers un
+      tiers, point RGPD, trouvé par la même revue).
+- [ ] **Dette documentée, non corrigée cette session** (périmètre CRUD, hors scope auth strict) :
+  - Rate limiter par email seul reste insuffisant contre un brute-force distribué multi-IP
+    (dette déjà connue, juste reformulée).
+  - Messages d'erreur Postgres bruts (noms table/contrainte/colonne) sérialisés jusqu'au client
+    sur les server functions equipment sans validation runtime — corrélé à la dette Zod déjà
+    connue, mais c'est un vecteur de fuite distinct (fuite de schéma, pas juste absence de
+    validation).
+  - Pas de « déconnexion de tous les appareils » : un refresh token volé n'est invalidé que par
+    détection de réutilisation (rotation), pas par un logout ou un re-login explicite. Atténué
+    par la détection de réutilisation existante, mais reste une fonctionnalité manquante.
+  - `auth_login_lookup` (SECURITY DEFINER) reste appelable sans claims et expose
+    `password_hash` à quiconque tient la connexion `stockflow_app` — contredit la formulation
+    trop absolue « password_hash illisible via le rôle app » (vrai contre un `SELECT` négligent,
+    faux contre un attaquant SQL arbitraire, qui a de toute façon un chemin plus direct via
+    `UPDATE users`). À reformuler dans le dossier, pas un correctif de code isolé.
+  - JWT access token stateless : rôle/suppression/logout non appliqués pendant les 15 min de
+    TTL restantes (tradeoff standard, documenté, pas un oubli).
+
+### Remarques
+- 3 des 4 dimensions de revue et tous les vérificateurs de la première passe ont échoué sur
+  une limite de session (crash, pas refus) — le résultat initial « tout réfuté » était un
+  artefact du fallback `?? 'REFUTED'` du script, pas une vérification réelle. Reconduit
+  intégralement sur Sonnet 5 (14/14 vérifications réussies, 0 erreur) avant tout correctif.
+  Rappel pour la suite : ne jamais interpréter un résultat de workflow comme concluant sans
+  lire `journal.jsonl` et confirmer l'absence d'échecs silencieux.
 
 ## Lot CRUD équipements
 
