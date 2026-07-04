@@ -43,15 +43,26 @@ Vérifié automatiquement par commitlint (hook `commit-msg`, config `commitlint.
 
 ## Sécurité
 
-- Validation des entrées serveur : utiliser Zod dans chaque `createServerFn().inputValidator()`
-  (actuellement absent sur certaines Server Functions de `src/lib/equipment.ts` — dette connue,
-  voir PROGRESS.md, à combler avant la mise en prod publique).
+- **Auth** : JWT RS256 maison (access 15 min + refresh rotatif en cookies httpOnly). Toute
+  nouvelle server function touchant aux données DOIT porter `authMiddleware` (ou
+  `adminMiddleware`) de `src/lib/auth.ts` — la garde `beforeLoad` côté routes est du confort
+  UX, jamais la barrière.
+- **RLS actif** sur les 4 tables (users, equipment, incidents, refresh_tokens) avec le rôle
+  `stockflow_app` (`APP_POSTGRES_URL`). Toute requête de données DOIT passer par
+  `withAuthContext(context.user, trx => ...)` (src/db/client.ts) — hors de ce wrapper, aucun
+  claim n'est posé et Postgres refuse tout (fail-closed, c'est voulu).
+- `src/lib/auth-server.ts` ne doit JAMAIS être importé statiquement depuis un module
+  atteignable par le client (routes, composants, auth.ts) : import dynamique dans les
+  handlers uniquement, sinon l'import-protection casse le build.
+- `users.password_hash` est illisible via le rôle app (grant par colonnes) ; le login passe
+  par la fonction SECURITY DEFINER `auth_login_lookup`. Ne pas « corriger » un
+  `permission denied` sur cette colonne en élargissant les grants.
+- Validation des entrées serveur : Zod dans `inputValidator()` (fait pour `loginFn` ; dette
+  restante sur les server functions equipment, voir PROGRESS.md).
 - Accès DB exclusivement via Kysely (`src/db/client.ts`). Jamais de SQL concaténé/interpolé.
 - Secrets uniquement en variables d'environnement (`.env.local`, jamais commité). `.env.example`
-  documente les variables réellement utilisées par le code.
-- RLS (Row Level Security) est désactivé sur `users`, `equipment`, `incidents` en base — connu,
-  bloqué par l'absence d'authentification (cf. Lot Auth dans PROGRESS.md). Ne pas activer RLS
-  sans policies définies : ça couperait tout accès applicatif.
+  documente les variables réellement utilisées. `POSTGRES_URL` (rôle postgres, BYPASSRLS) est
+  réservé aux migrations/seeds — le runtime utilise `APP_POSTGRES_URL`.
 
 ## Accessibilité (RGAA)
 

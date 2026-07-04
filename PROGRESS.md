@@ -32,6 +32,11 @@ vérifiée par un moyen concret listé dans les remarques.
       confirmée), un INSERT avec `type='pc'` passe et prend `status='available'` par défaut
 - [x] `scripts/migrate.ts` généralisé pour appliquer tous les fichiers `src/db/migrations/*.sql`
       par ordre alphabétique (au lieu de ne lancer que `001_init.sql` en dur)
+- [x] Migration 003 (session 2) : `users.password_hash` + table `refresh_tokens` — appliquée
+      en production
+- [x] Migration 004 (session 2) : rôle `stockflow_app`, RLS + 13 policies sur les 4 tables,
+      grants par colonnes, fonctions SECURITY DEFINER — appliquée en production et vérifiée
+      par tests d'intégration
 
 ### Remarques
 - Le projet Supabase était en pause (`INACTIVE`) au début de la session, réveillé via l'outil
@@ -41,9 +46,62 @@ vérifiée par un moyen concret listé dans les remarques.
   bloquerait tout accès applicatif, et il n'y a pas encore d'auth pour définir des policies
   pertinentes. À traiter avec le Lot Auth.
 
-## Lot Auth
+## Lot Auth (session 2, 2026-07-03)
 
-- [ ] Non commencé. Aucun code d'authentification (JWT, session, login) dans le repo à ce jour.
+- [x] JWT RS256 : access token 15 min (claims sub/role/name/email, issuer/audience vérifiés,
+      algorithme verrouillé RS256) — lib `jose`, clés PEM en env (base64). Vérifié : 5 tests
+      unitaires (roundtrip, expiration, mauvaise clé, token altéré/escalade de rôle, chaîne
+      arbitraire), tous verts.
+- [x] Refresh token : opaque 256 bits, hashé SHA-256 en DB (`refresh_tokens`, migration 003),
+      cookie httpOnly/secure/SameSite=Strict 7 j, **rotation à chaque usage** + détection de
+      réutilisation (token tourné réutilisé après 10 s de grâce → révocation de toute la famille).
+- [x] Mots de passe : argon2id (`@node-rs/argon2`), hash factice vérifié quand l'email est
+      inconnu (anti-énumération par timing). Vérifié : tests unitaires ok/ko/hash corrompu.
+- [x] Rate limiting login : 5 échecs / 15 min par email (en mémoire — plafond documenté :
+      par instance serverless). Vérifié : 4 tests unitaires.
+- [x] RBAC : `assertRole` + `authMiddleware`/`adminMiddleware` (TanStack `createMiddleware`).
+      Toutes les server functions equipment protégées par `authMiddleware` — la vérification
+      est côté serveur, l'UI (garde `beforeLoad` → redirect `/login`) n'est que du confort.
+- [x] Écran `/login` minimal ; pas d'inscription publique — comptes créés via
+      `scripts/seed-admin.ts` (admin seedé et vérifié). Logout dans la Sidebar (révoque le
+      refresh token en DB + purge les cookies).
+- [x] **Vérifié de bout en bout** (dev server + protocole RPC réel) : accès protégé sans
+      session rejeté UNAUTHORIZED ; mauvais mot de passe rejeté (message générique) ; login →
+      cookies posés → `getSession`/`getEquipments` OK ; logout → session nulle. Script e2e
+      rejoué avec succès le 2026-07-03.
+- [ ] Gestion des comptes via UI admin (création/désactivation) — à construire ; seed
+      uniquement pour l'instant.
+- [ ] Changement de mot de passe self-service — absent.
+
+### Remarques
+- Fichiers : `src/lib/auth-core.ts` (logique pure testée), `src/lib/auth-server.ts` (serveur
+  uniquement — ne JAMAIS l'importer statiquement depuis un module atteignable par le client,
+  l'import-protection du bundler casse le build sinon), `src/lib/auth.ts` (déclarations server
+  functions/middlewares, client-safe).
+- Zod valide les entrées de `loginFn`. Les server functions equipment gardent leur cast
+  TypeScript sans validation runtime — dette restante, voir Lot Sécurité.
+
+## Lot RLS / Défense en profondeur (session 2, 2026-07-03)
+
+- [x] **RLS activé sur les 4 tables** (users, equipment, incidents, refresh_tokens) —
+      migration 004, appliquée en production. L'advisory Supabase « RLS disabled » est résorbée.
+- [x] Architecture retenue : **claims JWT propagés par `SET LOCAL` + rôle Postgres applicatif
+      dédié** (`stockflow_app`, sans BYPASSRLS). Alternatives écartées et justification :
+      docs/certification/09-securisation.md.
+- [x] `withAuthContext(user, fn)` (src/db/client.ts) : transaction + `set_config('app.user_id'/
+      'app.role', ..., true)` ; les policies lisent `current_setting`. Fail-closed : requête
+      hors wrapper = zéro claim = accès refusé.
+- [x] Grants par colonnes sur `users` : `password_hash` inscriptible mais **illisible** via le
+      rôle app (même admin, même en contournant l'app). Le login passe par la fonction
+      `SECURITY DEFINER auth_login_lookup`, seule à voir le hash.
+- [x] **Vérifié par 13 tests d'intégration contre la vraie base** (src/db/rls.integration.test.ts,
+      connexion applicative brute = couche app contournée) : sans claims → 0 ligne visible,
+      INSERT/UPDATE bloqués ; technicien → CRUD equipment ok, DELETE refusé, ne lit que sa
+      ligne users, `SELECT password_hash` → permission denied ; admin → DELETE ok, hash
+      toujours illisible. Tous verts le 2026-07-03.
+- [x] `postgres` (BYPASSRLS confirmé par requête pg_roles) réservé aux migrations/seeds ;
+      le runtime utilise `APP_POSTGRES_URL`. ⚠️ Si `APP_POSTGRES_URL` manque, l'app retombe
+      sur `POSTGRES_URL` et RLS ne s'applique plus — le test d'intégration le détecterait.
 
 ## Lot CRUD équipements
 
@@ -52,10 +110,9 @@ vérifiée par un moyen concret listé dans les remarques.
       responsive < 768px)
 - [x] Couche DB vérifiée directement : INSERT/SELECT/DELETE fonctionnent contre la vraie base
       Supabase (testé via SQL direct)
-- [ ] **Non vérifié de bout en bout via l'app** : `bun run dev` + `curl localhost:3000/equipment`
-      renvoie une **erreur 500**. Cause : `POSTGRES_URL` est vide dans `.env.local` (seules les
-      variables de prod sont renseignées côté Vercel, cf. Lot Déploiement). Impossible de tester
-      le rendu SSR de la liste équipements en local sans ces credentials.
+- [x] Lecture de bout en bout vérifiée en session 2 : `getEquipments` via le protocole RPC réel
+      avec session authentifiée renvoie les données (l'erreur 500 de la session 1 venait du
+      `POSTGRES_URL` vide, résolu par `APP_POSTGRES_URL`).
 - [ ] Formulaire de création (`/equipment/new`) non testé manuellement bout en bout cette session
 
 ### Remarques
@@ -107,9 +164,14 @@ vérifiée par un moyen concret listé dans les remarques.
 
 ## Lot Sécurité OWASP + Accessibilité RGAA
 
-- [ ] Sécurité : dépend du Lot Auth (non commencé). Autre gap identifié : aucune Server Function
-      n'utilise Zod pour valider ses entrées (`inputValidator` fait un simple cast TypeScript,
-      aucune validation runtime) — à corriger avant mise en production publique.
+- [x] Auth + RBAC + RLS livrés et testés (voir Lot Auth et Lot RLS, session 2). Couvre :
+      broken access control (middlewares serveur + RLS), cryptographic failures (argon2id,
+      RS256, tokens hashés en DB), identification failures (rotation refresh, anti-énumération,
+      rate limiting). Détail et choix d'architecture : docs/certification/09-securisation.md.
+- [ ] Zod sur les server functions equipment : toujours un cast TypeScript sans validation
+      runtime (`loginFn` est validé, lui). Dette restante avant mise en production publique.
+- [ ] En-têtes de sécurité HTTP (CSP, X-Frame-Options…) non configurés.
+- [ ] Audit OWASP formalisé (checklist Top 10 complète) non rédigé.
 - [x] Accessibilité : lint `lint/a11y/*` de Biome au vert sur tout le repo (17 fichiers), corrigé
       cette session (issue GitHub #3 fermée avec le détail des correctifs). Ce n'est qu'un socle
       mécanique (titres SVG, aria-hidden, labels, fieldset/legend) — pas un audit RGAA complet
@@ -126,9 +188,14 @@ vérifiée par un moyen concret listé dans les remarques.
 - Migration SQLite → Supabase PostgreSQL déjà effectuée (commits du 2026-05-08).
 - Déploiement Vercel actif, projet lié (`stock-flow`), variables d'environnement de production
   déjà configurées côté Vercel (Supabase intégration native).
-- **Gap local** : `.env.local` a `POSTGRES_URL=""` — aucune variable de dev fonctionnelle. Le dev
-  local ne peut pas se connecter à la DB (confirmé par l'erreur 500 sur `/equipment` en local
-  cette session). Nécessite soit un `vercel env pull`, soit une DB Supabase de dev dédiée.
+- ~~Gap local : `.env.local` a `POSTGRES_URL=""`~~ **Résolu en session 2** : `APP_POSTGRES_URL`
+  (rôle applicatif RLS) est posé en local — le dev server se connecte, `/equipment` répond.
+  `POSTGRES_URL` (rôle postgres, migrations) reste vide en local ; les migrations passent par
+  le MCP Supabase.
+- **⚠️ Action requise avant le prochain déploiement Vercel** : ajouter en Production les
+  variables `APP_POSTGRES_URL`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` (valeurs dans `.env.local`).
+  Sans `APP_POSTGRES_URL`, l'app tournerait avec le rôle postgres et RLS serait inopérant ;
+  sans les clés JWT, toute requête auth échoue au démarrage.
 - Projet Supabase se met en pause automatiquement (plan gratuit, `INACTIVE` après inactivité) —
   à anticiper : la première requête après une pause peut timeout le temps du réveil (~2-3 min
   constaté cette session).
@@ -143,7 +210,7 @@ vérifiée par un moyen concret listé dans les remarques.
 
 ## Reprise prochaine session
 
-- Résoudre l'accès DB en local (`vercel env pull` ou DB de dev) pour pouvoir enfin tester le CRUD
-  équipements de bout en bout via l'app, pas seulement en SQL direct.
-- Démarrer le Lot Auth : c'est un prérequis bloquant pour RLS, sécurité OWASP, et assignation.
-- Construire le Lot Pannes & assignation (table `incidents` existe déjà, rien dessus pour l'instant).
+- Poser les 3 variables d'env sur Vercel (voir ⚠️ ci-dessus) puis déployer et vérifier l'auth
+  en production.
+- Construire le Lot Pannes & assignation (table `incidents` prête, policies RLS déjà en place).
+- Résorber la dette Zod sur les server functions equipment.
