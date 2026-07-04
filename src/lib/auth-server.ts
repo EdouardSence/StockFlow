@@ -152,7 +152,9 @@ async function tryRefresh(): Promise<SessionUser | null> {
 			return null;
 		}
 		// Fenêtre de grâce : requêtes parallèles pendant la rotation. On émet un
-		// access token frais sans nouvelle rotation.
+		// access token frais sans nouvelle rotation — sauf si le token était de
+		// toute façon déjà expiré (7 j) au moment de sa révocation.
+		if (new Date(row.expires_at).getTime() < Date.now()) return null;
 		const user = await refreshLookup(row.user_id);
 		if (!user) return null;
 		const { privateKey } = await getKeys();
@@ -170,11 +172,24 @@ async function tryRefresh(): Promise<SessionUser | null> {
 	if (!user) return null;
 
 	// Rotation : révoque l'ancien, émet une nouvelle paire access+refresh.
-	await db
+	// UPDATE conditionné sur revoked_at IS NULL (compare-and-swap) : si deux
+	// requêtes concurrentes présentent le même token, une seule gagne la
+	// rotation ; l'autre (numUpdatedRows=0) retombe en grâce sans dupliquer de
+	// session ni laisser de refresh token orphelin.
+	const { numUpdatedRows } = await db
 		.updateTable("refresh_tokens")
 		.set({ revoked_at: new Date().toISOString() })
 		.where("id", "=", row.id)
-		.execute();
+		.where("revoked_at", "is", null)
+		.executeTakeFirst();
+	if (numUpdatedRows === 0n) {
+		setCookie(
+			ACCESS_COOKIE,
+			await signAccessToken(user, (await getKeys()).privateKey),
+			cookieOptions(ACCESS_TOKEN_TTL_SECONDS),
+		);
+		return user;
+	}
 	await issueSession(user);
 	return user;
 }
@@ -229,9 +244,15 @@ export async function doLogin(data: {
 export async function doLogout(): Promise<void> {
 	const token = getCookie(REFRESH_COOKIE);
 	if (token) {
+		// revoked_at antidaté au-delà de la fenêtre de grâce : un logout est une
+		// révocation immédiate, jamais une rotation bénigne. Si ce token est
+		// quand même représenté ensuite (cookie volé), tryRefresh le traite
+		// directement comme un vol (branche ligne ~143) et révoque la famille,
+		// au lieu de réémettre silencieusement un access token via la grâce.
+		const backdated = new Date(Date.now() - ROTATION_GRACE_MS - 1000).toISOString();
 		await db
 			.updateTable("refresh_tokens")
-			.set({ revoked_at: new Date().toISOString() })
+			.set({ revoked_at: backdated })
 			.where("token_hash", "=", hashRefreshToken(token))
 			.where("revoked_at", "is", null)
 			.execute();
