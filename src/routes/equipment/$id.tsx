@@ -9,6 +9,7 @@ import {
 	getEquipmentById,
 	updateEquipmentStatus,
 } from "../../lib/equipment";
+import { createIncidentFn } from "../../lib/incidents";
 import type { EquipmentTable } from "../../db/types";
 
 export const Route = createFileRoute("/equipment/$id")({
@@ -55,6 +56,9 @@ function EquipmentDetailPage() {
 	const [actionTaken, setActionTaken] = useState<string | null>(null);
 	const [assigning, setAssigning] = useState(false);
 	const [assignError, setAssignError] = useState<string | null>(null);
+	const [reporting, setReporting] = useState(false);
+	const [reportError, setReportError] = useState<string | null>(null);
+	const [incidentReported, setIncidentReported] = useState(false);
 
 	if (!equipment) {
 		return (
@@ -129,6 +133,25 @@ function EquipmentDetailPage() {
 		}
 	}
 
+	// Ne touche pas equipment.status : c'est l'admin qui qualifie ensuite
+	// l'incident depuis l'écran /incidents (choix « manuel » assumé).
+	async function handleReportIncident(description: string | null) {
+		if (!equipment) return;
+		setReporting(true);
+		setReportError(null);
+		try {
+			await createIncidentFn({
+				data: { equipment_id: equipment.id, description },
+			});
+			setIncidentReported(true);
+			await router.invalidate();
+		} catch (err) {
+			setReportError(err instanceof Error ? err.message : "Erreur inconnue");
+		} finally {
+			setReporting(false);
+		}
+	}
+
 	if (isMobile) {
 		return (
 			<MobileEquipmentDetail
@@ -142,6 +165,10 @@ function EquipmentDetailPage() {
 				assigning={assigning}
 				assignError={assignError}
 				onAssign={handleAssign}
+				reporting={reporting}
+				reportError={reportError}
+				incidentReported={incidentReported}
+				onReportIncident={handleReportIncident}
 			/>
 		);
 	}
@@ -175,6 +202,10 @@ function MobileEquipmentDetail({
 	assigning,
 	assignError,
 	onAssign,
+	reporting,
+	reportError,
+	incidentReported,
+	onReportIncident,
 }: {
 	equipment: EquipmentTable;
 	updating: boolean;
@@ -186,7 +217,13 @@ function MobileEquipmentDetail({
 	actionTaken: string | null;
 	onStatusChange: (label: string, status: EquipmentTable["status"]) => void;
 	onBack: () => void;
+	reporting: boolean;
+	reportError: string | null;
+	incidentReported: boolean;
+	onReportIncident: (description: string | null) => void;
 }) {
+	const [reportFormOpen, setReportFormOpen] = useState(false);
+	const [reportDescription, setReportDescription] = useState("");
 	return (
 		<div
 			style={{
@@ -458,9 +495,9 @@ function MobileEquipmentDetail({
 						icon="alert"
 						label="Signaler panne"
 						tone="warn"
-						active={actionTaken === "Panne signalée" || equipment.status === "broken"}
-						disabled={updating}
-						onClick={() => onStatusChange("Panne signalée", "broken")}
+						active={reportFormOpen || incidentReported}
+						disabled={reporting || incidentReported}
+						onClick={() => setReportFormOpen((v) => !v)}
 					/>
 					<ActionTile
 						icon="wrench"
@@ -478,6 +515,100 @@ function MobileEquipmentDetail({
 						onClick={() => onStatusChange("Remis en stock", "available")}
 					/>
 				</section>
+
+				{/* Incident report form */}
+				{reportFormOpen && !incidentReported && (
+					<form
+						style={{
+							margin: "0 14px 16px",
+							padding: "12px 14px",
+							background: "var(--sf-bg)",
+							border: "1px solid var(--sf-danger-border)",
+							borderRadius: 12,
+							display: "flex",
+							flexDirection: "column",
+							gap: 10,
+						}}
+						onSubmit={(e) => {
+							e.preventDefault();
+							onReportIncident(reportDescription.trim() || null);
+						}}
+					>
+						<label
+							htmlFor="incident-description"
+							style={{ fontSize: 12.5, fontWeight: 600, color: "var(--sf-fg)" }}
+						>
+							Décrire la panne (optionnel)
+						</label>
+						<textarea
+							id="incident-description"
+							value={reportDescription}
+							onChange={(e) => setReportDescription(e.target.value)}
+							rows={3}
+							maxLength={2000}
+							placeholder="Ex. : écran noir au démarrage"
+							style={{
+								border: "1px solid var(--sf-border)",
+								borderRadius: 8,
+								background: "var(--sf-canvas)",
+								color: "var(--sf-fg)",
+								fontFamily: "inherit",
+								fontSize: 13,
+								padding: "8px 10px",
+								resize: "vertical",
+							}}
+						/>
+						<button
+							type="submit"
+							disabled={reporting}
+							style={{
+								alignSelf: "flex-start",
+								padding: "8px 14px",
+								border: "1px solid var(--sf-danger-border)",
+								background: "var(--sf-danger-tint)",
+								color: "var(--sf-danger)",
+								borderRadius: 8,
+								fontSize: 13,
+								fontWeight: 600,
+								fontFamily: "inherit",
+								cursor: reporting ? "default" : "pointer",
+								opacity: reporting ? 0.6 : 1,
+							}}
+						>
+							{reporting ? "Envoi…" : "Envoyer le signalement"}
+						</button>
+					</form>
+				)}
+
+				{incidentReported && (
+					<div
+						style={{
+							margin: "0 14px 16px",
+							padding: "10px 12px",
+							background: "var(--sf-success-tint)",
+							border: "1px solid var(--sf-success-border)",
+							borderRadius: 10,
+							fontSize: 12.5,
+							color: "var(--sf-success)",
+							fontWeight: 500,
+						}}
+					>
+						Panne signalée · un administrateur qualifiera l'incident
+					</div>
+				)}
+
+				{reportError && (
+					<p
+						role="alert"
+						style={{
+							margin: "0 14px 14px",
+							fontSize: 13,
+							color: "var(--sf-danger)",
+						}}
+					>
+						{reportError}
+					</p>
+				)}
 
 				{/* Success confirmation */}
 				{actionTaken && (

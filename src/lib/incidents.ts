@@ -5,11 +5,37 @@ import { withAuthContext } from "../db/client";
 import { adminMiddleware, authMiddleware } from "./auth";
 import { nextIncidentStatus, transitionIncident } from "./incidents-domain";
 
+export type NewIncidentInput = {
+	equipment_id: string;
+	description?: string | null;
+};
+
+export function validateNewIncidentInput(
+	input: Partial<NewIncidentInput>,
+): string | null {
+	if (!input.equipment_id || input.equipment_id.trim().length === 0)
+		return "L'équipement est requis";
+	if (input.description != null && input.description.length > 2000)
+		return "Description trop longue (2000 caractères max)";
+	return null;
+}
+
+/** Description vide/blanche normalisée à null. */
+export function normalizeIncidentDescription(
+	description: string | null | undefined,
+): string | null {
+	const trimmed = description?.trim();
+	return trimmed ? trimmed : null;
+}
+
 export const createIncidentFn = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
-	.inputValidator(
-		(data: unknown) => data as { equipment_id: string; description?: string | null },
-	)
+	.inputValidator((data: unknown) => {
+		const input = data as NewIncidentInput;
+		const error = validateNewIncidentInput(input);
+		if (error) throw new Error(error);
+		return input;
+	})
 	.handler(async ({ data, context }) => {
 		const id = uuidv4();
 		const now = new Date().toISOString();
@@ -20,7 +46,7 @@ export const createIncidentFn = createServerFn({ method: "POST" })
 					id,
 					equipment_id: data.equipment_id,
 					reported_by: context.user.id,
-					description: data.description ?? null,
+					description: normalizeIncidentDescription(data.description),
 					status: "open",
 					created_at: now,
 					resolved_at: null,
