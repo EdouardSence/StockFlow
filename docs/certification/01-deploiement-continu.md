@@ -28,8 +28,9 @@ Husky (`.husky/`) :
 Vercel, intégration Supabase native. Push sur `main` déclenche un déploiement production ;
 chaque pull request obtient un déploiement preview.
 
-## État constaté (2026-07-02)
+## État constaté (2026-07-04)
 
-- Pipeline créé cette session, pas encore passé en conditions réelles (premier push après ce
-  commit sera le premier run CI observable).
+- Pipeline en conditions réelles depuis sa création (2026-07-02) : a tourné sur l'ensemble des
+  commits du lot auth/RLS (`05b562b` à `5d3904a`), lint→typecheck→test→build verts sur chacun,
+  y compris les 4 commits `fix:` post-revue de sécurité (voir `08-historique-versions.md`).
 - Pas encore de badge de statut CI dans le README.

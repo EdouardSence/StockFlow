@@ -193,13 +193,38 @@ correctifs : docs/certification/09-securisation.md.
 - [ ] Test caméra réel non repassé cette session (nécessite un device physique / permissions
       navigateur, non testable en environnement CLI)
 
-## Lot Pannes & assignation
+## Lot Pannes & assignation (session 6, 2026-07-05)
 
-- [ ] **Absent.** La table `incidents` existe en base et dans `src/db/types.ts`, mais aucune
-      route, Server Function ou UI ne l'utilise. `assigned_to` sur `equipment` est un champ texte
-      brut affiché tel quel (pas de sélecteur d'utilisateur, pas de vraie logique d'assignation).
-      La tuile "Signaler une panne" sur l'accueil mobile est un bouton sans `onClick` — décoratif.
-      À construire entièrement.
+- [x] Noyau fonctionnel pur avec Effect (première utilisation dans le codebase, voir
+      `docs/certification/19-frameworks-paradigmes.md`) :
+      `src/lib/incidents-domain.ts` (`transitionIncident`, cycle `open→in_progress→resolved`
+      linéaire strict) et `src/lib/equipment-domain.ts` (`assignEquipment`, règles
+      assignation/désassignation), types d'erreur discriminés (`Data.TaggedError`).
+- [x] Coquille impérative : `src/lib/incidents.ts` (`createIncidentFn`, `listIncidentsFn`
+      admin-only, `advanceIncidentFn`) et `assignEquipmentFn`/`getAssignableUsersFn` ajoutées à
+      `src/lib/equipment.ts`, toutes derrière `authMiddleware`/`adminMiddleware`, persistées via
+      `withAuthContext`.
+- [x] Écran incidents admin (`src/routes/incidents.tsx`, route `/incidents`) conforme au mockup
+      Claude Design (badges de statut sémantiques, bouton d'avancement, section "résolus
+      récemment" repliée, `resolved_at` affiché) — gardé `adminMiddleware` : la policy RLS
+      `users_select` ne laisse un technicien voir que sa propre ligne, une jointure vers `users`
+      pour le nom du déclarant masquerait silencieusement les incidents des autres techniciens
+      pour un non-admin.
+- [x] Assignation sur `equipment/$id.tsx` : admin choisit n'importe quel utilisateur (liste
+      complète visible par RLS) ; technicien limité à s'auto-assigner/se désassigner (RLS ne lui
+      expose pas ses collègues — décision utilisateur explicite, pas une omission).
+- [x] 22 tests de domaine exhaustifs (9 combinaisons `from×to` pour les incidents, 10 cas pour
+      l'assignation) — 63/63 tests verts, `tsc`/Biome/build propres, `effect` confirmé absent du
+      bundle client (vérifié dans `.output/public`).
+- [ ] Règle "auto-broken à l'ouverture d'un incident" tranchée **manuelle** (décision
+      utilisateur) : ouvrir un incident ne change pas `equipment.status` automatiquement, un
+      admin doit qualifier puis passer l'équipement en `broken` via l'action existante. Pas
+      d'alerte visuelle "équipement available avec incident open dessus" construite — dette
+      mineure, mitigation évoquée mais non implémentée cette session.
+- [ ] Pas d'UI de déclaration d'incident (bouton "signaler une panne" créant un vrai
+      `incidents` row) — `createIncidentFn` existe côté serveur mais rien ne l'appelle encore ;
+      la tuile "Signaler panne" sur `$id.tsx` continue de seulement changer `equipment.status`,
+      comportement pré-existant non touché (hors périmètre explicite de cette session).
 
 ## Lot PWA offline
 
