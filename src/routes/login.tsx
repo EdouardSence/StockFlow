@@ -55,42 +55,77 @@ function LoginPage() {
 				fontFamily: "var(--sf-sans)",
 			}}
 		>
-			<form
-				onSubmit={handleSubmit}
+			<div
 				style={{
 					width: "100%",
 					maxWidth: 360,
-					background: "var(--sf-bg)",
-					border: "1px solid var(--sf-border)",
-					borderRadius: 12,
-					padding: "28px 26px",
 					display: "flex",
 					flexDirection: "column",
-					gap: 16,
+					gap: 20,
 				}}
 			>
-				<div>
-					<h1
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+						gap: 12,
+					}}
+				>
+					<div
 						style={{
-							fontSize: 20,
-							fontWeight: 600,
-							letterSpacing: "-0.015em",
-							margin: 0,
-							color: "var(--sf-fg)",
+							width: 48,
+							height: 48,
+							borderRadius: 14,
+							background:
+								"linear-gradient(135deg, var(--sf-primary), #4338ca)",
+							boxShadow:
+								"0 0 0 1px rgba(99,102,241,.4), 0 8px 24px rgba(99,102,241,.3)",
+						}}
+					/>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							alignItems: "center",
+							gap: 2,
 						}}
 					>
-						StockFlow
-					</h1>
-					<p
-						style={{
-							fontSize: 13,
-							color: "var(--sf-fg-muted)",
-							margin: "4px 0 0",
-						}}
-					>
-						Connectez-vous pour accéder au parc.
-					</p>
+						<h1
+							style={{
+								fontSize: 19,
+								fontWeight: 700,
+								letterSpacing: "-0.02em",
+								margin: 0,
+								color: "var(--sf-fg)",
+							}}
+						>
+							StockFlow
+						</h1>
+						<p
+							style={{
+								fontSize: 13,
+								color: "var(--sf-fg-faint)",
+								margin: 0,
+							}}
+						>
+							Connectez-vous pour accéder au parc.
+						</p>
+					</div>
 				</div>
+
+				<form
+					onSubmit={handleSubmit}
+					style={{
+						background: "var(--sf-bg)",
+						border: "1px solid var(--sf-border)",
+						borderRadius: 18,
+						padding: "22px",
+						display: "flex",
+						flexDirection: "column",
+						gap: 16,
+					}}
+				>
 
 				<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
 					<label
@@ -131,7 +166,7 @@ function LoginPage() {
 				{error && (
 					<p
 						role="alert"
-						style={{ fontSize: 13, color: "oklch(0.50 0.18 25)", margin: 0 }}
+						style={{ fontSize: 13, color: "var(--sf-danger)", margin: 0 }}
 					>
 						{error}
 					</p>
@@ -142,8 +177,9 @@ function LoginPage() {
 					disabled={submitting}
 					style={{
 						padding: "10px 16px",
-						border: "1px solid oklch(0.45 0.14 255)",
-						background: "oklch(0.55 0.16 255)",
+						border: "1px solid var(--sf-primary-strong)",
+						background:
+							"linear-gradient(135deg, var(--sf-primary), var(--sf-primary-strong))",
 						color: "white",
 						borderRadius: 7,
 						fontSize: 14,
@@ -155,6 +191,7 @@ function LoginPage() {
 					{submitting ? "Connexion…" : "Se connecter"}
 				</button>
 			</form>
+			</div>
 		</main>
 	);
 }

@@ -14,8 +14,8 @@ function StockFlowLogo() {
   return (
     <svg width={22} height={22} viewBox="0 0 24 24" fill="none" role="img">
       <title>StockFlow</title>
-      <rect x="3" y="3" width="11" height="11" rx="2" fill="oklch(0.55 0.16 255)" />
-      <rect x="10" y="10" width="11" height="11" rx="2" fill="oklch(0.20 0.02 255)" />
+      <rect x="3" y="3" width="11" height="11" rx="2" fill="#6366f1" />
+      <rect x="10" y="10" width="11" height="11" rx="2" fill="#4338ca" />
     </svg>
   )
 }
@@ -167,8 +167,8 @@ export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
                 <span
                   style={{
                     fontSize: 11,
-                    color: item.accent ? 'oklch(0.50 0.18 25)' : 'var(--sf-fg-muted)',
-                    background: item.accent ? 'oklch(0.96 0.03 25)' : 'transparent',
+                    color: item.accent ? 'var(--sf-danger)' : 'var(--sf-fg-muted)',
+                    background: item.accent ? 'var(--sf-danger-tint)' : 'transparent',
                     padding: item.accent ? '1px 6px' : '0',
                     borderRadius: 999,
                     fontVariantNumeric: 'tabular-nums',
@@ -216,7 +216,7 @@ export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
             width: 30,
             height: 30,
             borderRadius: '50%',
-            background: 'oklch(0.55 0.16 255)',
+            background: 'var(--sf-primary)',
             color: 'white',
             fontSize: 11,
             fontWeight: 600,

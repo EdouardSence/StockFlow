@@ -16,3 +16,4 @@ todos.json
 *.db-wal
 .vercel
 .env*.local
+design-reference

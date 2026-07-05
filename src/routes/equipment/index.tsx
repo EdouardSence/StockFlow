@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
-import { StatusBadge } from "../../components/StatusBadge";
+import { STATUS_META, StatusBadge } from "../../components/StatusBadge";
 import type { EquipmentTable } from "../../db/types";
 import { getEquipments } from "../../lib/equipment";
 
@@ -199,8 +199,9 @@ function EquipmentList() {
 							alignItems: "center",
 							gap: 6,
 							padding: "7px 13px",
-							border: "1px solid oklch(0.45 0.14 255)",
-							background: "oklch(0.55 0.16 255)",
+							border: "1px solid var(--sf-primary-strong)",
+							background:
+								"linear-gradient(135deg, var(--sf-primary), var(--sf-primary-strong))",
 							color: "white",
 							borderRadius: 7,
 							fontSize: 13,
@@ -209,7 +210,7 @@ function EquipmentList() {
 							fontFamily: "inherit",
 							textDecoration: "none",
 							boxShadow:
-								"0 1px 0 0 oklch(0.40 0.14 255 / 0.30) inset, 0 1px 2px oklch(0.55 0.16 255 / 0.25)",
+								"0 4px 16px rgba(99,102,241,.3), inset 0 1px 0 rgba(255,255,255,.15)",
 						}}
 					>
 						<svg
@@ -269,7 +270,6 @@ function EquipmentList() {
 							style={{
 								fontSize: 11.5,
 								color: "var(--sf-fg-muted)",
-								fontFamily: "var(--sf-mono)",
 							}}
 						>
 							{new Date().toLocaleDateString("fr-FR", {
@@ -298,17 +298,17 @@ function EquipmentList() {
 							{
 								label: "Disponibles",
 								value: counts.available,
-								dot: "oklch(0.68 0.15 152)",
+								dot: STATUS_META.available.dot,
 							},
 							{
 								label: "Assignés",
 								value: counts.assigned,
-								dot: "oklch(0.58 0.16 255)",
+								dot: STATUS_META.assigned.dot,
 							},
 							{
 								label: "En panne",
 								value: counts.broken,
-								dot: "oklch(0.62 0.20 25)",
+								dot: STATUS_META.broken.dot,
 							},
 						].map((card) => (
 							<div
@@ -427,7 +427,7 @@ function EquipmentList() {
 											fontFamily: "inherit",
 											boxShadow:
 												filter === t.id
-													? "0 1px 2px oklch(0 0 0 / 0.06), 0 0 0 1px var(--sf-border)"
+													? "0 1px 2px rgba(0,0,0,.3), 0 0 0 1px var(--sf-border)"
 													: "none",
 										}}
 									>
@@ -538,7 +538,7 @@ function EquipmentList() {
 												style={{
 													background:
 														i % 2 === 1
-															? "oklch(0.99 0.005 255)"
+															? "var(--sf-surface)"
 															: "var(--sf-bg)",
 												}}
 												onMouseEnter={(ev) => {
@@ -548,7 +548,7 @@ function EquipmentList() {
 												onMouseLeave={(ev) => {
 													ev.currentTarget.style.background =
 														i % 2 === 1
-															? "oklch(0.99 0.005 255)"
+															? "var(--sf-surface)"
 															: "var(--sf-bg)";
 												}}
 											>

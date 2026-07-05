@@ -108,7 +108,7 @@ function ScannerScreen({
 			style={{
 				position: "fixed",
 				inset: 0,
-				background: "#0a0a0c",
+				background: "var(--sf-canvas)",
 				color: "white",
 				display: "flex",
 				flexDirection: "column",
@@ -134,7 +134,7 @@ function ScannerScreen({
 					position: "absolute",
 					inset: 0,
 					background:
-						"radial-gradient(ellipse at 50% 35%, oklch(0.30 0.04 250) 0%, oklch(0.12 0.02 255) 60%, #07070a 100%)",
+						"radial-gradient(ellipse 90% 60% at 50% 32%, #1a1a21 0%, #0b0b0e 70%)",
 				}}
 			/>
 			{/* Subtle grid */}
@@ -143,7 +143,7 @@ function ScannerScreen({
 					position: "absolute",
 					inset: 0,
 					backgroundImage:
-						"linear-gradient(oklch(1 0 0 / 0.03) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0 / 0.03) 1px, transparent 1px)",
+						"linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px)",
 					backgroundSize: "24px 24px",
 				}}
 			/>
@@ -210,12 +210,12 @@ function ScannerScreen({
 					<div
 						role="alert"
 						style={{
-							background: "oklch(0.15 0.04 25 / 0.9)",
-							border: "1px solid oklch(0.50 0.12 25 / 0.6)",
+							background: "rgba(0,0,0,.82)",
+							border: "1px solid var(--sf-danger-border)",
 							borderRadius: 14,
 							padding: "18px 22px",
 							fontSize: 14,
-							color: "oklch(0.85 0.06 25)",
+							color: "var(--sf-danger)",
 							maxWidth: 320,
 							textAlign: "center",
 							backdropFilter: "blur(8px)",
@@ -229,7 +229,7 @@ function ScannerScreen({
 							onClick={onRescan}
 							style={{
 								padding: "10px 20px",
-								background: "oklch(0.55 0.16 255)",
+								background: "var(--sf-primary)",
 								border: "none",
 								borderRadius: 8,
 								color: "white",
@@ -252,7 +252,7 @@ function ScannerScreen({
 									position: "absolute",
 									width: 28,
 									height: 28,
-									borderColor: "oklch(0.78 0.18 230)",
+									borderColor: "var(--sf-primary-soft)",
 									borderStyle: "solid",
 									borderWidth: 0,
 									borderTopWidth: c[0] === "t" ? 3 : 0,
@@ -271,7 +271,7 @@ function ScannerScreen({
 												: c === "bl"
 													? "0 0 0 8px"
 													: "0 0 8px 0",
-									boxShadow: "0 0 12px oklch(0.78 0.18 230 / 0.4)",
+									boxShadow: "0 0 12px rgba(165,180,252,.4)",
 								}}
 							/>
 						))}
@@ -283,8 +283,8 @@ function ScannerScreen({
 								right: 8,
 								height: 2,
 								background:
-									"linear-gradient(90deg, transparent, oklch(0.78 0.18 230), transparent)",
-								boxShadow: "0 0 16px oklch(0.78 0.18 230)",
+									"linear-gradient(90deg, transparent, var(--sf-primary-soft), transparent)",
+								boxShadow: "0 0 16px var(--sf-primary-soft)",
 								animation: "sf-scan 2.4s ease-in-out infinite",
 								top: 0,
 							}}
@@ -302,7 +302,7 @@ function ScannerScreen({
 						textAlign: "center",
 						padding: "0 18px 12px",
 						fontSize: 13,
-						color: "oklch(0.68 0.03 255)",
+						color: "var(--sf-fg-muted)",
 						letterSpacing: "-0.005em",
 					}}
 				>
@@ -333,8 +333,8 @@ function ScannerScreen({
 					style={{
 						flex: 1,
 						padding: "13px 14px",
-						background: "oklch(0.55 0.16 255)",
-						border: "1px solid oklch(0.45 0.14 255)",
+						background: "var(--sf-primary)",
+						border: "1px solid var(--sf-primary-strong)",
 						color: "white",
 						borderRadius: 999,
 						fontSize: 14,
@@ -466,8 +466,8 @@ const mobIconBtn: React.CSSProperties = {
 	width: 36,
 	height: 36,
 	borderRadius: "50%",
-	background: "oklch(1 0 0 / 0.10)",
-	border: "1px solid oklch(1 0 0 / 0.12)",
+	background: "rgba(255,255,255,.10)",
+	border: "1px solid rgba(255,255,255,.12)",
 	color: "white",
 	display: "inline-flex",
 	alignItems: "center",

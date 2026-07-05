@@ -3,8 +3,8 @@ import type { EquipmentTable } from "../db/types";
 export function StockFlowLogo({ size = 20 }: { size?: number }) {
 	return (
 		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-			<rect x="3" y="3" width="11" height="11" rx="2" fill="oklch(0.55 0.16 255)" />
-			<rect x="10" y="10" width="11" height="11" rx="2" fill="oklch(0.20 0.02 255)" />
+			<rect x="3" y="3" width="11" height="11" rx="2" fill="#6366f1" />
+			<rect x="10" y="10" width="11" height="11" rx="2" fill="#4338ca" />
 		</svg>
 	);
 }

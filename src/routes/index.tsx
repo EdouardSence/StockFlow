@@ -152,9 +152,9 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 					<div
 						style={{
 							padding: "16px",
-							background: "oklch(0.20 0.02 255)",
+							background: "var(--sf-surface-2)",
 							color: "white",
-							border: "1px solid oklch(0.20 0.02 255)",
+							border: "1px solid var(--sf-border-strong)",
 							borderRadius: 14,
 							display: "flex",
 							alignItems: "center",
@@ -168,7 +168,7 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 							<span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
 								Scanner un QR
 							</span>
-							<span style={{ fontSize: 12, color: "oklch(0.75 0.02 255)" }}>
+							<span style={{ fontSize: 12, color: "var(--sf-fg-muted)" }}>
 								Identifier un équipement
 							</span>
 						</span>
@@ -181,8 +181,8 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 				{/* Add equipment */}
 				<Link to="/equipment/new" style={{ textDecoration: "none" }}>
 					<div style={tileBtnStyle}>
-						<span style={{ ...tileIconBase, background: "oklch(0.96 0.025 255)" }}>
-							<PlusIcon size={20} stroke="oklch(0.40 0.14 255)" />
+						<span style={{ ...tileIconBase, background: "var(--sf-primary-tint)" }}>
+							<PlusIcon size={20} stroke="var(--sf-primary-soft)" />
 						</span>
 						<span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3 }}>
 							<span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--sf-fg)" }}>
@@ -200,8 +200,8 @@ function MobileHome({ equipment }: { equipment: Awaited<ReturnType<typeof getEqu
 
 				{/* Report incident */}
 				<div style={tileBtnStyle}>
-					<span style={{ ...tileIconBase, background: "oklch(0.97 0.03 25)" }}>
-						<AlertIcon size={20} stroke="oklch(0.50 0.18 25)" />
+					<span style={{ ...tileIconBase, background: "var(--sf-danger-tint)" }}>
+						<AlertIcon size={20} stroke="var(--sf-danger)" />
 					</span>
 					<span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3 }}>
 						<span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--sf-fg)" }}>
@@ -358,7 +358,7 @@ const darkTileIcon: React.CSSProperties = {
 	width: 40,
 	height: 40,
 	borderRadius: 10,
-	background: "oklch(1 0 0 / 0.10)",
+	background: "rgba(255,255,255,.10)",
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",

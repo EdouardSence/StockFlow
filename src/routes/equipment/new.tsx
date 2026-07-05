@@ -32,7 +32,7 @@ function QRCodeImage({ url, size = 140 }: { url: string; size?: number }) {
 				style={{
 					width: size,
 					height: size,
-					background: "oklch(0.95 0.01 255)",
+					background: "var(--sf-surface-2)",
 					borderRadius: 4,
 					display: "flex",
 					alignItems: "center",
@@ -65,7 +65,7 @@ const fieldStyle: React.CSSProperties = {
 	fontFamily: "inherit",
 	outline: "none",
 	letterSpacing: "-0.005em",
-	boxShadow: "0 1px 0 oklch(0 0 0 / 0.02)",
+	boxShadow: "0 1px 0 rgba(0,0,0,.2)",
 	boxSizing: "border-box",
 };
 
@@ -108,7 +108,7 @@ function FormField({
 	const labelContent = (
 		<>
 			{label}
-			{required && <span style={{ color: "oklch(0.55 0.18 25)" }}>*</span>}
+			{required && <span style={{ color: "var(--sf-danger)" }}>*</span>}
 			{hint && (
 				<span
 					style={{
@@ -432,20 +432,20 @@ function NewEquipmentPage() {
 															alignItems: "center",
 															gap: 6,
 															padding: "12px 4px",
-															border: `1px solid ${sel ? "oklch(0.55 0.16 255)" : "var(--sf-border)"}`,
+															border: `1px solid ${sel ? "var(--sf-primary)" : "var(--sf-border)"}`,
 															borderRadius: 7,
 															background: sel
-																? "oklch(0.97 0.02 255)"
+																? "var(--sf-primary-tint)"
 																: "var(--sf-bg)",
 															cursor: "pointer",
 															fontFamily: "inherit",
 															color: sel
-																? "oklch(0.40 0.14 255)"
+																? "var(--sf-primary-soft)"
 																: "var(--sf-fg-soft)",
 															fontSize: 12,
 															fontWeight: sel ? 500 : 400,
 															boxShadow: sel
-																? "0 0 0 3px oklch(0.55 0.16 255 / 0.08)"
+																? "0 0 0 3px rgba(99,102,241,.15)"
 																: "none",
 														}}
 													>
@@ -546,7 +546,7 @@ function NewEquipmentPage() {
 								<p
 									style={{
 										fontSize: 13,
-										color: "oklch(0.50 0.18 25)",
+										color: "var(--sf-danger)",
 										margin: 0,
 									}}
 								>
@@ -591,8 +591,9 @@ function NewEquipmentPage() {
 									disabled={!valid || phase === "submitting"}
 									style={{
 										padding: "8px 16px",
-										border: "1px solid oklch(0.45 0.14 255)",
-										background: "oklch(0.55 0.16 255)",
+										border: "1px solid var(--sf-primary-strong)",
+										background:
+											"linear-gradient(135deg, var(--sf-primary), var(--sf-primary-strong))",
 										color: "white",
 										borderRadius: 7,
 										fontSize: 13,
@@ -601,7 +602,7 @@ function NewEquipmentPage() {
 										fontFamily: "inherit",
 										opacity: valid ? 1 : 0.5,
 										boxShadow:
-											"0 1px 0 0 oklch(0.40 0.14 255 / 0.30) inset, 0 1px 2px oklch(0.55 0.16 255 / 0.25)",
+											"0 4px 16px rgba(99,102,241,.3), inset 0 1px 0 rgba(255,255,255,.15)",
 										display: "inline-flex",
 										alignItems: "center",
 										gap: 6,
@@ -668,7 +669,7 @@ function NewEquipmentPage() {
 												style={{
 													width: 140,
 													height: 140,
-													background: "oklch(0.96 0.01 255)",
+													background: "var(--sf-surface-2)",
 													borderRadius: 4,
 													display: "flex",
 													alignItems: "center",
@@ -727,8 +728,8 @@ function NewEquipmentPage() {
 							{phase === "created" && created && (
 								<div
 									style={{
-										background: "oklch(0.97 0.04 152)",
-										border: "1px solid oklch(0.85 0.08 152)",
+										background: "var(--sf-success-tint)",
+										border: "1px solid var(--sf-success-border)",
 										borderRadius: 10,
 										padding: 14,
 										display: "flex",
@@ -744,7 +745,7 @@ function NewEquipmentPage() {
 												width: 22,
 												height: 22,
 												borderRadius: "50%",
-												background: "oklch(0.62 0.15 152)",
+												background: "var(--sf-success-dot)",
 												display: "inline-flex",
 												alignItems: "center",
 												justifyContent: "center",
@@ -759,7 +760,7 @@ function NewEquipmentPage() {
 											style={{
 												fontSize: 13.5,
 												fontWeight: 600,
-												color: "oklch(0.30 0.10 152)",
+												color: "var(--sf-success)",
 												letterSpacing: "-0.005em",
 											}}
 										>
@@ -769,7 +770,7 @@ function NewEquipmentPage() {
 									<div
 										style={{
 											fontSize: 12.5,
-											color: "oklch(0.32 0.08 152)",
+											color: "var(--sf-success)",
 											lineHeight: 1.5,
 										}}
 									>
@@ -791,8 +792,8 @@ function NewEquipmentPage() {
 										onClick={() => navigate({ to: "/equipment" })}
 										style={{
 											padding: "7px 12px",
-											border: "1px solid oklch(0.45 0.13 152)",
-											background: "oklch(0.55 0.14 152)",
+											border: "1px solid var(--sf-success-border)",
+											background: "var(--sf-success-dot)",
 											color: "white",
 											borderRadius: 6,
 											fontSize: 12.5,

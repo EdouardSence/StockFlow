@@ -1,36 +1,42 @@
 import type { EquipmentTable } from "../db/types";
 
-const STATUS_META: Record<
+/**
+ * Palette sémantique par statut équipement — reprise fidèle de
+ * design-reference/StockFlow.dc.html (STATUS map). Source unique pour ce
+ * composant et pour tout autre écran affichant un statut (KPI, tuiles
+ * d'action) : ne pas dupliquer ces valeurs ailleurs, importer STATUS_META.
+ */
+export const STATUS_META: Record<
 	EquipmentTable["status"],
 	{ label: string; dot: string; bg: string; fg: string; border: string }
 > = {
 	available: {
 		label: "Disponible",
-		dot: "oklch(0.68 0.15 152)",
-		bg: "oklch(0.96 0.03 152)",
-		fg: "oklch(0.32 0.08 152)",
-		border: "oklch(0.86 0.05 152)",
+		dot: "#10b981",
+		bg: "rgba(16,185,129,.1)",
+		fg: "#34d399",
+		border: "rgba(16,185,129,.28)",
 	},
 	assigned: {
 		label: "Assigné",
-		dot: "oklch(0.58 0.16 255)",
-		bg: "oklch(0.96 0.025 255)",
-		fg: "oklch(0.32 0.10 255)",
-		border: "oklch(0.86 0.05 255)",
+		dot: "#6366f1",
+		bg: "rgba(99,102,241,.1)",
+		fg: "#a5b4fc",
+		border: "rgba(99,102,241,.28)",
 	},
 	broken: {
 		label: "En panne",
-		dot: "oklch(0.62 0.20 25)",
-		bg: "oklch(0.96 0.03 25)",
-		fg: "oklch(0.40 0.14 25)",
-		border: "oklch(0.86 0.06 25)",
+		dot: "#f43f5e",
+		bg: "rgba(244,63,94,.1)",
+		fg: "#fda4af",
+		border: "rgba(244,63,94,.28)",
 	},
 	maintenance: {
 		label: "Maintenance",
-		dot: "oklch(0.72 0.15 75)",
-		bg: "oklch(0.96 0.04 85)",
-		fg: "oklch(0.38 0.10 70)",
-		border: "oklch(0.86 0.07 80)",
+		dot: "#f59e0b",
+		bg: "rgba(245,158,11,.1)",
+		fg: "#fcd34d",
+		border: "rgba(245,158,11,.28)",
 	},
 };
 
