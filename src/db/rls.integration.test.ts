@@ -16,6 +16,7 @@ const APP_URL = process.env.APP_POSTGRES_URL;
 type Claims = { userId: string; role: "admin" | "technician" } | null;
 
 const FIXTURE_EQUIPMENT_ID = "rls-test-equipment-001";
+const FIXTURE_EQUIPMENT_ASSIGNED_ID = "rls-test-equipment-002";
 const FIXTURE_USER_ID = "rls-test-user-001";
 const FIXTURE_USER_EMAIL = "rls-test@example.com";
 const FIXTURE_USER_PASSWORD = "rls-test-password-123";
@@ -80,11 +81,25 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 			[FIXTURE_USER_ID, FIXTURE_USER_EMAIL, await hashPassword(FIXTURE_USER_PASSWORD)],
 			true,
 		);
+		// Équipement assigné au technicien de test (FK users → inséré après lui).
+		await run(
+			admin,
+			`INSERT INTO equipment (id, name, type, qr_code, status, assigned_to)
+			 VALUES ($1, 'RLS fixture assignée', 'pc', $1, 'assigned', $2)
+			 ON CONFLICT (id) DO NOTHING`,
+			[FIXTURE_EQUIPMENT_ASSIGNED_ID, FIXTURE_USER_ID],
+			true,
+		);
 	}, 30_000);
 
 	afterAll(async () => {
 		if (!pool) return;
-		await run(admin, "DELETE FROM equipment WHERE id = $1", [FIXTURE_EQUIPMENT_ID], true);
+		await run(
+			admin,
+			"DELETE FROM equipment WHERE id IN ($1, $2)",
+			[FIXTURE_EQUIPMENT_ID, FIXTURE_EQUIPMENT_ASSIGNED_ID],
+			true,
+		);
 		await run(admin, "DELETE FROM users WHERE id = $1", [FIXTURE_USER_ID], true);
 		await pool.end();
 	}, 30_000);
@@ -148,6 +163,31 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 					 VALUES ('rls-test-intrus', 'Intrus', 'intrus@example.com', 'admin', 'x', NOW())`,
 				),
 			).rejects.toThrow(/row-level security/i);
+		});
+	});
+
+	describe("claims technician — déclaration d'incident", () => {
+		// Les deux cas sont légitimes : la policy incidents_insert n'a aucun
+		// filtre de propriété (rôle technician/admin suffit). Un technicien
+		// signale une panne sur SON poste comme sur un équipement du stock.
+		it("peut créer un incident sur un équipement qui lui est assigné", async () => {
+			const r = await run(
+				tech,
+				`INSERT INTO incidents (id, equipment_id, reported_by, description, status, created_at)
+				 VALUES ('rls-test-incident-a', $1, $2, 'panne poste assigné', 'open', NOW())`,
+				[FIXTURE_EQUIPMENT_ASSIGNED_ID, FIXTURE_USER_ID],
+			);
+			expect(r.rowCount).toBe(1);
+		});
+
+		it("peut créer un incident sur un équipement non assigné", async () => {
+			const r = await run(
+				tech,
+				`INSERT INTO incidents (id, equipment_id, reported_by, description, status, created_at)
+				 VALUES ('rls-test-incident-b', $1, $2, 'panne équipement en stock', 'open', NOW())`,
+				[FIXTURE_EQUIPMENT_ID, FIXTURE_USER_ID],
+			);
+			expect(r.rowCount).toBe(1);
 		});
 	});
 
