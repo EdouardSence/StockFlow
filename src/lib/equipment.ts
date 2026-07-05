@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import { Effect } from "effect";
 import { v4 as uuidv4 } from "uuid";
 import { withAuthContext } from "../db/client";
 import type { EquipmentTable } from "../db/types";
-import { authMiddleware } from "./auth";
+import { adminMiddleware, authMiddleware } from "./auth";
+import { assignEquipment } from "./equipment-domain";
 
 export type NewEquipmentInput = {
 	name: string;
@@ -108,4 +110,75 @@ export const updateEquipmentStatus = createServerFn({ method: "POST" })
 				.execute(),
 		);
 		return { success: true };
+	});
+
+/**
+ * Réservé admin : la policy RLS `users_select` ne laisse un rôle technician
+ * voir que sa propre ligne — un technicien ne peut structurellement pas
+ * obtenir la liste de ses collègues pour choisir à qui réassigner.
+ */
+export const getAssignableUsersFn = createServerFn({ method: "GET" })
+	.middleware([adminMiddleware])
+	.handler(async ({ context }) => {
+		return withAuthContext(context.user, (trx) =>
+			trx
+				.selectFrom("users")
+				.select(["id", "name", "role"])
+				.orderBy("name")
+				.execute(),
+		);
+	});
+
+/**
+ * `userId` : id de l'utilisateur à assigner, ou `null` pour désassigner.
+ * Un technicien ne peut s'assigner qu'à lui-même ou désassigner — choisir un
+ * collègue précis est réservé à l'admin (seul rôle dont `users_select` voit
+ * tout le monde, cf. `getAssignableUsersFn`).
+ */
+export const assignEquipmentFn = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(
+		(data: unknown) => data as { id: string; userId: string | null },
+	)
+	.handler(async ({ data, context }) => {
+		if (
+			data.userId !== null &&
+			data.userId !== context.user.id &&
+			context.user.role !== "admin"
+		) {
+			const { AuthError } = await import("./auth-core");
+			throw new AuthError("FORBIDDEN");
+		}
+
+		return withAuthContext(context.user, async (trx) => {
+			const row = await trx
+				.selectFrom("equipment")
+				.selectAll()
+				.where("id", "=", data.id)
+				.executeTakeFirst();
+
+			const result = Effect.runSync(
+				Effect.either(assignEquipment(data.id, row ?? null, data.userId)),
+			);
+			if (result._tag === "Left") {
+				throw new Error(
+					result.left._tag === "EquipmentNotFoundError"
+						? "Équipement introuvable"
+						: "Cet équipement n'est pas disponible pour assignation",
+				);
+			}
+
+			const updated = result.right;
+			await trx
+				.updateTable("equipment")
+				.set({
+					status: updated.status,
+					assigned_to: updated.assigned_to,
+					updated_at: updated.updated_at,
+				})
+				.where("id", "=", data.id)
+				.execute();
+
+			return { id: data.id, status: updated.status, assigned_to: updated.assigned_to };
+		});
 	});

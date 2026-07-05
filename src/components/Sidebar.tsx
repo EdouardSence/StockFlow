@@ -20,7 +20,7 @@ function StockFlowLogo() {
   )
 }
 
-type ValidTo = '/' | '/equipment' | '/equipment/new'
+type ValidTo = '/' | '/equipment' | '/equipment/new' | '/incidents'
 
 type NavItem = {
   path: ValidTo | null
@@ -30,7 +30,13 @@ type NavItem = {
   accent?: boolean
 }
 
-export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
+export function Sidebar({
+  equipmentCount,
+  openIncidentCount,
+}: {
+  equipmentCount?: number
+  openIncidentCount?: number
+}) {
   const { location } = useRouterState()
   const pathname = location.pathname
 
@@ -38,7 +44,13 @@ export function Sidebar({ equipmentCount }: { equipmentCount?: number }) {
     { path: '/', label: 'Tableau de bord', icon: <LayoutDashboard size={15} /> },
     { path: '/equipment', label: 'Équipements', icon: <Package size={15} />, count: equipmentCount },
     { path: null, label: 'Utilisateurs', icon: <Users size={15} />, count: 18 },
-    { path: null, label: 'Incidents', icon: <AlertTriangle size={15} />, count: 3, accent: true },
+    {
+      path: '/incidents',
+      label: 'Incidents',
+      icon: <AlertTriangle size={15} />,
+      count: openIncidentCount,
+      accent: true,
+    },
     { path: null, label: 'Paramètres', icon: <Settings size={15} /> },
   ]
 

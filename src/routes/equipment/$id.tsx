@@ -3,11 +3,22 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
 import { MobileBottomNav, TypeIcon } from "../../components/MobileLayout";
 import { StatusBadge } from "../../components/StatusBadge";
-import { getEquipmentById, updateEquipmentStatus } from "../../lib/equipment";
+import {
+	assignEquipmentFn,
+	getAssignableUsersFn,
+	getEquipmentById,
+	updateEquipmentStatus,
+} from "../../lib/equipment";
 import type { EquipmentTable } from "../../db/types";
 
 export const Route = createFileRoute("/equipment/$id")({
-	loader: ({ params }) => getEquipmentById({ data: { id: params.id } }),
+	loader: async ({ params, context }) => {
+		const [equipment, assignableUsers] = await Promise.all([
+			getEquipmentById({ data: { id: params.id } }),
+			context.user?.role === "admin" ? getAssignableUsersFn() : Promise.resolve([]),
+		]);
+		return { equipment, assignableUsers };
+	},
 	component: EquipmentDetailPage,
 });
 
@@ -34,13 +45,16 @@ function useMobile() {
 }
 
 function EquipmentDetailPage() {
-	const equipment = Route.useLoaderData();
+	const { equipment, assignableUsers } = Route.useLoaderData();
+	const { user: currentUser } = Route.useRouteContext();
 	const navigate = useNavigate();
 	const router = useRouter();
 	const isMobile = useMobile();
 	const [updating, setUpdating] = useState(false);
 	const [updateError, setUpdateError] = useState<string | null>(null);
 	const [actionTaken, setActionTaken] = useState<string | null>(null);
+	const [assigning, setAssigning] = useState(false);
+	const [assignError, setAssignError] = useState<string | null>(null);
 
 	if (!equipment) {
 		return (
@@ -101,6 +115,20 @@ function EquipmentDetailPage() {
 		await handleStatusChange(status);
 	}
 
+	async function handleAssign(userId: string | null) {
+		if (!equipment) return;
+		setAssigning(true);
+		setAssignError(null);
+		try {
+			await assignEquipmentFn({ data: { id: equipment.id, userId } });
+			await router.invalidate();
+		} catch (err) {
+			setAssignError(err instanceof Error ? err.message : "Erreur inconnue");
+		} finally {
+			setAssigning(false);
+		}
+	}
+
 	if (isMobile) {
 		return (
 			<MobileEquipmentDetail
@@ -110,11 +138,28 @@ function EquipmentDetailPage() {
 				actionTaken={actionTaken}
 				onStatusChange={handleMobileAction}
 				onBack={() => navigate({ to: "/" })}
+				currentUserId={currentUser?.id}
+				assigning={assigning}
+				assignError={assignError}
+				onAssign={handleAssign}
 			/>
 		);
 	}
 
-	return <DesktopEquipmentDetail equipment={equipment} updating={updating} updateError={updateError} onStatusChange={handleStatusChange} />;
+	return (
+		<DesktopEquipmentDetail
+			equipment={equipment}
+			updating={updating}
+			updateError={updateError}
+			onStatusChange={handleStatusChange}
+			currentUserId={currentUser?.id}
+			currentUserRole={currentUser?.role}
+			assignableUsers={assignableUsers}
+			assigning={assigning}
+			assignError={assignError}
+			onAssign={handleAssign}
+		/>
+	);
 }
 
 /* ── Mobile detail view ─────────────────────────────────────────── */
@@ -126,10 +171,18 @@ function MobileEquipmentDetail({
 	actionTaken,
 	onStatusChange,
 	onBack,
+	currentUserId,
+	assigning,
+	assignError,
+	onAssign,
 }: {
 	equipment: EquipmentTable;
 	updating: boolean;
 	updateError: string | null;
+	currentUserId: string | undefined;
+	assigning: boolean;
+	assignError: string | null;
+	onAssign: (userId: string | null) => void;
 	actionTaken: string | null;
 	onStatusChange: (label: string, status: EquipmentTable["status"]) => void;
 	onBack: () => void;
@@ -293,7 +346,13 @@ function MobileEquipmentDetail({
 					)}
 					<InfoRow
 						label="Attribué à"
-						value={equipment.assigned_to ?? "Aucun · en stock"}
+						value={
+							equipment.assigned_to === null
+								? "Aucun · en stock"
+								: equipment.assigned_to === currentUserId
+									? "Vous"
+									: "Un autre utilisateur"
+						}
 						last
 					/>
 				</section>
@@ -304,8 +363,8 @@ function MobileEquipmentDetail({
 						style={{
 							margin: "0 14px 12px",
 							padding: "12px 14px",
-							background: "oklch(0.97 0.03 25)",
-							border: "1px solid oklch(0.86 0.06 25)",
+							background: "var(--sf-danger-tint)",
+							border: "1px solid var(--sf-danger-border)",
 							borderRadius: 12,
 							display: "flex",
 							gap: 10,
@@ -317,7 +376,7 @@ function MobileEquipmentDetail({
 							height={16}
 							viewBox="0 0 24 24"
 							fill="none"
-							stroke="oklch(0.50 0.18 25)"
+							stroke="var(--sf-danger)"
 							strokeWidth={1.6}
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -332,7 +391,7 @@ function MobileEquipmentDetail({
 								style={{
 									fontSize: 12,
 									fontWeight: 600,
-									color: "oklch(0.40 0.16 25)",
+									color: "var(--sf-danger)",
 									letterSpacing: "-0.005em",
 								}}
 							>
@@ -342,7 +401,7 @@ function MobileEquipmentDetail({
 								<div
 									style={{
 										fontSize: 12.5,
-										color: "oklch(0.35 0.10 25)",
+										color: "var(--sf-danger)",
 										marginTop: 2,
 									}}
 								>
@@ -376,10 +435,24 @@ function MobileEquipmentDetail({
 				>
 					<ActionTile
 						icon="user"
-						label="Attribuer"
-						active={actionTaken === "Attribué" || equipment.status === "assigned"}
-						disabled={updating}
-						onClick={() => onStatusChange("Attribué", "assigned")}
+						label={
+							equipment.assigned_to === currentUserId && equipment.assigned_to !== null
+								? "Retirer mon attribution"
+								: "M'attribuer"
+						}
+						active={equipment.assigned_to === currentUserId && equipment.assigned_to !== null}
+						disabled={
+							assigning ||
+							(equipment.assigned_to !== null && equipment.assigned_to !== currentUserId) ||
+							(equipment.assigned_to === null &&
+								equipment.status !== "available" &&
+								equipment.status !== "assigned")
+						}
+						onClick={() =>
+							onAssign(
+								equipment.assigned_to === currentUserId ? null : (currentUserId ?? null),
+							)
+						}
 					/>
 					<ActionTile
 						icon="alert"
@@ -412,8 +485,8 @@ function MobileEquipmentDetail({
 						style={{
 							margin: "0 14px 16px",
 							padding: "10px 12px",
-							background: "oklch(0.97 0.04 152)",
-							border: "1px solid oklch(0.85 0.08 152)",
+							background: "var(--sf-success-tint)",
+							border: "1px solid var(--sf-success-border)",
 							borderRadius: 10,
 							display: "flex",
 							alignItems: "center",
@@ -425,7 +498,7 @@ function MobileEquipmentDetail({
 								width: 18,
 								height: 18,
 								borderRadius: "50%",
-								background: "oklch(0.62 0.15 152)",
+								background: "var(--sf-success-dot)",
 								display: "inline-flex",
 								alignItems: "center",
 								justifyContent: "center",
@@ -449,7 +522,7 @@ function MobileEquipmentDetail({
 						<span
 							style={{
 								fontSize: 12.5,
-								color: "oklch(0.30 0.10 152)",
+								color: "var(--sf-success)",
 								fontWeight: 500,
 							}}
 						>
@@ -464,10 +537,22 @@ function MobileEquipmentDetail({
 						style={{
 							margin: "0 14px 14px",
 							fontSize: 13,
-							color: "oklch(0.50 0.18 25)",
+							color: "var(--sf-danger)",
 						}}
 					>
 						{updateError}
+					</p>
+				)}
+				{assignError && (
+					<p
+						role="alert"
+						style={{
+							margin: "0 14px 14px",
+							fontSize: 13,
+							color: "var(--sf-danger)",
+						}}
+					>
+						{assignError}
 					</p>
 				)}
 
@@ -534,15 +619,15 @@ function ActionTile({
 	const toneStyle =
 		tone === "warn"
 			? {
-					bg: "oklch(0.97 0.03 25)",
-					border: "oklch(0.86 0.06 25)",
-					fg: "oklch(0.45 0.16 25)",
+					bg: "var(--sf-danger-tint)",
+					border: "var(--sf-danger-border)",
+					fg: "var(--sf-danger)",
 				}
 			: tone === "ok"
 				? {
-						bg: "oklch(0.97 0.04 152)",
-						border: "oklch(0.85 0.08 152)",
-						fg: "oklch(0.38 0.12 152)",
+						bg: "var(--sf-success-tint)",
+						border: "var(--sf-success-border)",
+						fg: "var(--sf-success)",
 					}
 				: {
 						bg: "var(--sf-bg)",
@@ -563,8 +648,8 @@ function ActionTile({
 				alignItems: "flex-start",
 				gap: 8,
 				padding: 14,
-				background: active ? "oklch(0.55 0.16 255)" : toneStyle.bg,
-				border: `1px solid ${active ? "oklch(0.45 0.14 255)" : toneStyle.border}`,
+				background: active ? "var(--sf-primary)" : toneStyle.bg,
+				border: `1px solid ${active ? "var(--sf-primary-strong)" : toneStyle.border}`,
 				borderRadius: 12,
 				cursor: disabled ? "not-allowed" : "pointer",
 				fontFamily: "inherit",
@@ -629,16 +714,30 @@ function ActionIcon({
 
 /* ── Desktop view (unchanged) ───────────────────────────────────── */
 
+type AssignableUser = Awaited<ReturnType<typeof getAssignableUsersFn>>[number];
+
 function DesktopEquipmentDetail({
 	equipment,
 	updating,
 	updateError,
 	onStatusChange,
+	currentUserId,
+	currentUserRole,
+	assignableUsers,
+	assigning,
+	assignError,
+	onAssign,
 }: {
 	equipment: EquipmentTable;
 	updating: boolean;
 	updateError: string | null;
 	onStatusChange: (status: EquipmentTable["status"]) => void;
+	currentUserId: string | undefined;
+	currentUserRole: string | undefined;
+	assignableUsers: AssignableUser[];
+	assigning: boolean;
+	assignError: string | null;
+	onAssign: (userId: string | null) => void;
 }) {
 	const navigate = useNavigate();
 
@@ -825,10 +924,10 @@ function DesktopEquipmentDetail({
 									{
 										status: "broken" as const,
 										label: "Déclarer en panne",
-										border: "oklch(0.75 0.12 25)",
-										activeBg: "oklch(0.96 0.03 25)",
-										color: "oklch(0.45 0.16 25)",
-										activeColor: "oklch(0.40 0.14 25)",
+										border: "var(--sf-danger-border)",
+										activeBg: "var(--sf-danger-tint)",
+										color: "var(--sf-danger)",
+										activeColor: "var(--sf-danger)",
 										icon: (
 											<svg
 												width={16}
@@ -850,10 +949,10 @@ function DesktopEquipmentDetail({
 									{
 										status: "available" as const,
 										label: "Marquer disponible",
-										border: "oklch(0.75 0.10 152)",
-										activeBg: "oklch(0.96 0.03 152)",
-										color: "oklch(0.38 0.14 152)",
-										activeColor: "oklch(0.32 0.08 152)",
+										border: "var(--sf-success-border)",
+										activeBg: "var(--sf-success-tint)",
+										color: "var(--sf-success)",
+										activeColor: "var(--sf-success)",
 										icon: (
 											<svg
 												width={16}
@@ -911,7 +1010,7 @@ function DesktopEquipmentDetail({
 									role="alert"
 									style={{
 										fontSize: 13,
-										color: "oklch(0.50 0.18 25)",
+										color: "var(--sf-danger)",
 										margin: 0,
 									}}
 								>
@@ -919,6 +1018,17 @@ function DesktopEquipmentDetail({
 								</p>
 							)}
 						</section>
+
+						{/* Attribution */}
+						<AssignmentSection
+							equipment={equipment}
+							currentUserId={currentUserId}
+							currentUserRole={currentUserRole}
+							assignableUsers={assignableUsers}
+							assigning={assigning}
+							assignError={assignError}
+							onAssign={onAssign}
+						/>
 
 						{/* Details */}
 						<section
@@ -997,5 +1107,164 @@ function DesktopEquipmentDetail({
 				</div>
 			</main>
 		</div>
+	);
+}
+
+function AssignmentSection({
+	equipment,
+	currentUserId,
+	currentUserRole,
+	assignableUsers,
+	assigning,
+	assignError,
+	onAssign,
+}: {
+	equipment: EquipmentTable;
+	currentUserId: string | undefined;
+	currentUserRole: string | undefined;
+	assignableUsers: AssignableUser[];
+	assigning: boolean;
+	assignError: string | null;
+	onAssign: (userId: string | null) => void;
+}) {
+	const [selected, setSelected] = useState("");
+	const isAdmin = currentUserRole === "admin";
+	const canAssign = equipment.status === "available" || equipment.status === "assigned";
+	const assignedUser = assignableUsers.find((u) => u.id === equipment.assigned_to);
+
+	const assignBtnStyle: React.CSSProperties = {
+		padding: "7px 14px",
+		borderRadius: 7,
+		border: "1px solid var(--sf-primary-border)",
+		background: "var(--sf-primary-tint)",
+		color: "var(--sf-primary-soft)",
+		fontFamily: "inherit",
+		fontSize: 13,
+		fontWeight: 500,
+		cursor: "pointer",
+	};
+
+	const unassignBtnStyle: React.CSSProperties = {
+		padding: "7px 14px",
+		borderRadius: 7,
+		border: "1px solid var(--sf-border)",
+		background: "var(--sf-bg)",
+		color: "var(--sf-fg-muted)",
+		fontFamily: "inherit",
+		fontSize: 13,
+		fontWeight: 500,
+		cursor: "pointer",
+	};
+
+	return (
+		<section
+			aria-label="Attribution"
+			style={{
+				background: "var(--sf-bg)",
+				border: "1px solid var(--sf-border)",
+				borderRadius: 10,
+				padding: "20px 22px",
+				display: "flex",
+				flexDirection: "column",
+				gap: 14,
+			}}
+		>
+			<div
+				style={{
+					fontSize: 11,
+					fontWeight: 600,
+					letterSpacing: "0.08em",
+					textTransform: "uppercase",
+					color: "var(--sf-fg-muted)",
+				}}
+			>
+				Attribution
+			</div>
+
+			<div style={{ fontSize: 13.5, color: "var(--sf-fg)" }}>
+				{equipment.assigned_to === null
+					? "Non attribué"
+					: isAdmin
+						? (assignedUser?.name ?? "Utilisateur inconnu")
+						: equipment.assigned_to === currentUserId
+							? "Vous"
+							: "Un autre utilisateur"}
+			</div>
+
+			{isAdmin ? (
+				<div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+					<label htmlFor="assign-user-select" style={{ fontSize: 12.5, color: "var(--sf-fg-muted)" }}>
+						Assigner à
+					</label>
+					<select
+						id="assign-user-select"
+						value={selected}
+						onChange={(e) => setSelected(e.target.value)}
+						disabled={assigning || !canAssign}
+						style={{
+							padding: "7px 10px",
+							borderRadius: 7,
+							border: "1px solid var(--sf-border)",
+							background: "var(--sf-canvas)",
+							color: "var(--sf-fg)",
+							fontFamily: "inherit",
+							fontSize: 13,
+						}}
+					>
+						<option value="">Choisir un utilisateur…</option>
+						{assignableUsers
+							.filter((u) => u.id !== equipment.assigned_to)
+							.map((u) => (
+								<option key={u.id} value={u.id}>
+									{u.name} ({u.role === "admin" ? "admin" : "technicien"})
+								</option>
+							))}
+					</select>
+					<button
+						type="button"
+						disabled={assigning || !canAssign || !selected}
+						onClick={() => onAssign(selected)}
+						style={assignBtnStyle}
+					>
+						Assigner
+					</button>
+					{equipment.assigned_to !== null && (
+						<button type="button" disabled={assigning} onClick={() => onAssign(null)} style={unassignBtnStyle}>
+							Retirer l'attribution
+						</button>
+					)}
+				</div>
+			) : (
+				<div style={{ display: "flex", gap: 10 }}>
+					{equipment.assigned_to === currentUserId && equipment.assigned_to !== null ? (
+						<button type="button" disabled={assigning} onClick={() => onAssign(null)} style={unassignBtnStyle}>
+							Retirer mon attribution
+						</button>
+					) : equipment.assigned_to === null ? (
+						<button
+							type="button"
+							disabled={assigning || !canAssign}
+							onClick={() => onAssign(currentUserId ?? null)}
+							style={assignBtnStyle}
+						>
+							M'attribuer
+						</button>
+					) : null}
+				</div>
+			)}
+
+			{!canAssign && equipment.assigned_to === null && (
+				<p style={{ margin: 0, fontSize: 12, color: "var(--sf-fg-muted)" }}>
+					Assignation impossible : équipement{" "}
+					{equipment.status === "broken" ? "en panne" : "en maintenance"}.
+				</p>
+			)}
+
+			{assignError && (
+				<p role="alert" style={{ margin: 0, fontSize: 13, color: "var(--sf-danger)" }}>
+					{assignError}
+				</p>
+			)}
+		</section>
 	);
 }
