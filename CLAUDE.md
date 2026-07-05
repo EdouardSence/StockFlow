@@ -79,6 +79,19 @@ Objectif : couverture ≥ 80 % sur la logique métier pure (`src/lib/*.ts`), cri
 Ne pas viser 80 % de couverture globale (le JSX de présentation n'a pas besoin de tests unitaires
 exhaustifs — privilégier des tests d'intégration ciblés sur les routes critiques si besoin).
 
+## Tests e2e (Playwright)
+
+⚠️ **La base Postgres est partagée dev/test/prod** (un seul projet Supabase — dette connue,
+la vraie solution à terme est une base de test séparée, branche ou second projet Supabase).
+En conséquence :
+- La suite e2e (`bun run test:e2e`, `e2e/`) ne tourne **JAMAIS automatiquement en CI** —
+  uniquement en local, à la demande, sous supervision.
+- Toute donnée créée par un test e2e porte le préfixe strict `e2e-ephemeral-` (id, email,
+  qr_code…) — jamais un simple `test-`. Constante `E2E_PREFIX` dans `e2e/support/db.ts`.
+- Le sweep (`sweepEphemeralData`) supprime toute ligne matchant le préfixe et tourne avant
+  la suite (restes d'un run interrompu) ET après (best-effort, globalTeardown) — pas de
+  cleanup par test isolé qui pourrait être sauté.
+
 ## Traçabilité
 
 Tout bug découvert devient une issue GitHub qualifiée (description, reproduction, impact) avant

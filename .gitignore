@@ -18,3 +18,5 @@ todos.json
 .env*.local
 design-reference
 coverage
+test-results
+playwright-report
