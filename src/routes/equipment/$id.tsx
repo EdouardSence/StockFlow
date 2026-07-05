@@ -2,23 +2,26 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import { useEffect, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
 import { MobileBottomNav, TypeIcon } from "../../components/MobileLayout";
-import { StatusBadge } from "../../components/StatusBadge";
+import { OpenIncidentBadge, StatusBadge } from "../../components/StatusBadge";
 import {
 	assignEquipmentFn,
 	getAssignableUsersFn,
 	getEquipmentById,
 	updateEquipmentStatus,
 } from "../../lib/equipment";
-import { createIncidentFn } from "../../lib/incidents";
+import { createIncidentFn, getOpenIncidentCountsFn } from "../../lib/incidents";
 import type { EquipmentTable } from "../../db/types";
 
 export const Route = createFileRoute("/equipment/$id")({
 	loader: async ({ params, context }) => {
-		const [equipment, assignableUsers] = await Promise.all([
+		const [equipment, assignableUsers, incidentCounts] = await Promise.all([
 			getEquipmentById({ data: { id: params.id } }),
 			context.user?.role === "admin" ? getAssignableUsersFn() : Promise.resolve([]),
+			getOpenIncidentCountsFn(),
 		]);
-		return { equipment, assignableUsers };
+		const openIncidentCount =
+			incidentCounts.find((c) => c.equipment_id === params.id)?.count ?? 0;
+		return { equipment, assignableUsers, openIncidentCount };
 	},
 	component: EquipmentDetailPage,
 });
@@ -46,7 +49,7 @@ function useMobile() {
 }
 
 function EquipmentDetailPage() {
-	const { equipment, assignableUsers } = Route.useLoaderData();
+	const { equipment, assignableUsers, openIncidentCount } = Route.useLoaderData();
 	const { user: currentUser } = Route.useRouteContext();
 	const navigate = useNavigate();
 	const router = useRouter();
@@ -169,12 +172,14 @@ function EquipmentDetailPage() {
 				reportError={reportError}
 				incidentReported={incidentReported}
 				onReportIncident={handleReportIncident}
+				openIncidentCount={openIncidentCount}
 			/>
 		);
 	}
 
 	return (
 		<DesktopEquipmentDetail
+			openIncidentCount={openIncidentCount}
 			equipment={equipment}
 			updating={updating}
 			updateError={updateError}
@@ -206,6 +211,7 @@ function MobileEquipmentDetail({
 	reportError,
 	incidentReported,
 	onReportIncident,
+	openIncidentCount,
 }: {
 	equipment: EquipmentTable;
 	updating: boolean;
@@ -221,6 +227,7 @@ function MobileEquipmentDetail({
 	reportError: string | null;
 	incidentReported: boolean;
 	onReportIncident: (description: string | null) => void;
+	openIncidentCount: number;
 }) {
 	const [reportFormOpen, setReportFormOpen] = useState(false);
 	const [reportDescription, setReportDescription] = useState("");
@@ -357,8 +364,17 @@ function MobileEquipmentDetail({
 							>
 								{equipment.id.slice(0, 8)} · {equipment.serial_number || "—"}
 							</div>
-							<div style={{ marginTop: 10 }}>
+							<div
+								style={{
+									marginTop: 10,
+									display: "flex",
+									alignItems: "center",
+									gap: 6,
+									flexWrap: "wrap",
+								}}
+							>
 								<StatusBadge status={equipment.status} size="md" />
+								<OpenIncidentBadge count={openIncidentCount} />
 							</div>
 						</div>
 					</div>
@@ -848,6 +864,7 @@ function ActionIcon({
 type AssignableUser = Awaited<ReturnType<typeof getAssignableUsersFn>>[number];
 
 function DesktopEquipmentDetail({
+	openIncidentCount,
 	equipment,
 	updating,
 	updateError,
@@ -859,6 +876,7 @@ function DesktopEquipmentDetail({
 	assignError,
 	onAssign,
 }: {
+	openIncidentCount: number;
 	equipment: EquipmentTable;
 	updating: boolean;
 	updateError: string | null;
@@ -1023,7 +1041,12 @@ function DesktopEquipmentDetail({
 									{equipment.id}
 								</p>
 							</div>
-							<StatusBadge status={equipment.status} />
+							<span
+								style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+							>
+								<StatusBadge status={equipment.status} />
+								<OpenIncidentBadge count={openIncidentCount} />
+							</span>
 						</div>
 
 						{/* Actions */}

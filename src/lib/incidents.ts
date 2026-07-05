@@ -125,3 +125,26 @@ export const advanceIncidentFn = createServerFn({ method: "POST" })
 			};
 		});
 	});
+
+/**
+ * Nombre d'incidents non résolus par équipement. Ouvert aux deux rôles :
+ * les policies incidents_select / equipment_select filtrent par rôle, pas
+ * par propriété — un technicien voit les mêmes comptes qu'un admin.
+ */
+export const getOpenIncidentCountsFn = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		const rows = await withAuthContext(context.user, (trx) =>
+			trx
+				.selectFrom("incidents")
+				.select(["equipment_id"])
+				.select((eb) => eb.fn.countAll<string>().as("count"))
+				.where("status", "!=", "resolved")
+				.groupBy("equipment_id")
+				.execute(),
+		);
+		return rows.map((r) => ({
+			equipment_id: r.equipment_id,
+			count: Number(r.count),
+		}));
+	});

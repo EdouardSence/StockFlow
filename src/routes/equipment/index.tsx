@@ -1,12 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
-import { STATUS_META, StatusBadge } from "../../components/StatusBadge";
+import {
+	OpenIncidentBadge,
+	STATUS_META,
+	StatusBadge,
+} from "../../components/StatusBadge";
 import type { EquipmentTable } from "../../db/types";
 import { getEquipments } from "../../lib/equipment";
+import { getOpenIncidentCountsFn } from "../../lib/incidents";
 
 export const Route = createFileRoute("/equipment/")({
-	loader: () => getEquipments(),
+	loader: async () => {
+		const [equipment, incidentCounts] = await Promise.all([
+			getEquipments(),
+			getOpenIncidentCountsFn(),
+		]);
+		return { equipment, incidentCounts };
+	},
 	component: EquipmentList,
 });
 
@@ -50,7 +61,11 @@ const pagBtn: React.CSSProperties = {
 type FilterId = "all" | EquipmentTable["status"];
 
 function EquipmentList() {
-	const equipment = Route.useLoaderData();
+	const { equipment, incidentCounts } = Route.useLoaderData();
+	const incidentCountById = useMemo(
+		() => new Map(incidentCounts.map((c) => [c.equipment_id, c.count])),
+		[incidentCounts],
+	);
 	const [filter, setFilter] = useState<FilterId>("all");
 	const [query, setQuery] = useState("");
 
@@ -594,7 +609,18 @@ function EquipmentList() {
 													{e.serial_number ?? "—"}
 												</td>
 												<td style={tdStyle}>
-													<StatusBadge status={e.status} />
+													<span
+														style={{
+															display: "inline-flex",
+															alignItems: "center",
+															gap: 6,
+														}}
+													>
+														<StatusBadge status={e.status} />
+														<OpenIncidentBadge
+															count={incidentCountById.get(e.id) ?? 0}
+														/>
+													</span>
 												</td>
 												<td
 													style={{
