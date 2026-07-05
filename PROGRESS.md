@@ -240,6 +240,34 @@ correctifs : docs/certification/09-securisation.md.
 - [ ] Non commencé. Un seul bug traité formellement via issue GitHub cette session (#3, dette
       lint), fermé avec résumé des correctifs — sert de modèle pour la suite.
 
+## Lot Documentation certification (session, 2026-07-05)
+
+Rédaction des pièces Bloc 2 qui n'avaient aucune dépendance bloquante (contenu déjà factuel :
+cadrage Bloc 1, code livré, git log). Numérotées 17-20 pour éviter toute collision avec la
+numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — voir la note dans
+`docs/certification/17-criteres-qualite-performance.md`.
+
+- [x] `docs/certification/17-criteres-qualite-performance.md` — 8 KPI du cadrage Bloc 1 (cible
+      vs. état de mesure réel, la plupart « non mesuré » plutôt qu'inventés) + gates CI/Husky
+      réellement en place.
+- [x] `docs/certification/18-architecture.md` — vue conteneur C4 (client/server functions/data),
+      table cadrage vs. réel (incidents/dashboard/PWA non construits).
+- [x] `docs/certification/19-frameworks-paradigmes.md` — stack justifiée + paradigme réel du
+      code. Effect (`^3.21.2`, `package.json`) évalué et retenu au cadrage Bloc 1 pour la
+      logique métier critique ; intégration délibérément différée sur le domaine adapté à ses
+      garanties (transitions d'état, cas d'erreur réels) plutôt qu'utilisée sur de l'auth déjà
+      simple — prévue session 6 (pannes & assignation).
+- [x] `docs/certification/20-derniere-version-stable.md` — snapshot au tag `v0.3.0` (document
+      vivant, à remettre à jour à chaque tag).
+- [x] `docs/certification/08-historique-versions.md` — tags `v0.2.0`/`v0.3.0` + convention de
+      commit + l'épisode des 4 commits `fix:` post-revue de sécurité (documenté comme choix
+      délibéré de ne pas réécrire l'historique, voir aussi Lot Auth — revue adversariale).
+- [x] `docs/certification/11-harnais-de-tests.md` — état réel des 41 tests (18 auth-core + 13
+      RLS intégration + 10 equipment), document vivant. Note : `test:coverage` existe en script
+      mais pas encore en étape CI, pourcentage réel non mesuré.
+- [x] `docs/certification/01-deploiement-continu.md` — correction de la phrase périmée « pas
+      encore passé en conditions réelles » (la CI a tourné sur tout le lot auth/RLS, 8 commits).
+
 ## Lot Déploiement + manuels
 
 ### Remarques (état réel constaté)
