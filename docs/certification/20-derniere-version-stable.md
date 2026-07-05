@@ -16,6 +16,12 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
   permet) ; technicien limité à s'auto-assigner/se désassigner (RLS ne lui expose pas la
   liste de ses collègues — voir `19-frameworks-paradigmes.md`).
 - 22 tests de domaine supplémentaires (63 au total, voir `11-harnais-de-tests.md`).
+- Boucle de déclaration de panne complète (session 6 bis, même journée) : la tuile mobile
+  « Signaler panne » crée une vraie ligne `incidents` via `createIncidentFn` (sans toucher
+  `equipment.status` — qualification manuelle par l'admin depuis `/incidents`), badge
+  discret « incidents ouverts/en cours » sur la liste équipements et la fiche, validation
+  d'entrée serveur, 72 tests au total (dont 2 tests RLS prouvant qu'un technicien peut
+  déclarer un incident sur équipement assigné comme non assigné).
 - Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)

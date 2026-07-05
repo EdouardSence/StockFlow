@@ -216,15 +216,22 @@ correctifs : docs/certification/09-securisation.md.
 - [x] 22 tests de domaine exhaustifs (9 combinaisons `from×to` pour les incidents, 10 cas pour
       l'assignation) — 63/63 tests verts, `tsc`/Biome/build propres, `effect` confirmé absent du
       bundle client (vérifié dans `.output/public`).
-- [ ] Règle "auto-broken à l'ouverture d'un incident" tranchée **manuelle** (décision
+- [x] Règle "auto-broken à l'ouverture d'un incident" tranchée **manuelle** (décision
       utilisateur) : ouvrir un incident ne change pas `equipment.status` automatiquement, un
-      admin doit qualifier puis passer l'équipement en `broken` via l'action existante. Pas
-      d'alerte visuelle "équipement available avec incident open dessus" construite — dette
-      mineure, mitigation évoquée mais non implémentée cette session.
-- [ ] Pas d'UI de déclaration d'incident (bouton "signaler une panne" créant un vrai
-      `incidents` row) — `createIncidentFn` existe côté serveur mais rien ne l'appelle encore ;
-      la tuile "Signaler panne" sur `$id.tsx` continue de seulement changer `equipment.status`,
-      comportement pré-existant non touché (hors périmètre explicite de cette session).
+      admin doit qualifier puis passer l'équipement en `broken` via l'action existante.
+      Mitigation visuelle livrée (session 6 bis) : badge `OpenIncidentBadge` (nombre
+      d'incidents ouverts/en cours) sur la liste équipements et la fiche `$id.tsx` —
+      avertissement, jamais blocage.
+- [x] UI de déclaration d'incident (session 6 bis) : la tuile "Signaler panne" (mobile,
+      `$id.tsx`) appelle désormais `createIncidentFn` (ligne `incidents` réelle, `status open`,
+      `reported_by` = user courant, description optionnelle) et ne touche plus
+      `equipment.status`. Validation d'entrée `validateNewIncidentInput` +
+      `normalizeIncidentDescription` côté serveur.
+- [x] Vérifié sous RLS (tests d'intégration) : un technicien peut créer un incident sur un
+      équipement qui lui est assigné ET sur un équipement non assigné — les deux cas sont
+      légitimes, la policy `incidents_insert` n'a volontairement aucun filtre de propriété.
+- [x] Suite de tests : 72/72 verts (7 tests unitaires validation incident + 2 tests RLS
+      ajoutés en session 6 bis).
 
 ## Lot PWA offline
 
