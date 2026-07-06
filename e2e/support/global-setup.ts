@@ -1,6 +1,6 @@
 import { loadEnv } from "vite";
 import { hashPassword } from "../../src/lib/auth-core";
-import { createEphemeralAdmin, E2E_ADMIN, sweepEphemeralData } from "./db";
+import { createEphemeralUser, E2E_ADMIN, E2E_TECH, sweepEphemeralData } from "./db";
 
 export default async function globalSetup() {
 	// Charge .env.local (APP_POSTGRES_URL) comme le fait vitest.config.ts.
@@ -10,6 +10,8 @@ export default async function globalSetup() {
 	const swept = await sweepEphemeralData();
 	console.log("[e2e] sweep pré-suite :", swept);
 
-	await createEphemeralAdmin(await hashPassword(E2E_ADMIN.password));
-	console.log(`[e2e] compte admin éphémère prêt : ${E2E_ADMIN.email}`);
+	const hash = await hashPassword(E2E_ADMIN.password);
+	await createEphemeralUser(E2E_ADMIN, hash);
+	await createEphemeralUser(E2E_TECH, hash);
+	console.log(`[e2e] comptes éphémères prêts : ${E2E_ADMIN.email}, ${E2E_TECH.email}`);
 }

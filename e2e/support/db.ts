@@ -14,6 +14,15 @@ export const E2E_ADMIN = {
 	name: "E2E Ephemeral Admin",
 	email: `${E2E_PREFIX}admin@stockflow.test`,
 	password: "e2e-ephemeral-Passw0rd!",
+	role: "admin" as const,
+};
+
+export const E2E_TECH = {
+	id: `${E2E_PREFIX}tech`,
+	name: "E2E Ephemeral Tech",
+	email: `${E2E_PREFIX}tech@stockflow.test`,
+	password: "e2e-ephemeral-Passw0rd!",
+	role: "technician" as const,
 };
 
 function makePool() {
@@ -61,16 +70,22 @@ export async function sweepEphemeralData(): Promise<Record<string, number>> {
 	const like = `${E2E_PREFIX}%`;
 	try {
 		const deleted: Record<string, number> = {};
+		// Les lignes créées via l'UI ont un id uuid (non préfixé) : le préfixe
+		// vit alors dans les champs saisis (name, description, serial) ou dans
+		// la FK vers un user/équipement éphémère — toutes les colonnes matchées.
 		const incidents = await runAsAdmin(
 			pool,
 			`DELETE FROM incidents
-			 WHERE id LIKE $1 OR equipment_id LIKE $1 OR reported_by LIKE $1`,
+			 WHERE id LIKE $1 OR equipment_id LIKE $1 OR reported_by LIKE $1
+			    OR description LIKE $1
+			    OR equipment_id IN (SELECT id FROM equipment WHERE name LIKE $1)`,
 			[like],
 		);
 		deleted.incidents = incidents.rowCount ?? 0;
 		const equipment = await runAsAdmin(
 			pool,
-			"DELETE FROM equipment WHERE id LIKE $1 OR qr_code LIKE $1",
+			`DELETE FROM equipment
+			 WHERE id LIKE $1 OR qr_code LIKE $1 OR name LIKE $1 OR serial_number LIKE $1`,
 			[like],
 		);
 		deleted.equipment = equipment.rowCount ?? 0;
@@ -89,17 +104,61 @@ export async function sweepEphemeralData(): Promise<Record<string, number>> {
 	}
 }
 
-/** Crée le compte admin éphémère utilisé par les scénarios (login réel). */
-export async function createEphemeralAdmin(passwordHash: string): Promise<void> {
+/** Crée un compte éphémère utilisé par les scénarios (login réel). */
+export async function createEphemeralUser(
+	user: typeof E2E_ADMIN | typeof E2E_TECH,
+	passwordHash: string,
+): Promise<void> {
 	const pool = makePool();
 	try {
 		await runAsAdmin(
 			pool,
 			`INSERT INTO users (id, name, email, role, password_hash, created_at)
-			 VALUES ($1, $2, $3, 'admin', $4, NOW())
+			 VALUES ($1, $2, $3, $4, $5, NOW())
 			 ON CONFLICT (id) DO NOTHING`,
-			[E2E_ADMIN.id, E2E_ADMIN.name, E2E_ADMIN.email, passwordHash],
+			[user.id, user.name, user.email, user.role, passwordHash],
 		);
+	} finally {
+		await pool.end();
+	}
+}
+
+/** Équipement éphémère semé directement en base (id ET qr_code préfixés). */
+export async function createEphemeralEquipment(opts: {
+	id: string;
+	name: string;
+	status?: "available" | "assigned" | "broken" | "maintenance";
+	assigned_to?: string | null;
+	serial_number?: string | null;
+}): Promise<void> {
+	const pool = makePool();
+	try {
+		await runAsAdmin(
+			pool,
+			`INSERT INTO equipment (id, name, type, qr_code, status, assigned_to, serial_number)
+			 VALUES ($1, $2, 'pc', $1, $3, $4, $5)
+			 ON CONFLICT (id) DO NOTHING`,
+			[
+				opts.id,
+				opts.name,
+				opts.status ?? "available",
+				opts.assigned_to ?? null,
+				opts.serial_number ?? null,
+			],
+		);
+	} finally {
+		await pool.end();
+	}
+}
+
+/** Lecture directe pour les assertions « la ligne existe vraiment en base ». */
+export async function queryAsAdmin(
+	text: string,
+	params: unknown[] = [],
+): Promise<pg.QueryResult> {
+	const pool = makePool();
+	try {
+		return await runAsAdmin(pool, text, params);
 	} finally {
 		await pool.end();
 	}
