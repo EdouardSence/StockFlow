@@ -159,3 +159,43 @@ export function createLoginRateLimiter(
 		},
 	};
 }
+
+/**
+ * Limiteur à trois étages (issue #15) : la clé composite IP:email seule
+ * laisse passer un brute-force distribué (N adresses IP × 5 essais sur un
+ * même compte) et le credential stuffing (une IP balayant N emails).
+ * - paire IP:email : strict (5), protège le cas nominal ;
+ * - email seul : plafond global du compte quel que soit le nombre d'IPs —
+ *   plus haut (20) pour ne pas offrir un déni de service au compte visé ;
+ * - IP seule : plafond global d'une adresse quel que soit l'email (30).
+ * `reset` (succès de login) ne vide que la paire : remettre à zéro les
+ * étages email/IP permettrait à un attaquant de purger ses compteurs en
+ * intercalant un succès sur son propre compte.
+ */
+export function createTieredLoginLimiter(
+	windowMs = 15 * 60 * 1000,
+	maxPerPair = 5,
+	maxPerEmail = 20,
+	maxPerIp = 30,
+) {
+	const perPair = createLoginRateLimiter(maxPerPair, windowMs);
+	const perEmail = createLoginRateLimiter(maxPerEmail, windowMs);
+	const perIp = createLoginRateLimiter(maxPerIp, windowMs);
+	return {
+		isLimited(ip: string, email: string, now: number = Date.now()): boolean {
+			return (
+				perPair.isLimited(`${ip}:${email}`, now) ||
+				perEmail.isLimited(email, now) ||
+				perIp.isLimited(ip, now)
+			);
+		},
+		recordFailure(ip: string, email: string, now: number = Date.now()): void {
+			perPair.recordFailure(`${ip}:${email}`, now);
+			perEmail.recordFailure(email, now);
+			perIp.recordFailure(ip, now);
+		},
+		reset(ip: string, email: string): void {
+			perPair.reset(`${ip}:${email}`);
+		},
+	};
+}

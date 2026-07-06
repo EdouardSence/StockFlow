@@ -17,7 +17,7 @@ import {
 	REFRESH_TOKEN_TTL_SECONDS,
 	type Role,
 	type SessionUser,
-	createLoginRateLimiter,
+	createTieredLoginLimiter,
 	decodePemFromEnv,
 	generateRefreshToken,
 	hashRefreshToken,
@@ -209,18 +209,18 @@ export async function resolveSession(): Promise<SessionUser | null> {
 
 /* ── Login / logout ─────────────────────────────────────────────── */
 
-const loginLimiter = createLoginRateLimiter();
+const loginLimiter = createTieredLoginLimiter();
 const GENERIC_LOGIN_ERROR = "Email ou mot de passe incorrect.";
 
 export async function doLogin(data: {
 	email: string;
 	password: string;
 }): Promise<SessionUser> {
-	// Clé composite IP+email : une seule adresse ne peut pas verrouiller le
-	// compte d'un tiers à distance en pulvérisant des échecs sur son email.
+	// Trois étages (cf. createTieredLoginLimiter, issue #15) : paire IP:email
+	// stricte, plafond par email (brute-force distribué sur un compte) et
+	// plafond par IP (credential stuffing multi-comptes).
 	const ip = getRequestIP({ xForwardedFor: true }) ?? "unknown";
-	const limiterKey = `${ip}:${data.email}`;
-	if (loginLimiter.isLimited(limiterKey)) {
+	if (loginLimiter.isLimited(ip, data.email)) {
 		throw new Error("Trop de tentatives. Réessayez dans 15 minutes.");
 	}
 
@@ -231,11 +231,11 @@ export async function doLogin(data: {
 	const valid = await verifyPassword(hashToCheck, data.password);
 
 	if (!row || !row.password_hash || !valid) {
-		loginLimiter.recordFailure(limiterKey);
+		loginLimiter.recordFailure(ip, data.email);
 		throw new Error(GENERIC_LOGIN_ERROR);
 	}
 
-	loginLimiter.reset(limiterKey);
+	loginLimiter.reset(ip, data.email);
 	const user: SessionUser = {
 		id: row.id,
 		name: row.name,

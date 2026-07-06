@@ -6,6 +6,7 @@ import {
 	AuthError,
 	assertRole,
 	createLoginRateLimiter,
+	createTieredLoginLimiter,
 	generateRefreshToken,
 	hashPassword,
 	hashRefreshToken,
@@ -154,5 +155,47 @@ describe("rate limiting login", () => {
 		const now = 1_000_000;
 		for (let i = 0; i < 5; i++) limiter.recordFailure("a@b.c", now);
 		expect(limiter.isLimited("autre@b.c", now)).toBe(false);
+	});
+});
+
+describe("createTieredLoginLimiter (issue #15)", () => {
+	const T0 = 1_000_000;
+
+	it("paire IP:email : bloquée à 5 échecs, l'email reste libre depuis une autre IP", () => {
+		const l = createTieredLoginLimiter();
+		for (let i = 0; i < 5; i++) l.recordFailure("1.1.1.1", "a@x.fr", T0);
+		expect(l.isLimited("1.1.1.1", "a@x.fr", T0)).toBe(true);
+		expect(l.isLimited("2.2.2.2", "a@x.fr", T0)).toBe(false);
+	});
+
+	it("brute-force distribué : 20 échecs sur un email via 20 IPs → 21e IP bloquée aussi", () => {
+		const l = createTieredLoginLimiter();
+		for (let i = 0; i < 20; i++) l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
+		expect(l.isLimited("99.99.99.99", "cible@x.fr", T0)).toBe(true);
+		// Un autre compte n'est pas affecté depuis une IP vierge.
+		expect(l.isLimited("99.99.99.99", "autre@x.fr", T0)).toBe(false);
+	});
+
+	it("credential stuffing : 30 échecs d'une IP sur 30 emails → IP bloquée pour tout email", () => {
+		const l = createTieredLoginLimiter();
+		for (let i = 0; i < 30; i++) l.recordFailure("6.6.6.6", `u${i}@x.fr`, T0);
+		expect(l.isLimited("6.6.6.6", "jamais-vu@x.fr", T0)).toBe(true);
+		expect(l.isLimited("7.7.7.7", "u1@x.fr", T0)).toBe(false);
+	});
+
+	it("le succès ne purge que la paire, pas les compteurs email/IP", () => {
+		const l = createTieredLoginLimiter();
+		for (let i = 0; i < 19; i++) l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
+		l.reset("10.0.0.1", "cible@x.fr");
+		l.recordFailure("10.0.0.50", "cible@x.fr", T0);
+		// 20 échecs cumulés sur l'email malgré le reset intermédiaire.
+		expect(l.isLimited("11.11.11.11", "cible@x.fr", T0)).toBe(true);
+	});
+
+	it("les fenêtres expirent : plus limité après windowMs", () => {
+		const l = createTieredLoginLimiter(1000);
+		for (let i = 0; i < 5; i++) l.recordFailure("1.1.1.1", "a@x.fr", T0);
+		expect(l.isLimited("1.1.1.1", "a@x.fr", T0)).toBe(true);
+		expect(l.isLimited("1.1.1.1", "a@x.fr", T0 + 1001)).toBe(false);
 	});
 });
