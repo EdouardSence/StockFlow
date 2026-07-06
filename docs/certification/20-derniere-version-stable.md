@@ -22,6 +22,10 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
   discret « incidents ouverts/en cours » sur la liste équipements et la fiche, validation
   d'entrée serveur, 72 tests au total (dont 2 tests RLS prouvant qu'un technicien peut
   déclarer un incident sur équipement assigné comme non assigné).
+- Cahier de recettes exécutable (session 10, 2026-07-06) : suite e2e Playwright de
+  19 scénarios (auth, RBAC, CRUD + QR, scan, incidents, assignation), 19/19 verts contre
+  la base réelle, document `13-cahier-de-recettes.md` rédigé depuis ces résultats.
+  Anomalie AN-1 (bouton scan décoratif) tracée en issue #22, non corrigée à ce stade.
 - Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)

@@ -267,10 +267,25 @@ correctifs : docs/certification/09-securisation.md.
       mécanique (titres SVG, aria-hidden, labels, fieldset/legend) — pas un audit RGAA complet
       (pas de test lecteur d'écran, pas de vérification de contraste, pas de test clavier complet).
 
-## Lot Cahier de recette + bugs
+## Lot Cahier de recette + bugs (session 10, 2026-07-06)
 
-- [ ] Non commencé. Un seul bug traité formellement via issue GitHub cette session (#3, dette
-      lint), fermé avec résumé des correctifs — sert de modèle pour la suite.
+- [x] Suite e2e Playwright complète (`e2e/`, 6 specs) : 19 scénarios couvrant auth (4),
+      RBAC (3, dont replay réseau d'un appel serveur admin-only avec session technicien),
+      CRUD équipement + génération QR (4), scan via contrat d'URL encodée (2), boucle
+      incidents avec assertions en base réelle (3), assignation (3). **19/19 verts, 35,9 s**
+      (2026-07-06). Base partagée confinée : préfixe `e2e-ephemeral-` + sweep avant/après
+      (0 résidu vérifié au run suivant).
+- [x] `docs/certification/13-cahier-de-recettes.md` rédigé depuis les résultats réels :
+      tableau par fonctionnalité (ID, acteur, prérequis, étapes, attendu, obtenu, renvoi
+      test), anomalies, hors-périmètre livré documenté explicitement (PWA, export, notifs,
+      journal d'audit, suppressions, caméra réelle).
+- [x] Processus detect → qualifie → corrige appliqué : anomalie AN-1 (bouton « Saisir le
+      code manuellement » de `scan.tsx` sans action) → issue #22 qualifiée sur le Kanban,
+      pas de correction silencieuse. Fausse piste R3 (HTTP 200 sur refus) investiguée et
+      écartée : sérialisation d'erreur TanStack Start, le serveur refuse bien (FORBIDDEN).
+- [x] Couverture remesurée (2026-07-06) : chiffres identiques — l'e2e tourne dans le
+      process du serveur dev, hors instrumentation v8. Prédiction corrigée honnêtement
+      dans `12-couverture-de-code.md`.
 
 ## Lot Documentation certification (session, 2026-07-05)
 

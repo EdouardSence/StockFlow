@@ -66,14 +66,26 @@ fonctions de logique pure, elles, sont toutes exercées (19/19 côté domaine + 
 Le pourcentage global « functions » mesure donc surtout la proportion coquille/domaine du
 codebase, pas un déficit de tests sur la logique.
 
-## Trajectoire
+## Remesure du 2026-07-06 (après la session e2e — correction d'une prédiction)
 
-La session suivante (tests e2e Playwright — cahier de recettes, pièce 13) exercera les
-coquilles pour de vrai : navigateur → route → server function → middleware → Kysely →
-Postgres RLS. Les handlers, validateurs et callbacks de transaction aujourd'hui à 0 %
-seront traversés par les parcours réels (login, CRUD équipement, déclaration d'incident,
-assignation), ce qui fera mécaniquement remonter « Functions » et « Statements » sans
-écrire un seul test unitaire de mock.
+Remesure post-session cahier de recettes : **chiffres strictement identiques** à la mesure
+du 2026-07-05 (51,1 / 65,1 / 31,7 / 51,8 %).
 
-**À faire après cette session** : relancer `bun run test:coverage`, mettre à jour les deux
-tableaux ci-dessus et dater la nouvelle mesure.
+La version précédente de ce document prédisait que la suite e2e ferait « mécaniquement
+remonter » Functions et Statements. C'était faux sur le chiffre, et il faut le dire
+précisément : les 19 scénarios Playwright traversent bien les coquilles de bout en bout
+(navigateur → route → server function → middleware → Kysely → Postgres RLS, avec
+assertions sur les lignes réellement écrites — voir `13-cahier-de-recettes.md`), mais ils
+s'exécutent dans le **process du serveur dev**, séparé du process vitest que le provider
+v8 instrumente. La couverture *mesurée* ne voit donc que les tests unitaires et
+d'intégration vitest.
+
+Lecture correcte pour le jury : les coquilles sont désormais **exercées et vérifiées**
+(e2e + tests RLS sur base réelle), mais ces vérifications sont **invisibles dans le
+pourcentage v8**, qui reste l'affaire de la logique pure (100 % domaine, 90,5 %
+auth-core — le critère ≥ 80 % sur la logique métier reste atteint). Fusionner les deux
+mesures (instrumenter le serveur dev via `NODE_V8_COVERAGE`/c8 et merger les rapports)
+est possible mais hors périmètre — le gain serait cosmétique, pas probant.
+
+**Document vivant** : relancer `bun run test:coverage` et dater toute nouvelle mesure
+après chaque session ajoutant des tests vitest.
