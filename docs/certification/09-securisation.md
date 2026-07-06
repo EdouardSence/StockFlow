@@ -103,13 +103,40 @@ une obligation.
 - Script e2e (protocole RPC réel contre le dev server) : accès refusé sans session, login
   refusé sur mauvais mot de passe, login → cookies → données, logout → session révoquée.
 
-### Dettes connues
+### Dettes connues (état au 2026-07-07 — les 4 premières sont résorbées)
 
-- Zod ne valide que `loginFn` ; les server functions equipment gardent un cast TypeScript.
-- En-têtes HTTP de sécurité (CSP…) non configurés.
-- Rate limiting par instance (voir plus haut).
-- `APP_POSTGRES_URL`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` à provisionner sur Vercel avant le
-  prochain déploiement.
+- ~~Zod ne valide que `loginFn`~~ → schémas Zod sur toutes les server functions equipment
+  (issue #14, session 10 quater).
+- ~~En-têtes HTTP de sécurité non configurés~~ → vercel.json, vérifiés en prod (issue #17).
+- ~~`APP_POSTGRES_URL`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` à provisionner sur Vercel~~ →
+  provisionnées, prod fonctionnelle vérifiée (issue #20).
+- ~~Erreurs Postgres brutes exposées au client~~ → garde SQLSTATE dans `withAuthContext`
+  (issue #8).
+- Rate limiting en mémoire par instance (voir plus haut) — résiduel documenté (#15 fermée).
+- Vulnérabilités transitives dans l'outillage dev/build (issue #24, voir checklist A06).
+
+## Checklist OWASP Top 10 (2021) — audit formalisé du 2026-07-07
+
+Chaque catégorie est jugée contre le code réellement livré, avec renvois vers les preuves
+(code, tests, issues). Statuts : ✅ couvert · 🟡 partiel (résiduel documenté) · ⚪ non
+applicable au périmètre.
+
+| # | Catégorie | Statut | Preuves et résiduels |
+|---|-----------|--------|----------------------|
+| A01 | Broken Access Control | ✅ | `authMiddleware`/`adminMiddleware` sur toutes les server functions ; RLS 13 policies fail-closed (`withAuthContext` obligatoire) ; grants par colonnes sur `password_hash`. Preuves : 13 tests d'intégration RLS sur base réelle, e2e R1-R3 (dont replay d'un appel admin-only avec session technicien → FORBIDDEN). Résiduel : RLS à claims auto-déclarés, sans effet si la connexion app est compromise (constat transversal ci-dessous, #7). |
+| A02 | Cryptographic Failures | ✅ | argon2id (jamais de plaintext), JWT RS256 algorithme verrouillé, refresh tokens hashés SHA-256 en base, cookies httpOnly+Secure+SameSite=Strict, HSTS 2 ans (#17), TLS bout en bout (Vercel/Supabase). Preuves : 18 tests auth-core (token altéré, clé étrangère, expiration). |
+| A03 | Injection | ✅ | SQL : exclusivement Kysely paramétré + fonctions `SECURITY DEFINER` à `search_path` figé — zéro SQL concaténé (convention CLAUDE.md, vérifiable par grep). XSS : React échappe par défaut, `dangerouslySetInnerHTML` absent du codebase (0 occurrence), CSP en défense en profondeur. Entrées : Zod sur toutes les server functions à payload (#14). |
+| A04 | Insecure Design | ✅ | Noyau métier pur testé exhaustivement (state machine incidents, règles d'assignation — 100 % de couverture), fail-closed par défaut (RLS, démarrage sans `APP_POSTGRES_URL` refusé), revue de sécurité adversariale multi-agents avec réfutation indépendante (session 3), décisions d'architecture documentées avec alternatives écartées. |
+| A05 | Security Misconfiguration | 🟡 | En-têtes durcis (#17 : CSP, XCTO, XFO, Referrer-Policy, Permissions-Policy, HSTS), `REVOKE ALL FROM anon/authenticated` (surface PostgREST fermée), `sendDefaultPii: false`, secrets uniquement en env. Résiduel documenté : `script-src 'unsafe-inline'` imposé par l'hydratation TanStack Start (pas de nonce exposé par le framework). |
+| A06 | Vulnerable & Outdated Components | 🟡 | Lockfile commité, versions épinglées. `bun audit` (2026-07-07) : 16 vulnérabilités transitives, **toutes confinées à l'outillage dev/build** (vite dev server, devtools, vitest/jsdom, commitlint) — aucune n'atteint le bundle runtime. Suivi : issue #24 (`bun update` planifié). Pas d'audit automatique en CI (dette d'outillage). |
+| A07 | Identification & Authentication Failures | 🟡 | Rate limiting 3 étages (paire/email/IP, #15), anti-énumération (hash factice + message générique), rotation des refresh tokens avec détection de réutilisation (révocation de famille), pas d'inscription publique, logout hors fenêtre de grâce. Résiduels assumés et bornés : access token non révocable pendant 15 min (#4), pas de logout global multi-session (#5) — atténués par la détection de vol. |
+| A08 | Software & Data Integrity Failures | 🟡 | Chaîne de build maîtrisée (lockfile, CI GitHub Actions sans action tierce exotique, déploiement Vercel authentifié), aucun contenu distant exécuté (CSP `script-src` sans CDN). Résiduel générique : confiance npm (pas de vendoring ni de signature de paquets — hors de proportion pour le périmètre). |
+| A09 | Security Logging & Monitoring Failures | 🟡 | Sentry en prod (erreurs client, PII désactivée), logs serveur Vercel, erreurs Postgres loggées côté serveur avec détail complet (#8), échecs de login comptabilisés (rate limiter). Résiduel : pas de journal d'audit applicatif persistant (qui a fait quoi quand) — fonction complémentaire documentée « hors périmètre livré » dans le cahier de recettes. |
+| A10 | Server-Side Request Forgery | ⚪ | Aucune requête sortante construite à partir d'une entrée utilisateur : les seuls appels réseau côté serveur vont vers Postgres (URL d'env) ; côté client, vers l'app et Sentry (DSN statique). Pas de fetch d'URL fournie par l'utilisateur nulle part. |
+
+Synthèse : aucune catégorie « rouge ». Les quatre 🟡 ont chacun un résiduel identifié,
+qualifié, tracé (issues #4, #5, #7, #24) et défendable — aucun n'est une vulnérabilité
+activement exploitable dans le périmètre TPE/PME visé.
 
 ## Revue de sécurité adversariale (session 3, 2026-07-04)
 

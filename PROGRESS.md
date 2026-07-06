@@ -269,7 +269,10 @@ correctifs : docs/certification/09-securisation.md.
       `'unsafe-inline'` script requis par l'hydratation TanStack Start), XCTO, XFO DENY,
       Referrer-Policy, Permissions-Policy (camera=self pour le scan), HSTS. Vérifiés en prod,
       zéro violation CSP sur les parcours réels.
-- [ ] Audit OWASP formalisé (checklist Top 10 complète) non rédigé.
+- [x] Audit OWASP formalisé (issue #18, 2026-07-07) : checklist Top 10 (2021) complète dans
+      `09-securisation.md` — statut par catégorie avec preuves (code, tests, issues), 4
+      catégories 🟡 aux résiduels tracés (#4, #5, #7, #24), `bun audit` passé (16 vulns
+      transitives confinées à l'outillage dev, issue #24).
 - [x] Accessibilité : lint `lint/a11y/*` de Biome au vert sur tout le repo (17 fichiers), corrigé
       cette session (issue GitHub #3 fermée avec le détail des correctifs). Ce n'est qu'un socle
       mécanique (titres SVG, aria-hidden, labels, fieldset/legend) — pas un audit RGAA complet
