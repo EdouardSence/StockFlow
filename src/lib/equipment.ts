@@ -1,43 +1,55 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Effect } from "effect";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 import { withAuthContext } from "../db/client";
-import type { EquipmentTable } from "../db/types";
 import { adminMiddleware, authMiddleware } from "./auth";
 import { assignEquipment } from "./equipment-domain";
 
-export type NewEquipmentInput = {
-	name: string;
-	type: EquipmentTable["type"];
-	status?: EquipmentTable["status"];
-	brand?: string | null;
-	model?: string | null;
-	serial_number?: string | null;
-	notes?: string | null;
-	assigned_to?: string | null;
-};
+/* ── Schémas d'entrée (validation runtime Zod, issue #14) ─────────
+ * Même exigence que loginFn : jamais de simple cast TypeScript sur une
+ * server function. Défauts et normalisation à null vivent dans le schéma —
+ * le handler consomme des données déjà sûres. */
 
-export function validateNewEquipmentInput(
-	input: Partial<NewEquipmentInput>,
-): string | null {
-	if (!input.name || input.name.trim().length === 0) return "Le nom est requis";
-	if (!input.type) return "Le type est requis";
-	const validTypes: EquipmentTable["type"][] = ["pc", "screen", "printer", "other"];
-	if (!validTypes.includes(input.type)) return `Type invalide: ${input.type}`;
-	return null;
-}
+export const equipmentTypeSchema = z.enum(["pc", "screen", "printer", "other"]);
+export const equipmentStatusSchema = z.enum([
+	"available",
+	"assigned",
+	"broken",
+	"maintenance",
+]);
 
-export function applyEquipmentDefaults(input: NewEquipmentInput) {
-	return {
-		...input,
-		status: input.status ?? ("available" as const),
-		brand: input.brand ?? null,
-		model: input.model ?? null,
-		serial_number: input.serial_number ?? null,
-		notes: input.notes ?? null,
-		assigned_to: input.assigned_to ?? null,
-	};
-}
+const optionalText = (max: number) =>
+	z
+		.string()
+		.max(max)
+		.nullish()
+		.transform((v) => (v?.trim() ? v.trim() : null));
+
+export const newEquipmentSchema = z.object({
+	name: z.string("Le nom est requis").trim().min(1, "Le nom est requis").max(200),
+	type: equipmentTypeSchema,
+	status: equipmentStatusSchema.default("available"),
+	brand: optionalText(200),
+	model: optionalText(200),
+	serial_number: optionalText(200),
+	notes: optionalText(2000),
+	assigned_to: optionalText(100),
+});
+
+export const equipmentIdSchema = z.object({ id: z.string().trim().min(1) });
+
+export const updateEquipmentStatusSchema = z.object({
+	id: z.string().trim().min(1),
+	status: equipmentStatusSchema,
+});
+
+export const assignEquipmentSchema = z.object({
+	id: z.string().trim().min(1),
+	userId: z.string().trim().min(1).nullable(),
+});
+
+export type NewEquipmentInput = z.input<typeof newEquipmentSchema>;
 
 export const getEquipments = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
@@ -53,7 +65,7 @@ export const getEquipments = createServerFn({ method: "GET" })
 
 export const getEquipmentById = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
-	.inputValidator((data: unknown) => data as { id: string })
+	.inputValidator((data: unknown) => equipmentIdSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		const row = await withAuthContext(context.user, (trx) =>
 			trx
@@ -67,29 +79,17 @@ export const getEquipmentById = createServerFn({ method: "GET" })
 
 export const createEquipmentFn = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
-	.inputValidator((data: unknown) => data as NewEquipmentInput)
+	.inputValidator((data: unknown) => newEquipmentSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		const id = uuidv4();
 		const qr_code = uuidv4();
 		const now = new Date().toISOString();
 
+		// data est déjà normalisé par le schéma (défauts + null).
 		await withAuthContext(context.user, (trx) =>
 			trx
 				.insertInto("equipment")
-				.values({
-					id,
-					qr_code,
-					name: data.name,
-					type: data.type,
-					status: data.status ?? "available",
-					brand: data.brand ?? null,
-					model: data.model ?? null,
-					serial_number: data.serial_number ?? null,
-					notes: data.notes ?? null,
-					assigned_to: data.assigned_to ?? null,
-					created_at: now,
-					updated_at: now,
-				})
+				.values({ ...data, id, qr_code, created_at: now, updated_at: now })
 				.execute(),
 		);
 
@@ -98,9 +98,7 @@ export const createEquipmentFn = createServerFn({ method: "POST" })
 
 export const updateEquipmentStatus = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
-	.inputValidator(
-		(data: unknown) => data as { id: string; status: EquipmentTable["status"] },
-	)
+	.inputValidator((data: unknown) => updateEquipmentStatusSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		await withAuthContext(context.user, (trx) =>
 			trx
@@ -137,9 +135,7 @@ export const getAssignableUsersFn = createServerFn({ method: "GET" })
  */
 export const assignEquipmentFn = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
-	.inputValidator(
-		(data: unknown) => data as { id: string; userId: string | null },
-	)
+	.inputValidator((data: unknown) => assignEquipmentSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		if (
 			data.userId !== null &&
