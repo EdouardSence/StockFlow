@@ -42,14 +42,40 @@ export const db = new Kysely<Database>({
  * Fail-closed : toute requête hors de ce wrapper n'a aucun claim posé, donc
  * les policies RLS refusent l'accès.
  */
+/**
+ * Une erreur Postgres brute (SQLSTATE + severity) exposerait noms de tables,
+ * colonnes ou contraintes au client (F11, issue #8). Les erreurs métier
+ * (Error/AuthError jetées par les handlers) ne matchent pas et passent telles
+ * quelles.
+ */
+export function isPgError(err: unknown): boolean {
+	return (
+		typeof err === "object" &&
+		err !== null &&
+		"severity" in err &&
+		"code" in err &&
+		typeof (err as { code: unknown }).code === "string" &&
+		/^[0-9A-Z]{5}$/.test((err as { code: string }).code)
+	);
+}
+
 export async function withAuthContext<T>(
 	user: Pick<SessionUser, "id" | "role">,
 	fn: (trx: Transaction<Database>) => Promise<T>,
 ): Promise<T> {
-	return db.transaction().execute(async (trx) => {
-		await sql`SELECT set_config('app.user_id', ${user.id}, true), set_config('app.role', ${user.role}, true)`.execute(
-			trx,
-		);
-		return fn(trx);
-	});
+	try {
+		return await db.transaction().execute(async (trx) => {
+			await sql`SELECT set_config('app.user_id', ${user.id}, true), set_config('app.role', ${user.role}, true)`.execute(
+				trx,
+			);
+			return fn(trx);
+		});
+	} catch (err) {
+		if (isPgError(err)) {
+			// Détail complet côté serveur (logs Vercel), message générique côté client.
+			console.error("[db] erreur Postgres masquée au client :", err);
+			throw new Error("Opération impossible. Réessayez ou contactez un administrateur.");
+		}
+		throw err;
+	}
 }
