@@ -28,6 +28,9 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
   Anomalies AN-1 (#22, bouton scan décoratif → saisie manuelle livrée) et AN-2 (#23,
   crash au démontage de /scan après échec caméra) corrigées en session 10 bis — suite
   e2e à 21/21 (SC3/SC4 ajoutés).
+- Tableau de bord desktop (session 10 ter, design « StockFlow v1 ») : KPI, parc récent
+  avec actions contextuelles, panneau incidents ouverts — la racine ne redirige plus vers
+  /equipment. Suite e2e à 24/24.
 - Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)

@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-06, 21/21 scénarios passés en 41,7 s** (Chromium
+papier ». **Dernière exécution : 2026-07-06, 24/24 scénarios passés en 39,4 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -81,6 +81,14 @@ Limite assumée : le décodage caméra (`html5-qrcode`) n'est pas automatisable 
 (pas de flux vidéo). Le contrat testé est celui que le scan produit : QR = URL
 `/equipment/$id` (génération, E1/SC1) et l'écran scanner navigue vers cette URL après
 décodage (`scan.tsx`). Le décodage lui-même relève d'un test manuel sur appareil réel.
+
+### Tableau de bord (`e2e/dashboard.spec.ts`)
+
+| ID | Acteur | Prérequis | Étapes | Résultat attendu | Obtenu |
+|----|--------|-----------|--------|------------------|--------|
+| D1 | admin | équipements seedés (assigné + en panne) | Ouvrir `/` (desktop) | « Vue d'ensemble du parc » : 4 KPI, table parc récent avec les équipements seedés et actions contextuelles (« Réparer » sur l'équipement en panne), panneau Incidents ouverts | ✅ passé |
+| D2 | admin | équipement assigné | Clic « Libérer » dans la table | Badge repasse « Disponible » ; `[DB]` `status=available`, `assigned_to=null` | ✅ passé |
+| D3 | tech | — | Ouvrir `/` (desktop) | Dashboard visible (données RLS role-based) ; lien « Gérer les incidents » absent (réservé admin) | ✅ passé |
 
 ### Incidents (`e2e/incidents.spec.ts`)
 

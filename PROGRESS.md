@@ -286,6 +286,13 @@ correctifs : docs/certification/09-securisation.md.
 - [x] Couverture remesurée (2026-07-06) : chiffres identiques — l'e2e tourne dans le
       process du serveur dev, hors instrumentation v8. Prédiction corrigée honnêtement
       dans `12-couverture-de-code.md`.
+- [x] Session 10 ter — tableau de bord (design « StockFlow v1.dc.html », décision : fusion
+      dans le shell existant, login + sidebar conservés) : la racine desktop est une vraie
+      page « Vue d'ensemble du parc » (4 KPI, parc récent avec assigné/statut/actions
+      contextuelles, actions rapides, incidents ouverts). `listOpenIncidentsFn` sans join
+      `users` (RLS technicien). Scénarios D1-D3, suite e2e **24/24** (39,4 s). Hors scope
+      assumé de v1 : header à onglets (artefact de prototype), champs formulaire absents du
+      schéma (état général, date d'achat, localisation), indicateur online/offline (PWA #9).
 - [x] Session 10 bis : AN-1 corrigée (#22, saisie manuelle du code avec vérification
       serveur via `getEquipmentById`, scénarios SC3/SC4) ; AN-2 découverte par SC3 et
       corrigée (#23, crash au démontage de `/scan` après échec caméra — `stop()`
