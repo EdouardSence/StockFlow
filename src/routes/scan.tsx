@@ -1,11 +1,22 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { getEquipmentById } from "../lib/equipment";
 
 export const Route = createFileRoute("/scan")({
 	component: ScanPage,
 });
 
 const READER_ID = "stockflow-qr-reader";
+
+/**
+ * Extrait l'id équipement d'un contenu de QR StockFlow (URL /equipment/$id).
+ * Logique partagée entre le décodage caméra et la saisie manuelle — pour la
+ * saisie manuelle, un code brut (id collé sans URL) est aussi accepté.
+ */
+function extractEquipmentId(text: string): string | null {
+	const match = text.match(/\/equipment\/([0-9a-f-]{36})/i);
+	return match ? match[1] : null;
+}
 
 function beep() {
 	try {
@@ -53,9 +64,9 @@ function ScanPage() {
 						scannerRef.current = null;
 						beep();
 
-						const match = decodedText.match(/\/equipment\/([0-9a-f-]{36})/i);
-						if (match) {
-							navigate({ to: "/equipment/$id", params: { id: match[1] } });
+						const id = extractEquipmentId(decodedText);
+						if (id) {
+							navigate({ to: "/equipment/$id", params: { id } });
 						} else {
 							setRawResult(decodedText);
 						}
@@ -63,6 +74,9 @@ function ScanPage() {
 					() => {},
 				);
 			} catch {
+				// Démarrage raté : ne pas garder la référence, sinon le cleanup
+				// tenterait un stop() sur un scanner jamais démarré (issue #23).
+				scannerRef.current = null;
 				if (!cancelled) {
 					setCameraError("Impossible d'accéder à la caméra. Vérifiez les permissions.");
 				}
@@ -75,10 +89,14 @@ function ScanPage() {
 			cancelled = true;
 			const scanner = scannerRef.current;
 			if (scanner) {
-				scanner
-					.stop()
-					.then(() => scanner.clear())
-					.catch(() => {});
+				// stop() jette en SYNCHRONE si le scanner ne tourne pas — le
+				// .catch() chaîné ne suffit pas (issue #23).
+				try {
+					scanner
+						.stop()
+						.then(() => scanner.clear())
+						.catch(() => {});
+				} catch {}
 				scannerRef.current = null;
 			}
 		};
@@ -94,7 +112,28 @@ function ScanPage() {
 		return <RawResultScreen result={rawResult} onRescan={handleRescan} />;
 	}
 
-	return <ScannerScreen cameraError={cameraError} onRescan={handleRescan} />;
+	return (
+		<ScannerScreen
+			cameraError={cameraError}
+			onRescan={handleRescan}
+			onManualLookup={async (code) => {
+				// Même contrat que le flux caméra : URL de QR ou id brut, puis
+				// vérification d'existence côté serveur (getEquipmentById,
+				// authMiddleware) — la fiche n'est ouverte que si la ligne existe.
+				const id = extractEquipmentId(code) ?? code.trim();
+				if (!id) return "Saisissez un code.";
+				try {
+					const equipment = await getEquipmentById({ data: { id } });
+					if (!equipment) return "Aucun équipement ne correspond à ce code.";
+				} catch {
+					// Pas de fuite d'erreur serveur brute (cf. vigilance F11).
+					return "Vérification impossible. Réessayez.";
+				}
+				navigate({ to: "/equipment/$id", params: { id } });
+				return null;
+			}}
+		/>
+	);
 }
 
 /* ── Scanner view ───────────────────────────────────────────────── */
@@ -102,7 +141,26 @@ function ScanPage() {
 function ScannerScreen({
 	cameraError,
 	onRescan,
-}: { cameraError: string | null; onRescan: () => void }) {
+	onManualLookup,
+}: {
+	cameraError: string | null;
+	onRescan: () => void;
+	onManualLookup: (code: string) => Promise<string | null>;
+}) {
+	const [manualOpen, setManualOpen] = useState(false);
+	const [manualCode, setManualCode] = useState("");
+	const [manualError, setManualError] = useState<string | null>(null);
+	const [checking, setChecking] = useState(false);
+
+	async function handleManualSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		setChecking(true);
+		setManualError(null);
+		const error = await onManualLookup(manualCode);
+		if (error) setManualError(error);
+		setChecking(false);
+	}
+
 	return (
 		<div
 			style={{
@@ -310,6 +368,75 @@ function ScannerScreen({
 				</div>
 			)}
 
+			{/* Manual code entry */}
+			{manualOpen && (
+				<form
+					onSubmit={handleManualSubmit}
+					style={{
+						position: "relative",
+						zIndex: 2,
+						margin: "0 18px 10px",
+						padding: 14,
+						background: "var(--sf-bg)",
+						border: "1px solid var(--sf-border)",
+						borderRadius: 14,
+						display: "flex",
+						flexDirection: "column",
+						gap: 10,
+					}}
+				>
+					<label
+						htmlFor="scan-manual-code"
+						style={{ fontSize: 12.5, fontWeight: 600, color: "var(--sf-fg)" }}
+					>
+						Code équipement (ou lien du QR)
+					</label>
+					<input
+						id="scan-manual-code"
+						value={manualCode}
+						onChange={(e) => setManualCode(e.target.value)}
+						placeholder="ex. 6f2a1c…-… ou https://…/equipment/…"
+						autoComplete="off"
+						style={{
+							border: "1px solid var(--sf-border)",
+							borderRadius: 8,
+							background: "var(--sf-canvas)",
+							color: "var(--sf-fg)",
+							fontFamily: "var(--sf-mono)",
+							fontSize: 13,
+							padding: "9px 10px",
+						}}
+					/>
+					{manualError && (
+						<p
+							role="alert"
+							style={{ margin: 0, fontSize: 12.5, color: "var(--sf-danger)" }}
+						>
+							{manualError}
+						</p>
+					)}
+					<button
+						type="submit"
+						disabled={checking}
+						style={{
+							alignSelf: "flex-start",
+							padding: "8px 14px",
+							border: "1px solid var(--sf-primary-strong)",
+							background: "var(--sf-primary)",
+							color: "white",
+							borderRadius: 8,
+							fontSize: 13,
+							fontWeight: 600,
+							fontFamily: "inherit",
+							cursor: checking ? "default" : "pointer",
+							opacity: checking ? 0.6 : 1,
+						}}
+					>
+						{checking ? "Vérification…" : "Ouvrir la fiche"}
+					</button>
+				</form>
+			)}
+
 			{/* Bottom action bar */}
 			<div
 				style={{
@@ -330,6 +457,8 @@ function ScannerScreen({
 				</button>
 				<button
 					type="button"
+					aria-expanded={manualOpen}
+					onClick={() => setManualOpen((v) => !v)}
 					style={{
 						flex: 1,
 						padding: "13px 14px",

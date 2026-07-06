@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createEphemeralEquipment, E2E_PREFIX, E2E_TECH } from "./support/db";
-import { login, MOBILE_VIEWPORT } from "./support/helpers";
+import { login, MOBILE_VIEWPORT, waitHydrated } from "./support/helpers";
 
 const EQ_ID = `${E2E_PREFIX}scan-eq`;
 const EQ_NAME = `${E2E_PREFIX}Écran scanné`;
@@ -37,4 +37,32 @@ test("SC2 — la page /scan se charge et signale l'absence de caméra", async ({
 	await expect(
 		page.getByText("Impossible d'accéder à la caméra. Vérifiez les permissions."),
 	).toBeVisible({ timeout: 15_000 });
+});
+
+test("SC3 — saisie manuelle d'un code valide : navigation vers la fiche", async ({
+	page,
+}) => {
+	await login(page, E2E_TECH.email, E2E_TECH.password);
+	await page.goto("/scan");
+	await waitHydrated(page);
+	await page.getByRole("button", { name: "Saisir le code manuellement" }).click();
+	await page.fill("#scan-manual-code", EQ_ID);
+	await page.getByRole("button", { name: "Ouvrir la fiche" }).click();
+	await page.waitForURL(`/equipment/${EQ_ID}`);
+	await expect(page.getByText(EQ_NAME)).toBeVisible();
+});
+
+test("SC4 — saisie manuelle d'un code inconnu : erreur propre, pas de navigation", async ({
+	page,
+}) => {
+	await login(page, E2E_TECH.email, E2E_TECH.password);
+	await page.goto("/scan");
+	await waitHydrated(page);
+	await page.getByRole("button", { name: "Saisir le code manuellement" }).click();
+	await page.fill("#scan-manual-code", `${E2E_PREFIX}code-inexistant`);
+	await page.getByRole("button", { name: "Ouvrir la fiche" }).click();
+	await expect(
+		page.getByText("Aucun équipement ne correspond à ce code."),
+	).toBeVisible();
+	await expect(page).toHaveURL(/\/scan/);
 });
