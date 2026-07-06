@@ -1,7 +1,7 @@
 # 11 — Harnais de tests
 
 > **Document vivant** : mis à jour à chaque session ajoutant des tests. Décrit l'état présent
-> (63 tests, session 6 — pannes & assignation), pas une couverture finale.
+> (74 tests vitest + 24 scénarios e2e Playwright, session 10), pas une couverture finale.
 
 ## Tests existants
 
@@ -9,11 +9,13 @@
 |---|---|---|---|
 | `src/lib/auth-core.test.ts` | Vitest | Logique auth pure : JWT RS256 (signature/vérification/expiration/algorithme verrouillé), argon2id, refresh tokens (unicité, hash), RBAC (`assertRole`), rate limiting | 18 |
 | `src/db/rls.integration.test.ts` | Vitest, base réelle | RLS Postgres via connexion applicative brute (sans la couche `withAuthContext`, simulation d'un contournement) : sans claims / claims `technician` / claims `admin` / flux login `SECURITY DEFINER` | 13 |
-| `src/lib/equipment.test.ts` | Vitest | Logique métier equipment pure : `validateNewEquipmentInput`, `applyEquipmentDefaults` | 10 |
+| `src/lib/equipment.test.ts` | Vitest | Schémas d'entrée Zod des server functions equipment : validation (nom, type, statut, longueurs), défauts et normalisation à null | 12 |
+| `src/lib/incidents.test.ts` | Vitest | Validation des entrées incident : `validateNewIncidentInput`, `normalizeIncidentDescription` | 9 |
 | `src/lib/incidents-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) du cycle de vie incident : les 9 combinaisons `from × to` de `transitionIncident` (2 valides, 7 rejetées), `nextIncidentStatus` | 12 |
 | `src/lib/equipment-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) de `assignEquipment` : introuvable, assignation depuis `available`/`assigned` (succès) et `broken`/`maintenance` (échec typé), désassignation depuis les 4 statuts (`broken`/`maintenance` préservés, pas écrasés) | 10 |
 
-**Total : 63 tests**, tous verts (`bun run test`).
+**Total : 74 tests vitest**, tous verts (`bun run test`), plus **24 scénarios e2e
+Playwright** (`bun run test:e2e`, local uniquement — voir `13-cahier-de-recettes.md`).
 
 ### Première utilisation d'Effect dans le codebase (session 6)
 

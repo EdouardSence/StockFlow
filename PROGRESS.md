@@ -258,9 +258,16 @@ correctifs : docs/certification/09-securisation.md.
       broken access control (middlewares serveur + RLS), cryptographic failures (argon2id,
       RS256, tokens hashés en DB), identification failures (rotation refresh, anti-énumération,
       rate limiting). Détail et choix d'architecture : docs/certification/09-securisation.md.
-- [ ] Zod sur les server functions equipment : toujours un cast TypeScript sans validation
-      runtime (`loginFn` est validé, lui). Dette restante avant mise en production publique.
-- [ ] En-têtes de sécurité HTTP (CSP, X-Frame-Options…) non configurés.
+- [x] Zod sur les server functions equipment (session 10 quater, issue #14) : schémas
+      `newEquipmentSchema`/`equipmentIdSchema`/`updateEquipmentStatusSchema`/
+      `assignEquipmentSchema` parsés dans `inputValidator`, défauts et normalisation à null
+      intégrés, 12 tests unitaires (74 au total).
+- [x] Erreurs Postgres brutes masquées au client (issue #8, F11) : interception SQLSTATE
+      dans `withAuthContext` (point unique), détail loggé serveur, message générique client.
+- [x] En-têtes de sécurité HTTP (issue #17) : vercel.json — CSP (limite documentée :
+      `'unsafe-inline'` script requis par l'hydratation TanStack Start), XCTO, XFO DENY,
+      Referrer-Policy, Permissions-Policy (camera=self pour le scan), HSTS. Vérifiés en prod,
+      zéro violation CSP sur les parcours réels.
 - [ ] Audit OWASP formalisé (checklist Top 10 complète) non rédigé.
 - [x] Accessibilité : lint `lint/a11y/*` de Biome au vert sur tout le repo (17 fichiers), corrigé
       cette session (issue GitHub #3 fermée avec le détail des correctifs). Ce n'est qu'un socle

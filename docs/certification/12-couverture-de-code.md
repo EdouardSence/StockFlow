@@ -89,3 +89,11 @@ est possible mais hors périmètre — le gain serait cosmétique, pas probant.
 
 **Document vivant** : relancer `bun run test:coverage` et dater toute nouvelle mesure
 après chaque session ajoutant des tests vitest.
+
+## Remesure du 2026-07-07 (après le lot sécurité #14/#8/#17)
+
+Statements 49,2 % (92/187) · Branches 62,1 % (54/87) · Functions 30,2 % (19/63) ·
+Lines 50,6 %. Variation attendue : les validateurs maison testés à 100 % ont été
+remplacés par des schémas Zod (déclaratifs — moins de branches à couvrir, testés par
+12 tests dédiés) et `withAuthContext` a gagné la garde d'erreurs pg (F11). La lecture
+domaine pur = 100 % / coquilles basses reste inchangée.
