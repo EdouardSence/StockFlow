@@ -148,3 +148,29 @@ export const getOpenIncidentCountsFn = createServerFn({ method: "GET" })
 			count: Number(r.count),
 		}));
 	});
+
+/**
+ * Incidents non résolus pour le tableau de bord — join equipment seulement,
+ * PAS de join users : la policy `users_select` masquerait les déclarants aux
+ * techniciens (cf. listIncidentsFn) ; ici la vue est ouverte aux deux rôles.
+ */
+export const listOpenIncidentsFn = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		return withAuthContext(context.user, (trx) =>
+			trx
+				.selectFrom("incidents")
+				.innerJoin("equipment", "equipment.id", "incidents.equipment_id")
+				.select([
+					"incidents.id as id",
+					"incidents.description as description",
+					"incidents.status as status",
+					"incidents.created_at as created_at",
+					"equipment.name as equipment_name",
+				])
+				.where("incidents.status", "!=", "resolved")
+				.orderBy("incidents.created_at", "desc")
+				.limit(5)
+				.execute(),
+		);
+	});

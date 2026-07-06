@@ -22,7 +22,11 @@ test("R1 — technicien : /incidents (admin-only) redirige hors de la page", asy
 	await page.waitForURL((url) =>
 		["/", "/equipment"].includes(new URL(url).pathname),
 	);
-	await expect(page.getByRole("heading", { name: "Incidents" })).toHaveCount(0);
+	// exact: le dashboard « / » a un heading « Incidents ouverts » légitime —
+	// seul le h1 « Incidents » de la page admin ne doit pas apparaître.
+	await expect(
+		page.getByRole("heading", { name: "Incidents", exact: true }),
+	).toHaveCount(0);
 });
 
 test("R2 — technicien : pas de picker d'assignation admin sur la fiche", async ({
