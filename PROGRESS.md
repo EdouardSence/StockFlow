@@ -286,6 +286,10 @@ correctifs : docs/certification/09-securisation.md.
 - [x] Couverture remesurée (2026-07-06) : chiffres identiques — l'e2e tourne dans le
       process du serveur dev, hors instrumentation v8. Prédiction corrigée honnêtement
       dans `12-couverture-de-code.md`.
+- [x] Session 10 bis : AN-1 corrigée (#22, saisie manuelle du code avec vérification
+      serveur via `getEquipmentById`, scénarios SC3/SC4) ; AN-2 découverte par SC3 et
+      corrigée (#23, crash au démontage de `/scan` après échec caméra — `stop()`
+      html5-qrcode jette en synchrone). Suite e2e à **21/21** (41,7 s).
 
 ## Lot Documentation certification (session, 2026-07-05)
 

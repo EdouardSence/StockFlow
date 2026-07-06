@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-06, 19/19 scénarios passés en 35,9 s** (Chromium
+papier ». **Dernière exécution : 2026-07-06, 21/21 scénarios passés en 41,7 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -74,6 +74,8 @@ de formulaire d'édition générale des champs (voir § Hors périmètre).
 |----|--------|-----------|--------|------------------|--------|
 | SC1 | tech | équipement seedé | Ouvrir l'URL que le QR encode (`/equipment/$id`, cf. `new.tsx`) sur mobile | Fiche mobile « Équipement scanné » avec le nom de l'équipement | ✅ passé |
 | SC2 | tech | — | Ouvrir `/scan` sans caméra | Écran d'erreur explicite « Impossible d'accéder à la caméra… », pas de crash | ✅ passé |
+| SC3 | tech | équipement seedé | `/scan` → « Saisir le code manuellement » → code valide → « Ouvrir la fiche » | Vérification d'existence côté serveur puis navigation vers la fiche, nom affiché | ✅ passé |
+| SC4 | tech | — | Même chemin avec un code inconnu | Message « Aucun équipement ne correspond à ce code. », pas de navigation, pas d'erreur serveur brute | ✅ passé |
 
 Limite assumée : le décodage caméra (`html5-qrcode`) n'est pas automatisable en headless
 (pas de flux vidéo). Le contrat testé est celui que le scan produit : QR = URL
@@ -100,7 +102,8 @@ décodage (`scan.tsx`). Le décodage lui-même relève d'un test manuel sur appa
 
 | ID | Détection | Anomalie | Sévérité | Suivi |
 |----|-----------|----------|----------|-------|
-| AN-1 | Rédaction de SC2 (session 10) | Bouton « Saisir le code manuellement » (`scan.tsx`) sans handler — purement décoratif ; aucune voie de repli sans caméra | Low (fonctionnel) | [Issue #22](https://github.com/EdouardSence/StockFlow/issues/22), Kanban — correction planifiée, pas de fix silencieux dans cette session |
+| AN-1 | Rédaction de SC2 (session 10) | Bouton « Saisir le code manuellement » (`scan.tsx`) sans handler — purement décoratif ; aucune voie de repli sans caméra | Low (fonctionnel) | [Issue #22](https://github.com/EdouardSence/StockFlow/issues/22) — **corrigée** (session 10 bis, `fix(scan):`) : mini-formulaire + vérification serveur, recette SC3/SC4 |
+| AN-2 | Écriture de SC3 (session 10 bis) | Après échec caméra, quitter `/scan` crashe (« Something went wrong ») : `stop()` html5-qrcode jette en synchrone dans le cleanup | Medium (fonctionnel) | [Issue #23](https://github.com/EdouardSence/StockFlow/issues/23) — **corrigée** dans le même `fix(scan):` (bloquait la recette de AN-1), trace Playwright à l'appui |
 
 Fausse piste écartée pendant la rédaction (pas une anomalie) : le premier jet de R3
 attendait un refus HTTP ≥ 400 ; l'enquête a montré que TanStack Start sérialise les erreurs

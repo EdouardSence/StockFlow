@@ -25,7 +25,9 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
 - Cahier de recettes exécutable (session 10, 2026-07-06) : suite e2e Playwright de
   19 scénarios (auth, RBAC, CRUD + QR, scan, incidents, assignation), 19/19 verts contre
   la base réelle, document `13-cahier-de-recettes.md` rédigé depuis ces résultats.
-  Anomalie AN-1 (bouton scan décoratif) tracée en issue #22, non corrigée à ce stade.
+  Anomalies AN-1 (#22, bouton scan décoratif → saisie manuelle livrée) et AN-2 (#23,
+  crash au démontage de /scan après échec caméra) corrigées en session 10 bis — suite
+  e2e à 21/21 (SC3/SC4 ajoutés).
 - Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)
