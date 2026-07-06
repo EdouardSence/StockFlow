@@ -135,9 +135,10 @@ correctifs : docs/certification/09-securisation.md.
     expirées à la lecture.
 - [x] Sentry `sendDefaultPii` passé à `false` (était `true` — fuite IP/PII par défaut vers un
       tiers, point RGPD, trouvé par la même revue).
-- [ ] **Dette documentée, non corrigée cette session** (périmètre CRUD, hors scope auth strict) :
-  - Rate limiter par email seul reste insuffisant contre un brute-force distribué multi-IP
-    (dette déjà connue, juste reformulée).
+- [x] **Dette corrigée depuis** (sessions 10 quater/quinquies, issues #8/#14/#15 fermées) :
+  - Rate limiter à trois étages (paire IP:email 5, email 20, IP 30 — 15 min) contre le
+    brute-force distribué et le credential stuffing ; reste en mémoire par instance
+    (résiduel documenté dans #15).
   - Messages d'erreur Postgres bruts (noms table/contrainte/colonne) sérialisés jusqu'au client
     sur les server functions equipment sans validation runtime — corrélé à la dette Zod déjà
     connue, mais c'est un vecteur de fuite distinct (fuite de schéma, pas juste absence de

@@ -18,8 +18,10 @@
 - **Mots de passe** : argon2id (`@node-rs/argon2`), jamais de plaintext. Quand l'email est
   inconnu, un hash factice est quand même vérifié pour égaliser le temps de réponse
   (anti-énumération de comptes). Message d'erreur générique unique.
-- **Rate limiting** : 5 échecs / 15 minutes par email (en mémoire ; plafond documenté :
-  par instance serverless — passer à un store partagé si multi-instance).
+- **Rate limiting** à trois étages (15 min, en mémoire) : 5 échecs par paire IP:email,
+  20 par email toutes IPs confondues (brute-force distribué sur un compte), 30 par IP
+  tous emails (credential stuffing). Le succès de login ne purge que la paire. Plafond
+  documenté : par instance serverless — passer à un store partagé si multi-instance.
 - **Pas d'inscription publique** : comptes créés par seed (`scripts/seed-admin.ts`) ou par un
   admin. Clés RS256 fournies par variables d'environnement (PEM base64), jamais commitées.
 
