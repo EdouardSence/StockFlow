@@ -20,7 +20,6 @@ const fieldStyle: React.CSSProperties = {
 	background: "var(--sf-bg)",
 	color: "var(--sf-fg)",
 	fontFamily: "inherit",
-	outline: "none",
 	boxSizing: "border-box",
 };
 
@@ -135,7 +134,23 @@ function AdminUsersPage() {
 									<th style={thStyle}>Email</th>
 									<th style={thStyle}>Rôle</th>
 									<th style={thStyle}>Statut</th>
-									<th style={thStyle} />
+									<th style={thStyle}>
+										<span
+											style={{
+												position: "absolute",
+												width: 1,
+												height: 1,
+												padding: 0,
+												margin: -1,
+												overflow: "hidden",
+												clip: "rect(0, 0, 0, 0)",
+												whiteSpace: "nowrap",
+												border: 0,
+											}}
+										>
+											Actions
+										</span>
+									</th>
 								</tr>
 							</thead>
 							<tbody>

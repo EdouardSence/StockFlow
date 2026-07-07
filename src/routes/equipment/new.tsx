@@ -63,7 +63,6 @@ const fieldStyle: React.CSSProperties = {
 	background: "var(--sf-bg)",
 	color: "var(--sf-fg)",
 	fontFamily: "inherit",
-	outline: "none",
 	letterSpacing: "-0.005em",
 	boxShadow: "0 1px 0 rgba(0,0,0,.2)",
 	boxSizing: "border-box",

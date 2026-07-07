@@ -16,7 +16,6 @@ const fieldStyle: React.CSSProperties = {
 	background: "var(--sf-bg)",
 	color: "var(--sf-fg)",
 	fontFamily: "inherit",
-	outline: "none",
 	letterSpacing: "-0.005em",
 	boxSizing: "border-box",
 };

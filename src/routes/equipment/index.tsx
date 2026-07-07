@@ -496,7 +496,6 @@ function EquipmentList() {
 									style={{
 										border: "none",
 										background: "transparent",
-										outline: "none",
 										fontSize: 12.5,
 										color: "var(--sf-fg)",
 										fontFamily: "inherit",
@@ -552,9 +551,7 @@ function EquipmentList() {
 												key={e.id}
 												style={{
 													background:
-														i % 2 === 1
-															? "var(--sf-surface)"
-															: "var(--sf-bg)",
+														i % 2 === 1 ? "var(--sf-surface)" : "var(--sf-bg)",
 												}}
 												onMouseEnter={(ev) => {
 													ev.currentTarget.style.background =
@@ -562,9 +559,7 @@ function EquipmentList() {
 												}}
 												onMouseLeave={(ev) => {
 													ev.currentTarget.style.background =
-														i % 2 === 1
-															? "var(--sf-surface)"
-															: "var(--sf-bg)";
+														i % 2 === 1 ? "var(--sf-surface)" : "var(--sf-bg)";
 												}}
 											>
 												<td style={tdStyle}>

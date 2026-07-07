@@ -15,7 +15,6 @@ const fieldStyle: React.CSSProperties = {
 	background: "var(--sf-bg)",
 	color: "var(--sf-fg)",
 	fontFamily: "inherit",
-	outline: "none",
 	boxSizing: "border-box",
 };
 
@@ -77,8 +76,7 @@ function LoginPage() {
 							width: 48,
 							height: 48,
 							borderRadius: 14,
-							background:
-								"linear-gradient(135deg, var(--sf-primary), #4338ca)",
+							background: "linear-gradient(135deg, var(--sf-primary), #4338ca)",
 							boxShadow:
 								"0 0 0 1px rgba(99,102,241,.4), 0 8px 24px rgba(99,102,241,.3)",
 						}}
@@ -126,71 +124,70 @@ function LoginPage() {
 						gap: 16,
 					}}
 				>
+					<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+						<label
+							htmlFor="login-email"
+							style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg)" }}
+						>
+							Email
+						</label>
+						<input
+							id="login-email"
+							type="email"
+							autoComplete="username"
+							required
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							style={fieldStyle}
+						/>
+					</div>
 
-				<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-					<label
-						htmlFor="login-email"
-						style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg)" }}
+					<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+						<label
+							htmlFor="login-password"
+							style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg)" }}
+						>
+							Mot de passe
+						</label>
+						<input
+							id="login-password"
+							type="password"
+							autoComplete="current-password"
+							required
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							style={fieldStyle}
+						/>
+					</div>
+
+					{error && (
+						<p
+							role="alert"
+							style={{ fontSize: 13, color: "var(--sf-danger)", margin: 0 }}
+						>
+							{error}
+						</p>
+					)}
+
+					<button
+						type="submit"
+						disabled={submitting}
+						style={{
+							padding: "10px 16px",
+							border: "1px solid var(--sf-primary-strong)",
+							background:
+								"linear-gradient(135deg, var(--sf-primary), var(--sf-primary-strong))",
+							color: "white",
+							borderRadius: 7,
+							fontSize: 14,
+							fontWeight: 500,
+							cursor: submitting ? "wait" : "pointer",
+							fontFamily: "inherit",
+						}}
 					>
-						Email
-					</label>
-					<input
-						id="login-email"
-						type="email"
-						autoComplete="username"
-						required
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						style={fieldStyle}
-					/>
-				</div>
-
-				<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-					<label
-						htmlFor="login-password"
-						style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg)" }}
-					>
-						Mot de passe
-					</label>
-					<input
-						id="login-password"
-						type="password"
-						autoComplete="current-password"
-						required
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						style={fieldStyle}
-					/>
-				</div>
-
-				{error && (
-					<p
-						role="alert"
-						style={{ fontSize: 13, color: "var(--sf-danger)", margin: 0 }}
-					>
-						{error}
-					</p>
-				)}
-
-				<button
-					type="submit"
-					disabled={submitting}
-					style={{
-						padding: "10px 16px",
-						border: "1px solid var(--sf-primary-strong)",
-						background:
-							"linear-gradient(135deg, var(--sf-primary), var(--sf-primary-strong))",
-						color: "white",
-						borderRadius: 7,
-						fontSize: 14,
-						fontWeight: 500,
-						cursor: submitting ? "wait" : "pointer",
-						fontFamily: "inherit",
-					}}
-				>
-					{submitting ? "Connexion…" : "Se connecter"}
-				</button>
-			</form>
+						{submitting ? "Connexion…" : "Se connecter"}
+					</button>
+				</form>
 			</div>
 		</main>
 	);
