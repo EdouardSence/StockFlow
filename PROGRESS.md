@@ -299,8 +299,15 @@ correctifs : docs/certification/09-securisation.md.
       manuelle (`role="radio"` + `aria-checked` + roving tabindex) : navigation clavier
       (flèches, un seul arrêt de tabulation) obtenue gratuitement du navigateur, zéro JS.
       Vérifié manuellement (navigation Chromium réelle) : `ArrowRight` change bien la sélection.
-
-## Lot Cahier de recette + bugs (session 10, 2026-07-06)
+- [x] Audit RGAA complet (issue #19, 2026-07-07) : arbre d'accessibilité réel (Chromium
+      `ariaSnapshot`), navigation clavier scriptée, contraste WCAG calculé formellement sur
+      les 18 paires de tokens `--sf-*`. Détail, méthode et résultats dans
+      `docs/certification/10-accessibilite.md`. Trois anomalies réelles trouvées et
+      corrigées le jour même : focus clavier invisible sur tous les champs texte
+      (`outline: "none"` inline écrasant la règle globale, issue #25, 5 fichiers), en-tête
+      de colonne vide sur `/admin/users`, `--sf-fg-faint` sous le seuil AA (3,67:1 → 4,78:1
+      après correction). Limitations documentées : pas de test lecteur d'écran audio réel
+      (environnement headless sans sortie audio), pas de vérification de reflow 400 %.
 
 - [x] Suite e2e Playwright complète (`e2e/`, 6 specs) : 19 scénarios couvrant auth (4),
       RBAC (3, dont replay réseau d'un appel serveur admin-only avec session technicien),
