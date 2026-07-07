@@ -394,38 +394,20 @@ function NewEquipmentPage() {
 										/>
 									</FormField>
 									<FormField label="Type d'équipement">
-										<fieldset
+										<div
+											role="radiogroup"
+											aria-label="Type d'équipement"
 											style={{
 												display: "grid",
 												gridTemplateColumns: "repeat(6, 1fr)",
 												gap: 8,
-												border: "none",
-												margin: 0,
-												padding: 0,
 											}}
 										>
-											<legend
-												style={{
-													position: "absolute",
-													width: 1,
-													height: 1,
-													padding: 0,
-													margin: -1,
-													overflow: "hidden",
-													clip: "rect(0, 0, 0, 0)",
-													whiteSpace: "nowrap",
-													border: 0,
-												}}
-											>
-												Type d'équipement
-											</legend>
 											{TYPES.map((t) => {
 												const sel = form.type === t.id;
 												return (
-													<button
+													<label
 														key={t.id}
-														type="button"
-														onClick={() => update("type", t.id)}
 														style={{
 															display: "flex",
 															flexDirection: "column",
@@ -449,11 +431,19 @@ function NewEquipmentPage() {
 																: "none",
 														}}
 													>
+														<input
+															type="radio"
+															name="equipment-type"
+															value={t.id}
+															checked={sel}
+															onChange={() => update("type", t.id)}
+															style={{ margin: 0 }}
+														/>
 														{t.label}
-													</button>
+													</label>
 												);
 											})}
-										</fieldset>
+										</div>
 									</FormField>
 								</div>
 							</section>

@@ -293,6 +293,12 @@ correctifs : docs/certification/09-securisation.md.
       cette session (issue GitHub #3 fermée avec le détail des correctifs). Ce n'est qu'un socle
       mécanique (titres SVG, aria-hidden, labels, fieldset/legend) — pas un audit RGAA complet
       (pas de test lecteur d'écran, pas de vérification de contraste, pas de test clavier complet).
+- [x] Sélecteur de type équipement (issue #11, 2026-07-07) : `fieldset`/boutons cliquables
+      remplacés par de vrais `<input type="radio">` natifs dans un conteneur
+      `role="radiogroup"` (`equipment/new.tsx`). Choix natif plutôt qu'une réimplémentation
+      manuelle (`role="radio"` + `aria-checked` + roving tabindex) : navigation clavier
+      (flèches, un seul arrêt de tabulation) obtenue gratuitement du navigateur, zéro JS.
+      Vérifié manuellement (navigation Chromium réelle) : `ArrowRight` change bien la sélection.
 
 ## Lot Cahier de recette + bugs (session 10, 2026-07-06)
 
