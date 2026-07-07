@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EquipmentIndexRouteImport } from './routes/equipment/index'
 import { Route as EquipmentNewRouteImport } from './routes/equipment/new'
 import { Route as EquipmentIdRouteImport } from './routes/equipment/$id'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
 
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
@@ -58,6 +59,11 @@ const EquipmentIdRoute = EquipmentIdRouteImport.update({
   path: '/equipment/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/incidents': typeof IncidentsRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/admin/users': typeof AdminUsersRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/incidents': typeof IncidentsRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/admin/users': typeof AdminUsersRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment': typeof EquipmentIndexRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/incidents': typeof IncidentsRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/admin/users': typeof AdminUsersRoute
   '/equipment/$id': typeof EquipmentIdRoute
   '/equipment/new': typeof EquipmentNewRoute
   '/equipment/': typeof EquipmentIndexRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/incidents'
     | '/login'
     | '/scan'
+    | '/admin/users'
     | '/equipment/$id'
     | '/equipment/new'
     | '/equipment/'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/incidents'
     | '/login'
     | '/scan'
+    | '/admin/users'
     | '/equipment/$id'
     | '/equipment/new'
     | '/equipment'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/incidents'
     | '/login'
     | '/scan'
+    | '/admin/users'
     | '/equipment/$id'
     | '/equipment/new'
     | '/equipment/'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   IncidentsRoute: typeof IncidentsRoute
   LoginRoute: typeof LoginRoute
   ScanRoute: typeof ScanRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   EquipmentIdRoute: typeof EquipmentIdRoute
   EquipmentNewRoute: typeof EquipmentNewRoute
   EquipmentIndexRoute: typeof EquipmentIndexRoute
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EquipmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   IncidentsRoute: IncidentsRoute,
   LoginRoute: LoginRoute,
   ScanRoute: ScanRoute,
+  AdminUsersRoute: AdminUsersRoute,
   EquipmentIdRoute: EquipmentIdRoute,
   EquipmentNewRoute: EquipmentNewRoute,
   EquipmentIndexRoute: EquipmentIndexRoute,

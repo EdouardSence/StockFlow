@@ -25,7 +25,8 @@ type ValidTo =
 	| "/equipment"
 	| "/equipment/new"
 	| "/incidents"
-	| "/account";
+	| "/account"
+	| "/admin/users";
 
 type NavItem = {
 	path: ValidTo | null;
@@ -57,7 +58,7 @@ export function Sidebar({
 			icon: <Package size={15} />,
 			count: equipmentCount,
 		},
-		{ path: null, label: "Utilisateurs", icon: <Users size={15} />, count: 18 },
+		{ path: "/admin/users", label: "Utilisateurs", icon: <Users size={15} /> },
 		{
 			path: "/incidents",
 			label: "Incidents",
