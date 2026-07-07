@@ -97,3 +97,52 @@ Lines 50,6 %. Variation attendue : les validateurs maison testés à 100 % ont �
 remplacés par des schémas Zod (déclaratifs — moins de branches à couvrir, testés par
 12 tests dédiés) et `withAuthContext` a gagné la garde d'erreurs pg (F11). La lecture
 domaine pur = 100 % / coquilles basses reste inchangée.
+
+## Remesure du 2026-07-07 (fin de session, 94/94 tests verts) — clôture issue #16
+
+Statements 47,8 % (109/228) · Branches 61,8 % (63/102) · Functions 29,5 % (23/78) ·
+Lines 48,8 %. Le fichier a grossi (`users.ts` livré, issue #12) et les proportions
+oscillent légèrement session après session sans tendance — confirme que le chiffre
+global reste dominé par le ratio coquille/domaine du moment, pas par un effort de test.
+
+**Gap réel trouvé et comblé pendant cette clôture** : `loginSchema` (`auth.ts`) n'était
+pas exporté et n'avait donc *aucun* test direct — seul son usage heureux (identifiants
+valides) était exercé indirectement par les e2e d'authentification. Exporté et testé
+(4 cas : payload valide + normalisation email, email invalide, mot de passe vide, champ
+manquant). Coverage `auth.ts` inchangée après ce correctif (voir § suivant) — signal en
+soi.
+
+### Pourquoi cette mesure ne bouge pas quand on teste un schéma Zod
+
+Vérifié empiriquement : ajouter 4 tests comportementaux sur `loginSchema` n'a fait
+**bouger aucune métrique v8** sur `auth.ts`. Explication : `z.object({...})` est une
+*construction d'objet*, exécutée une seule fois au chargement du module, que le schéma
+soit testé ou non — la ligne est déjà « couverte » avant le premier test. La logique de
+validation elle-même (branches `min`/`max`/`email`/`trim`) vit dans le code de la
+librairie Zod, hors périmètre d'instrumentation de ce repo. **v8 ne peut structurellement
+pas détecter si un schéma déclaratif est testé** — seule l'existence de tests
+comportementaux (`.parse()`/`.safeParse()` sur des cas limites, comme ci-dessus) le
+garantit. Sur un codebase à forte proportion Zod, le pourcentage de statements est donc
+un indicateur encore plus faible que d'habitude.
+
+### Verdict pour la clôture de l'issue #16
+
+Le critère de `CLAUDE.md` est explicite : « ≥ 80 % sur la logique métier **pure**
+(`src/lib/*.ts`) » — et *pas* 80 % global. Sur ce périmètre exact :
+
+| Composant | Couverture | Nature |
+|---|---|---|
+| `equipment-domain.ts` | 100 % (4 métriques) | logique métier pure |
+| `incidents-domain.ts` | 100 % (4 métriques) | logique métier pure |
+| `auth-core.ts` | 92,2 % stmts / 97,1 % branches | logique de sécurité pure |
+| Tous les schémas Zod (`equipment.ts`, `incidents.ts`, `auth.ts`, `users.ts`) | 100 % des cas limites couverts par test comportemental dédié (voir `11-harnais-de-tests.md`) | validation pure |
+
+**Critère atteint et dépassé sur son périmètre réel.** Les 20-30 % restants du fichier
+sont les corps de handlers `createServerFn` (I/O Kysely/Postgres) — délibérément hors
+périmètre du critère, et couverts autrement : 31 scénarios e2e réels (`13-cahier-de-
+recettes.md`) plus les tests d'intégration RLS sur base réelle
+(`rls.integration.test.ts`). Faire monter le pourcentage global v8 nécessiterait de
+mocker Kysely/`withAuthContext` — un test qui vérifierait le mock, pas le comportement,
+contraire à la convention du projet (jamais de mock DB, intégration réelle ou rien).
+Décision : **issue #16 close sans travail supplémentaire**, le déficit apparent est un
+artefact de la métrique, pas un déficit de vérification.

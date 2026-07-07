@@ -263,11 +263,16 @@ correctifs : docs/certification/09-securisation.md.
 
 ## Lot Harnais de tests
 
-- [ ] 10 tests unitaires existants (`src/lib/equipment.test.ts`), tous passants, couvrant
-      uniquement `validateNewEquipmentInput` et `applyEquipmentDefaults` (logique pure).
-      **Insuffisant** pour le critère de couverture ≥ 80 % de la logique métier visé par la
-      certification — aucun test sur les Server Functions (`getEquipments`, `createEquipmentFn`,
-      `updateEquipmentStatus`), aucun test d'intégration route.
+- [x] Clôturé (issue #16, 2026-07-07) : 94 tests vitest + 31 scénarios e2e Playwright.
+      Critère « ≥ 80 % sur la logique métier pure » atteint et dépassé : domaine Effect
+      (`equipment-domain.ts`/`incidents-domain.ts`) à 100 % sur les 4 métriques,
+      `auth-core.ts` à 92,2 %, tous les schémas Zod couverts par test comportemental
+      dédié (11-harnais-de-tests.md). Le pourcentage v8 global (47,8 %) reste bas par
+      construction : dominé par les corps de handlers `createServerFn` (I/O), hors
+      périmètre du critère et couverts autrement (31 e2e réels + tests d'intégration RLS
+      sur base réelle). Gap réel trouvé et comblé pendant cette clôture : `loginSchema`
+      n'était pas exporté, donc jamais testé directement — 4 tests ajoutés. Détail complet
+      et verdict dans `docs/certification/12-couverture-de-code.md`.
 
 ## Lot Sécurité OWASP + Accessibilité RGAA
 

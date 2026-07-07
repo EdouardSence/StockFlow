@@ -1,7 +1,7 @@
 # 11 — Harnais de tests
 
 > **Document vivant** : mis à jour à chaque session ajoutant des tests. Décrit l'état présent
-> (90 tests vitest + 31 scénarios e2e Playwright, 2026-07-07), pas une couverture finale.
+> (94 tests vitest + 31 scénarios e2e Playwright, 2026-07-07), pas une couverture finale.
 
 ## Tests existants
 
@@ -13,10 +13,10 @@
 | `src/lib/incidents.test.ts` | Vitest | Validation des entrées incident : `validateNewIncidentInput`, `normalizeIncidentDescription` | 9 |
 | `src/lib/incidents-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) du cycle de vie incident : les 9 combinaisons `from × to` de `transitionIncident` (2 valides, 7 rejetées), `nextIncidentStatus` | 12 |
 | `src/lib/equipment-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) de `assignEquipment` : introuvable, assignation depuis `available`/`assigned` (succès) et `broken`/`maintenance` (échec typé), désassignation depuis les 4 statuts (`broken`/`maintenance` préservés, pas écrasés) | 10 |
-| `src/lib/auth.test.ts` | Vitest | Schéma Zod `changePasswordSchema` (self-service, issue #13) : payload valide, nouveau mot de passe trop court, champ courant vide, champ manquant | 4 |
+| `src/lib/auth.test.ts` | Vitest | Schémas Zod `loginSchema` (email/mot de passe) et `changePasswordSchema` (self-service, issue #13) : payload valide + normalisation email, email invalide, mot de passe vide/trop court, champ manquant | 8 |
 | `src/lib/users.test.ts` | Vitest | Schémas Zod `newUserSchema`/`userIdSchema` (admin, issue #12) : payload valide, mot de passe trop court, rôle invalide, nom vide, email invalide, id valide/vide | 7 |
 
-**Total : 90 tests vitest**, tous verts (`bun run test`), plus **31 scénarios e2e
+**Total : 94 tests vitest**, tous verts (`bun run test`), plus **31 scénarios e2e
 Playwright** (`bun run test:e2e`, local uniquement — voir `13-cahier-de-recettes.md`,
 dont AC1-AC3 pour le changement de mot de passe self-service et AU1-AU4 pour la gestion
 des comptes via UI admin).
@@ -34,13 +34,14 @@ métier critique.
 
 Le JSX de présentation (routes, composants) n'a pas de suite de tests unitaires dédiée — choix
 assumé (voir `CLAUDE.md` § Tests) : l'objectif de couverture (≥ 80 %) porte sur la logique
-métier pure de `src/lib/*.ts`, pas sur la présentation. Aucun test d'intégration end-to-end
-(Playwright, etc.) n'existe à ce jour — dette à qualifier si le KPI « couverture » de
-`17-criteres-qualite-performance.md` doit être vérifié sur des parcours complets plutôt que sur
-la seule logique unitaire.
+métier pure de `src/lib/*.ts`, pas sur la présentation. Les parcours complets (navigateur →
+route → server function → Postgres) sont couverts par les 31 scénarios e2e Playwright
+(`13-cahier-de-recettes.md`), pas par des tests unitaires JSX.
 
 ## Mesure de couverture
 
-`bun run test:coverage` existe comme script mais n'est pas encore une étape de la CI (voir
-`01-deploiement-continu.md`) — le pourcentage réel `src/lib/*.ts` n'a pas été mesuré et consigné
-formellement à la date de rédaction de ce document.
+`bun run test:coverage` mesuré et consigné formellement dans
+`12-couverture-de-code.md` (plusieurs mesures datées, dernière le 2026-07-07) — voir ce
+document pour le détail par fichier, la lecture domaine pur vs coquilles, et le verdict de
+clôture de l'issue #16 (critère ≥ 80 % atteint sur la logique métier pure, le pourcentage
+global reste structurellement bas à cause des coquilles I/O couvertes autrement).
