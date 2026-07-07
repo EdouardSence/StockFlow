@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-06, 24/24 scénarios passés en 39,4 s** (Chromium
+papier ». **Dernière exécution : 2026-07-07, 27/27 scénarios passés en 43,8 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -105,6 +105,20 @@ décodage (`scan.tsx`). Le décodage lui-même relève d'un test manuel sur appa
 | AS1 | tech | équipement `available` | « M'attribuer » puis « Retirer mon attribution » | Affiche « Vous » ; `[DB]` `assigned`/`assigned_to=tech` puis retour `available`/`null` | ✅ passé |
 | AS2 | admin | équipement `available` | Picker complet → sélectionner le technicien → « Assigner » ; puis « Retirer l'attribution » | Nom du technicien affiché ; `[DB]` `assigned_to` correct ; retour « Non attribué » | ✅ passé |
 | AS3 | admin | équipement `broken` | Ouvrir la fiche | Picker désactivé + message « Assignation impossible : équipement en panne. » ; `[DB]` `assigned_to` reste nul. Règle serveur verrouillée par les tests de domaine (`equipment-domain.test.ts`, 10 cas) | ✅ passé |
+
+### Compte / mot de passe (`e2e/account.spec.ts`)
+
+| ID | Acteur | Prérequis | Étapes | Résultat attendu | Obtenu |
+|----|--------|-----------|--------|------------------|--------|
+| AC1 | tech (dédié) | compte éphémère créé en `beforeAll` (pas `E2E_TECH`, partagé par d'autres specs) | `/account` : mot de passe actuel + nouveau (×2) → « Mettre à jour » ; puis `/login` avec le nouveau mot de passe | « Mot de passe mis à jour. » ; nouvelle connexion réussie avec le nouveau mot de passe | ✅ passé |
+| AC2 | tech (dédié, 2ᵉ compte) | idem | Mot de passe actuel erroné → « Mettre à jour » | « Mot de passe actuel incorrect. » ; `[DB]` hash inchangé (`auth_password_lookup` avant/après identiques) | ✅ passé |
+| AC3 | tech (dédié, 2ᵉ compte) | idem | Nouveau mot de passe < 8 caractères, puis confirmation différente | Bouton désactivé dans les deux cas ; « Les mots de passe ne correspondent pas. » affiché | ✅ passé |
+
+Deux comptes éphémères dédiés (pas `E2E_TECH`) car AC1 mute réellement le mot de passe :
+réutiliser le compte partagé casserait les autres fichiers de specs selon l'ordre d'exécution.
+`users_update` étant admin-only en RLS, le changement passe par deux fonctions SECURITY
+DEFINER (`auth_password_lookup`, `auth_change_password`, migration
+`005_password_self_service.sql`) — voir issue #13.
 
 ## Anomalies détectées
 

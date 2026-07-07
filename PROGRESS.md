@@ -71,7 +71,14 @@ vérifiée par un moyen concret listé dans les remarques.
       rejoué avec succès le 2026-07-03.
 - [ ] Gestion des comptes via UI admin (création/désactivation) — à construire ; seed
       uniquement pour l'instant.
-- [ ] Changement de mot de passe self-service — absent.
+- [x] Changement de mot de passe self-service (issue #13, 2026-07-07) : page `/account`,
+      server function `changePasswordFn` (Zod, `authMiddleware`). `users_update` étant
+      admin-only (RLS), deux fonctions SECURITY DEFINER dédiées (`auth_password_lookup`,
+      `auth_change_password`, migration `005_password_self_service.sql`) bypass RLS pour
+      cette seule colonne — jamais appelées avec un id arbitraire, toujours `context.user.id`
+      résolu du JWT. Vérifié : 4 tests Zod (`auth.test.ts`) + scénarios e2e AC1-AC3
+      (`e2e/account.spec.ts`) sur des comptes éphémères dédiés (pas de mutation sur
+      `E2E_TECH`, partagé par d'autres specs).
 
 ### Remarques
 - Fichiers : `src/lib/auth-core.ts` (logique pure testée), `src/lib/auth-server.ts` (serveur
