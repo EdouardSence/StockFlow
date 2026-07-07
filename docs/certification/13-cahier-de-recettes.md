@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-07, 27/27 scénarios passés en 43,8 s** (Chromium
+papier ». **Dernière exécution : 2026-07-07, 31/31 scénarios passés en 1 min 18 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -120,6 +120,21 @@ réutiliser le compte partagé casserait les autres fichiers de specs selon l'or
 DEFINER (`auth_password_lookup`, `auth_change_password`, migration
 `005_password_self_service.sql`) — voir issue #13.
 
+### Gestion des comptes admin (`e2e/admin-users.spec.ts`)
+
+| ID | Acteur | Prérequis | Étapes | Résultat attendu | Obtenu |
+|----|--------|-----------|--------|------------------|--------|
+| AU1 | admin | — | `/admin/users` : créer un compte technicien (nom, email, mot de passe) → « Créer le compte » ; puis `/login` avec ce nouveau compte | Email visible dans la table ; nouvelle connexion réussie | ✅ passé |
+| AU2 | admin | AU1 | Recréer un compte avec le même email | « Cet email est déjà utilisé. » ; pas de doublon en base (contrainte `UNIQUE`) | ✅ passé |
+| AU3 | admin | compte éphémère dédié | Clic « Désactiver » sur la ligne du compte | Statut passe à « Désactivé » ; `/login` avec ses identifiants d'origine échoue avec le message générique « Email ou mot de passe incorrect. » (anti-énumération, pas de message « compte désactivé » distinct) | ✅ passé |
+| AU4 | tech | — | Accès direct `/admin/users` | Redirection hors de la page, formulaire jamais rendu | ✅ passé |
+
+Désactivation = `password_hash` mis à `NULL` (mécanisme déjà prévu par la migration 003,
+« compte non activable ») — pas de nouvelle colonne. Le rôle app ne peut pas lire
+`password_hash` (grant par colonnes) : lister le statut actif/désactivé passe par
+`auth_list_users_with_status()`, une fonction SECURITY DEFINER qui n'expose qu'un booléen
+dérivé, jamais le hash (migration `006_admin_user_management.sql`). Voir issue #12.
+
 ## Anomalies détectées
 
 | ID | Détection | Anomalie | Sévérité | Suivi |
@@ -142,9 +157,10 @@ peut donc les recetter :
   étiquettes » de la liste est un stub assumé (envoie une erreur de démonstration à Sentry).
 - **Notifications** : inexistantes.
 - **Journal d'audit** : inexistant.
-- **Suppression d'équipement / suppression d'incident / gestion des comptes via UI** :
-  aucune UI ni server function de suppression n'est livrée (la policy RLS `equipment_delete`
-  réservée admin est testée par `rls.integration.test.ts` ; gestion des comptes = issue #12).
+- **Suppression d'équipement / suppression d'incident** : aucune UI ni server function de
+  suppression n'est livrée (la policy RLS `equipment_delete` réservée admin est testée par
+  `rls.integration.test.ts`). La gestion des comptes (création/désactivation, issue #12) est
+  livrée — voir § Gestion des comptes admin.
 - **Décodage QR par caméra réelle** : voir § Scan — test manuel sur appareil.
 
 ## Rejouer la recette

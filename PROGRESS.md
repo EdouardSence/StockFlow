@@ -69,8 +69,17 @@ vérifiée par un moyen concret listé dans les remarques.
       session rejeté UNAUTHORIZED ; mauvais mot de passe rejeté (message générique) ; login →
       cookies posés → `getSession`/`getEquipments` OK ; logout → session nulle. Script e2e
       rejoué avec succès le 2026-07-03.
-- [ ] Gestion des comptes via UI admin (création/désactivation) — à construire ; seed
-      uniquement pour l'instant.
+- [x] Gestion des comptes via UI admin (issue #12, 2026-07-07) : page `/admin/users`
+      (admin-only, `beforeLoad` + `adminMiddleware`) — table des comptes avec statut
+      actif/désactivé, création (nom/email/rôle/mot de passe), désactivation. Désactivation
+      = `password_hash` mis à `NULL` (mécanisme déjà prévu par la migration 003, pas de
+      nouvelle colonne) ; un compte désactivé échoue au login avec le même message générique
+      qu'un mauvais mot de passe (anti-énumération). Création/désactivation passent par
+      `withAuthContext` normal (RLS déjà admin-only + grants existants) — seule la lecture du
+      statut nécessite une fonction SECURITY DEFINER (`auth_list_users_with_status`, migration
+      `006_admin_user_management.sql`) puisque le rôle app ne peut pas lire `password_hash`.
+      Garde-fou : un admin ne peut pas se désactiver lui-même. Vérifié : 7 tests Zod
+      (`users.test.ts`) + scénarios e2e AU1-AU4 (`e2e/admin-users.spec.ts`).
 - [x] Changement de mot de passe self-service (issue #13, 2026-07-07) : page `/account`,
       server function `changePasswordFn` (Zod, `authMiddleware`). `users_update` étant
       admin-only (RLS), deux fonctions SECURITY DEFINER dédiées (`auth_password_lookup`,

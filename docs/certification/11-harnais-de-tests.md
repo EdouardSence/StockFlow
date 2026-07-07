@@ -1,7 +1,7 @@
 # 11 — Harnais de tests
 
 > **Document vivant** : mis à jour à chaque session ajoutant des tests. Décrit l'état présent
-> (83 tests vitest + 27 scénarios e2e Playwright, 2026-07-07), pas une couverture finale.
+> (90 tests vitest + 31 scénarios e2e Playwright, 2026-07-07), pas une couverture finale.
 
 ## Tests existants
 
@@ -14,10 +14,12 @@
 | `src/lib/incidents-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) du cycle de vie incident : les 9 combinaisons `from × to` de `transitionIncident` (2 valides, 7 rejetées), `nextIncidentStatus` | 12 |
 | `src/lib/equipment-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) de `assignEquipment` : introuvable, assignation depuis `available`/`assigned` (succès) et `broken`/`maintenance` (échec typé), désassignation depuis les 4 statuts (`broken`/`maintenance` préservés, pas écrasés) | 10 |
 | `src/lib/auth.test.ts` | Vitest | Schéma Zod `changePasswordSchema` (self-service, issue #13) : payload valide, nouveau mot de passe trop court, champ courant vide, champ manquant | 4 |
+| `src/lib/users.test.ts` | Vitest | Schémas Zod `newUserSchema`/`userIdSchema` (admin, issue #12) : payload valide, mot de passe trop court, rôle invalide, nom vide, email invalide, id valide/vide | 7 |
 
-**Total : 83 tests vitest**, tous verts (`bun run test`), plus **27 scénarios e2e
+**Total : 90 tests vitest**, tous verts (`bun run test`), plus **31 scénarios e2e
 Playwright** (`bun run test:e2e`, local uniquement — voir `13-cahier-de-recettes.md`,
-dont AC1-AC3 pour le changement de mot de passe self-service).
+dont AC1-AC3 pour le changement de mot de passe self-service et AU1-AU4 pour la gestion
+des comptes via UI admin).
 
 ### Première utilisation d'Effect dans le codebase (session 6)
 
