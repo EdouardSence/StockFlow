@@ -6,6 +6,11 @@ import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { SessionUser } from "./auth-core";
 
+export const changePasswordSchema = z.object({
+	currentPassword: z.string().min(1).max(1024),
+	newPassword: z.string().min(8, "8 caractères minimum").max(1024),
+});
+
 /* ── Middlewares ────────────────────────────────────────────────── */
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
@@ -56,3 +61,16 @@ export const getSessionFn = createServerFn({ method: "GET" }).handler(
 		return resolveSession();
 	},
 );
+
+export const changePasswordFn = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator((data: unknown) => changePasswordSchema.parse(data))
+	.handler(async ({ data, context }): Promise<{ success: true }> => {
+		const { changePassword } = await import("./auth-server");
+		await changePassword(
+			context.user.id,
+			data.currentPassword,
+			data.newPassword,
+		);
+		return { success: true };
+	});

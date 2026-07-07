@@ -13,16 +13,17 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "../db/client";
 import {
 	ACCESS_TOKEN_TTL_SECONDS,
-	DUMMY_PASSWORD_HASH_PROMISE,
-	REFRESH_TOKEN_TTL_SECONDS,
-	type Role,
-	type SessionUser,
 	createTieredLoginLimiter,
+	DUMMY_PASSWORD_HASH_PROMISE,
 	decodePemFromEnv,
 	generateRefreshToken,
+	hashPassword,
 	hashRefreshToken,
 	importPrivateKey,
 	importPublicKey,
+	REFRESH_TOKEN_TTL_SECONDS,
+	type Role,
+	type SessionUser,
 	signAccessToken,
 	verifyAccessToken,
 	verifyPassword,
@@ -85,7 +86,11 @@ async function issueSession(user: SessionUser): Promise<void> {
 			created_at: new Date().toISOString(),
 		})
 		.execute();
-	setCookie(ACCESS_COOKIE, accessToken, cookieOptions(ACCESS_TOKEN_TTL_SECONDS));
+	setCookie(
+		ACCESS_COOKIE,
+		accessToken,
+		cookieOptions(ACCESS_TOKEN_TTL_SECONDS),
+	);
 	setCookie(
 		REFRESH_COOKIE,
 		refreshToken,
@@ -123,6 +128,13 @@ async function refreshLookup(userId: string): Promise<SessionUser | null> {
 		SELECT id, name, email, role FROM auth_refresh_lookup(${userId})
 	`.execute(db);
 	return result.rows[0] ?? null;
+}
+
+async function passwordHashLookup(userId: string): Promise<string | null> {
+	const result = await sql<{ auth_password_lookup: string | null }>`
+		SELECT auth_password_lookup(${userId})
+	`.execute(db);
+	return result.rows[0]?.auth_password_lookup ?? null;
 }
 
 /* ── Refresh avec rotation + détection de réutilisation ─────────── */
@@ -246,6 +258,19 @@ export async function doLogin(data: {
 	return user;
 }
 
+export async function changePassword(
+	userId: string,
+	currentPassword: string,
+	newPassword: string,
+): Promise<void> {
+	const currentHash = await passwordHashLookup(userId);
+	if (!currentHash || !(await verifyPassword(currentHash, currentPassword))) {
+		throw new Error("Mot de passe actuel incorrect.");
+	}
+	const newHash = await hashPassword(newPassword);
+	await sql`SELECT auth_change_password(${userId}, ${newHash})`.execute(db);
+}
+
 export async function doLogout(): Promise<void> {
 	const token = getCookie(REFRESH_COOKIE);
 	if (token) {
@@ -254,7 +279,9 @@ export async function doLogout(): Promise<void> {
 		// quand même représenté ensuite (cookie volé), tryRefresh le traite
 		// directement comme un vol (branche ligne ~143) et révoque la famille,
 		// au lieu de réémettre silencieusement un access token via la grâce.
-		const backdated = new Date(Date.now() - ROTATION_GRACE_MS - 1000).toISOString();
+		const backdated = new Date(
+			Date.now() - ROTATION_GRACE_MS - 1000,
+		).toISOString();
 		await db
 			.updateTable("refresh_tokens")
 			.set({ revoked_at: backdated })
