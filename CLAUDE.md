@@ -14,6 +14,10 @@ Projet de certification RNCP 39583 niveau 7, Bloc 2 (code source + dossier 30 pa
 - Tests : Vitest
 - Erreurs prod : Sentry (import dynamique côté client uniquement, cf. `src/routes/__root.tsx`)
 - QR : génération `qrcode`, scan `html5-qrcode`
+- PWA offline : `vite-plugin-pwa` (generateSW, cache runtime uniquement — le plugin émet
+  `sw.js` dans `dist/` AVANT que Nitro assemble `.output/public`, d'où la copie dans le
+  script `build` ; ne pas la supprimer). File d'incidents offline : `src/lib/offline-queue.ts`
+  (IndexedDB natif, pas de dépendance) + bandeau `OfflineSyncBanner`.
 - Déploiement : Vercel, intégration Supabase native (`POSTGRES_URL` / `DATABASE_URL`)
 
 ## Modèle de données (post-migration 002)
@@ -57,8 +61,8 @@ Vérifié automatiquement par commitlint (hook `commit-msg`, config `commitlint.
 - `users.password_hash` est illisible via le rôle app (grant par colonnes) ; le login passe
   par la fonction SECURITY DEFINER `auth_login_lookup`. Ne pas « corriger » un
   `permission denied` sur cette colonne en élargissant les grants.
-- Validation des entrées serveur : Zod dans `inputValidator()` (fait pour `loginFn` ; dette
-  restante sur les server functions equipment, voir PROGRESS.md).
+- Validation des entrées serveur : Zod dans `inputValidator()` sur toutes les server
+  functions à données (dette equipment résorbée le 2026-07-06, issue #14).
 - Accès DB exclusivement via Kysely (`src/db/client.ts`). Jamais de SQL concaténé/interpolé.
 - Secrets uniquement en variables d'environnement (`.env.local`, jamais commité). `.env.example`
   documente les variables réellement utilisées. `POSTGRES_URL` (rôle postgres, BYPASSRLS) est
