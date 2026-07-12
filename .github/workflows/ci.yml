@@ -24,8 +24,15 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      - name: Test
-        run: bun run test
+      # La base Postgres est partagée dev/prod (cf. CLAUDE.md) : les tests
+      # d'intégration (RLS) et la suite e2e ne tournent JAMAIS en CI.
+      # L'URL factice satisfait la garde fail-closed de src/db/client.ts
+      # (jetée à l'import) sans jamais ouvrir de connexion — créer un pg.Pool
+      # ne se connecte pas tant qu'aucune requête ne part. Issue #26.
+      - name: Test (hors intégration DB)
+        run: bunx vitest run --exclude '**/*.integration.test.ts'
+        env:
+          APP_POSTGRES_URL: postgresql://ci-dummy:ci-dummy@localhost:5432/ci
 
       - name: Build
         run: bun run build
