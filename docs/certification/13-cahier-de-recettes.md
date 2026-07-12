@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-07, 31/31 scénarios passés en 1 min 18 s** (Chromium
+papier ». **Dernière exécution : 2026-07-12, 32/32 scénarios passés en 59 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -134,6 +134,17 @@ Désactivation = `password_hash` mis à `NULL` (mécanisme déjà prévu par la 
 `password_hash` (grant par colonnes) : lister le statut actif/désactivé passe par
 `auth_list_users_with_status()`, une fonction SECURITY DEFINER qui n'expose qu'un booléen
 dérivé, jamais le hash (migration `006_admin_user_management.sql`). Voir issue #12.
+
+### PWA hors-ligne (`e2e/offline.spec.ts`, viewport 390×844, ajouté 2026-07-12)
+
+| ID | Acteur | Prérequis | Étapes | Résultat attendu | Obtenu |
+|----|--------|-----------|--------|------------------|--------|
+| OF1 `[DB]` | tech | équipement éphémère, fiche chargée | Coupure réseau (`context.setOffline`) → « Signaler panne » + description → « Envoyer le signalement » → vérif base → retour réseau | Hors-ligne : message « Incident enregistré hors-ligne… », bandeau « 1 incident en attente de synchronisation », **aucune** ligne en base. Retour réseau : bandeau disparaît (flush auto), ligne `incidents` créée (`status=open`, `reported_by`=technicien) | ✅ passé |
+
+La consultation hors-ligne via service worker (pages déjà visitées) n'est pas couverte par
+cette suite (elle tourne contre le serveur dev, sans SW) : vérifiée sur build de prod le
+2026-07-12 (Chromium headless — SW contrôlant, caches `sf-pages`/`sf-assets`, `/login`
+servi hors-ligne), consignée dans `18-architecture.md`.
 
 ## Anomalies détectées
 
