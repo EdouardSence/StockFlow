@@ -424,8 +424,9 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
 
 ## Reprise prochaine session (mis à jour 2026-07-12)
 
-- **Arbitrage hébergement** (Vercel+Supabase actuel vs Scalingo promis au cadrage Bloc 1) —
-  à trancher, puis rédiger les manuels de déploiement et de mise à jour (issue #21).
+- ~~Arbitrage hébergement~~ **Tranché le 2026-07-13** : on reste sur Vercel+Supabase, écart
+  de cadrage assumé et argumenté (`15-manuel-deploiement.md`, avec annexe portabilité
+  Scalingo). Manuels de déploiement et de mise à jour rédigés — issue #21 refermable.
 - Poser le tag `v0.4.0` lors de la session de déploiement (voir `20-derniere-version-stable.md`).
 - Session 12 : assemblage du rapport ~30 pages depuis `docs/certification/` + audit de
   cohérence transversal (chiffres/statuts identiques partout : rapport, code, Kanban, README).

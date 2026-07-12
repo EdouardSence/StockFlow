@@ -35,7 +35,7 @@ outillage vit dans `03-environnement-de-developpement.md`, le détail schéma da
 | Panneau incidents | Livré : `incidents.tsx` (cycle open → in_progress → resolved), server functions `src/lib/incidents.ts`, badges d'incidents ouverts |
 | Tableau de bord administrateur | Livré : `index.tsx` (accueil desktop avec vue d'ensemble du parc) |
 | Synchronisation hors-ligne / PWA | Livré (2026-07-12) : service worker Workbox, consultation offline, création d'incident hors-ligne avec file de sync — voir section ci-dessous |
-| Manuels (déploiement/utilisation/mise à jour) | Non rédigés (`15-manuel-deploiement.md`, `16-manuel-mise-a-jour.md` sont des stubs) |
+| Manuels (déploiement/utilisation/mise à jour) | Rédigés (2026-07-12/13) : `15-manuel-deploiement.md` (avec arbitrage hébergement + annexe portabilité), `16-manuel-mise-a-jour.md`, `21-manuel-utilisation.md` |
 
 ## Fonctionnement hors-ligne (PWA)
 
