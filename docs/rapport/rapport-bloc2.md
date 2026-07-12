@@ -6,6 +6,20 @@ date: "Juillet 2026"
 lang: fr
 ---
 
+# Sommaire
+
+1. **Introduction** — le projet, le périmètre livré, la méthode de travail
+2. **Environnement de développement et intégration continue** — outillage, CI/CD, critères de qualité
+3. **Conception** — architecture, modèle de données, framework, langages, paradigmes, référentiel de composants
+4. **Réalisations** — parcours livrés, captures, le hors-ligne (PWA)
+5. **Sécurisation** — authentification, Row Level Security, revue adversariale, audit OWASP Top 10
+6. **Accessibilité (RGAA)** — socle mécanique, audit outillé, violations corrigées
+7. **Tests et recette** — harnais, couverture, cahier de recettes
+8. **Versions, qualité et correction des bogues**
+9. **Manuels et exploitation** — arbitrage d'hébergement, déploiement, mise à jour, utilisation
+10. **Conclusion** — acquis, limites écrites, perspectives
+11. **Annexes** — correspondance pièces officielles ↔ dossier technique
+
 # Introduction
 
 ## Le projet
@@ -57,6 +71,21 @@ issues à ce jour). Deux disciplines transverses ont structuré le travail :
   pas, ce qui est corrigé et ce qui est un risque accepté. Les limites connues (elles
   existent) sont écrites noir sur blanc plutôt que maquillées.
 
+Chronologie des lots (résumé de `PROGRESS.md`) :
+
+| Lot | Date | Contenu | Jalon |
+|---|---|---|---|
+| Retrofit qualité | 2026-07-02/03 | Schéma corrigé, lint 13→0, CI + hooks, documentation initiale | `v0.2.0` |
+| Auth + RLS | 2026-07-03/04 | JWT RS256, RBAC, Row Level Security, revue adversariale + correctifs | `v0.3.0` |
+| Alignement design | 2026-07-04 | Thème sombre Geist sur tous les écrans, captures avant/après | |
+| Pannes & assignation | 2026-07-05 | Domaine Effect (transitions, assignation), écran incidents, signalement mobile | |
+| Harnais + recettes | 2026-07-06 | Suite e2e Playwright, cahier de recettes exécuté, anomalies AN-1/AN-2 corrigées | |
+| Sécurité consolidée | 2026-07-06/07 | Validation Zod partout, en-têtes HTTP, masquage d'erreurs, rate limiting, audit OWASP | |
+| Comptes | 2026-07-07 | Self-service mot de passe, gestion des utilisateurs admin | |
+| Accessibilité | 2026-07-07 | Audit RGAA outillé, 3 violations corrigées, couverture clôturée | |
+| PWA offline | 2026-07-12 | Service worker, consultation offline, incident hors-ligne + file de sync | périmètre `v0.4.0` |
+| Documentation & CI | 2026-07-12/13 | Manuels, arbitrage hébergement, réparation CI (#26), ce rapport | |
+
 # 1. Environnement de développement et intégration continue
 
 *Pièces détaillées : 03 (environnement), 01 (déploiement continu), 17 (critères qualité).*
@@ -104,11 +133,13 @@ inventé. Les *gates* réellement bloquants aujourd'hui sont la CI et les hooks 
 ## 2.1 Architecture
 
 ```
-┌─────────────────────────┐      ┌────────────────────────────────┐      ┌───────────────────────┐
-│ Client (navigateur/PWA) │──────▶ Server functions TanStack Start │──────▶ PostgreSQL (Supabase) │
-│ React 19 + TanStack     │ SSR/ │ (Vite + Nitro, runtime Bun)     │Kysely│ RLS + rôle applicatif │
-│ Router, Tailwind 4      │ RPC  │ authMiddleware / adminMiddleware│      │ stockflow_app         │
-└─────────────────────────┘      └────────────────────────────────┘      └───────────────────────┘
+Client (navigateur / PWA)         React 19, TanStack Router, Tailwind 4
+        │  SSR + RPC typé de bout en bout
+        ▼
+Server functions TanStack Start   Vite + Nitro, runtime Bun
+        │  authMiddleware / adminMiddleware sur chaque fonction
+        ▼  Kysely — SQL exclusivement paramétré
+PostgreSQL (Supabase)             RLS (13 policies), rôle stockflow_app
 ```
 
 Trois décisions structurent tout le reste :
@@ -136,6 +167,33 @@ Quatre tables PostgreSQL : `users` (deux rôles, contrainte CHECK), `equipment` 
 statut contraints par CHECK en base — pas seulement par le type TypeScript, les deux
 évoluent dans le même commit), `incidents` (FK vers équipement et rapporteur, cycle
 `open → in_progress → resolved`), `refresh_tokens` (rotation de session, § 4.2).
+
+```
+users                                    equipment
+  id            text PK                    id            text PK
+  name          text NOT NULL              name          text NOT NULL
+  email         text NOT NULL UNIQUE       type          CHECK (pc|screen|printer|other)
+  role          CHECK (admin|technician)   brand, model, notes        text
+  password_hash text (nullable =           serial_number text UNIQUE
+                 compte non activable)     qr_code       text NOT NULL UNIQUE
+  created_at    timestamptz                status        CHECK (available|assigned|
+                                                          broken|maintenance)
+incidents                                  assigned_to   FK → users ON DELETE SET NULL
+  id            text PK                    created_at, updated_at     timestamptz
+  equipment_id  FK → equipment CASCADE
+  reported_by   FK → users               refresh_tokens
+  description   text                       id            text PK
+  status        CHECK (open|               user_id       FK → users CASCADE
+                 in_progress|resolved)     token_hash    text NOT NULL UNIQUE
+  created_at    timestamptz                expires_at    timestamptz NOT NULL
+  resolved_at   timestamptz                revoked_at    timestamptz
+```
+
+Les six migrations racontent l'évolution : création (001), resserrage de l'énumération
+des types avec remap des données (002), authentification (003), Row Level Security —
+13 policies, rôle applicatif, grants par colonne (004), self-service mot de passe (005),
+gestion des comptes admin avec une fonction qui expose le statut d'activation *sans
+jamais exposer le hash* (006).
 
 Le schéma vit dans des migrations SQL versionnées (`src/db/migrations/001` à `006`),
 appliquées dans l'ordre alphabétique et **idempotentes par convention** : le script les
@@ -179,9 +237,38 @@ L'administrateur vit dans l'interface desktop : tableau de bord (KPI du parc, in
 ouverts), inventaire complet avec recherche, création d'équipement (QR généré
 automatiquement), écran incidents avec le cycle de qualification, gestion des comptes.
 
+| Capacité | Technicien | Administrateur |
+|---|---|---|
+| Consulter le parc, scanner, voir une fiche | ✅ | ✅ |
+| Changer le statut d'un équipement | ✅ | ✅ |
+| Signaler une panne (y compris hors-ligne) | ✅ | ✅ |
+| S'assigner / se désassigner un équipement | ✅ (lui-même uniquement) | ✅ (n'importe qui) |
+| Créer / modifier un équipement | — | ✅ |
+| Qualifier et faire avancer les incidents | — | ✅ |
+| Créer / désactiver des comptes | — | ✅ |
+| Changer son propre mot de passe | ✅ | ✅ |
+
+Cette matrice n'est pas seulement une affaire d'interface : chaque ligne est portée par
+un middleware serveur et, en dessous, par les policies RLS — un technicien qui rejouerait
+l'appel réseau d'une action admin est refusé deux fois (§ 4).
+
 Un choix métier assumé : **signaler une panne ne change pas le statut de l'équipement**.
 C'est l'administrateur qui qualifie l'incident depuis son écran — le signalement terrain
 est une remontée d'information, pas une action d'administration.
+
+### Captures (thème sombre Geist, design de référence du cadrage)
+
+| | |
+|---|---|
+| ![Connexion](../certification/captures/after/login.png) | ![Liste des équipements](../certification/captures/after/equipment-list.png) |
+| Connexion | Inventaire (desktop) |
+| ![Fiche mobile](../certification/captures/after/equipment-detail-mobile.png) | ![Scanner](../certification/captures/after/scan.png) |
+| Fiche équipement (mobile) | Scanner QR (mobile) |
+
+![Création d'équipement](../certification/captures/after/equipment-new.png)
+
+*Création d'équipement : sélecteur de type en boutons radio natifs (accessibilité, § 5),
+QR code généré à la création.*
 
 ## 3.2 Le hors-ligne (PWA), le vrai risque technique du projet
 
@@ -238,6 +325,21 @@ IP+email, par email seul, par IP) contre le bruteforce distribué et le credenti
 stuffing. Les messages d'erreur sont anti-énumération : « Email ou mot de passe
 incorrect », y compris pour un compte désactivé.
 
+Cycle de vie d'une session :
+
+1. **Login** : vérification argon2id (via la fonction `SECURITY DEFINER`, § 4.3) →
+   émission d'un access token (15 min) et d'un refresh token (7 jours), les deux en
+   cookies httpOnly + Secure + SameSite=Strict.
+2. **Rafraîchissement** : le refresh token est à usage unique — chaque utilisation le
+   révoque et en émet un nouveau (*rotation*), par une écriture conditionnelle atomique
+   (deux requêtes concurrentes ne peuvent pas toutes deux réussir).
+3. **Détection de vol** : si un refresh token déjà consommé est rejoué hors de la courte
+   fenêtre de grâce (requêtes légitimes simultanées), toute la *famille* de tokens de la
+   session est révoquée — le voleur et la victime sont déconnectés, l'anomalie est
+   visible.
+4. **Logout** : révocation immédiate, hors fenêtre de grâce (correctif de la revue de
+   sécurité, § 4.4) ; l'identité offline mise en cache est purgée (§ 3.2).
+
 ## 4.3 Row Level Security — défense en profondeur, et ses limites dites honnêtement
 
 Le runtime se connecte avec un rôle PostgreSQL dédié (`stockflow_app`), sans privilège
@@ -269,15 +371,35 @@ argumentaire, soit acceptés comme risques mineurs documentés (issues #4 à #7 
 non-revérification en base du JWT pendant ses 15 minutes de vie, absence de logout
 global multi-session — chacun avec sa justification).
 
-Un audit **OWASP Top 10 (2021)** formalisé complète la revue : checklist catégorie par
-catégorie avec preuves (code, tests, configuration). Les en-têtes de sécurité HTTP (CSP,
-X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy) sont configurés et ont été
-vérifiés en production. Les erreurs PostgreSQL brutes sont masquées au client (elles
-exposeraient noms de tables et contraintes) et journalisées côté serveur ; Sentry remonte
-les erreurs de production avec la collecte de données personnelles désactivée. Zéro
-vulnérabilité critique confirmée non corrigée à ce jour ; les 16 vulnérabilités
-transitives signalées par `bun audit` sont *dev-only*, tracées (issue #24) et différées
-par choix documenté.
+Extrait des corrections issues de la revue (tableau complet dans la pièce 09) :
+
+| Défaut confirmé | Sévérité | Correctif |
+|---|---|---|
+| Fail-open RLS : repli silencieux sur le rôle `postgres` (BYPASSRLS) si la variable applicative manquait | medium | Refus de démarrer (fail-closed) |
+| Fenêtre de grâce de rotation exploitable après un logout : un cookie volé rejoué sous 10 s obtenait un access token | medium | Logout révoque hors grâce ; replay = vol → révocation de famille |
+| Rotation du refresh token non atomique (deux requêtes concurrentes pouvaient toutes deux réussir) | medium | UPDATE conditionnel (compare-and-set) |
+| Rate limiter à clé email seule : verrouillage du compte d'autrui à distance (DoS) | medium | Clé composée IP+email |
+| Sentry envoyait IP et données personnelles par défaut | low | `sendDefaultPii: false` |
+
+Un audit **OWASP Top 10 (2021)** formalisé complète la revue : chaque catégorie jugée
+contre le code réellement livré, avec preuves et résiduels.
+
+| Catégorie | Statut | En bref |
+|---|---|---|
+| A01 Broken Access Control | ✅ | Middleware sur chaque fonction serveur + 13 policies RLS fail-closed, prouvés par tests d'intégration et e2e |
+| A02 Cryptographic Failures | ✅ | argon2id, RS256 verrouillé, refresh tokens hachés, cookies httpOnly+Secure+SameSite=Strict, HSTS |
+| A03 Injection | ✅ | SQL exclusivement paramétré (Kysely), zéro `dangerouslySetInnerHTML`, CSP, Zod sur toutes les entrées |
+| A04 Insecure Design | ✅ | Domaine pur testé exhaustivement, fail-closed par défaut, revue adversariale, alternatives documentées |
+| A05 Security Misconfiguration | 🟡 | En-têtes durcis et vérifiés en prod ; résiduel : `unsafe-inline` imposé par l'hydratation du framework |
+| A06 Vulnerable Components | 🟡 | Lockfile épinglé ; 16 vulnérabilités transitives **dev-only** tracées (#24), aucune n'atteint le runtime |
+| A07 Auth Failures | 🟡 | Rate limiting 3 étages, anti-énumération, détection de réutilisation ; résiduels bornés #4/#5 |
+| A08 Software & Data Integrity | 🟡 | Chaîne de build maîtrisée, aucun script distant ; résiduel générique : confiance npm |
+| A09 Logging & Monitoring | 🟡 | Sentry (sans PII), logs serveur, échecs de login comptés ; pas de journal d'audit applicatif (hors périmètre) |
+| A10 SSRF | ⚪ | Aucune requête sortante construite depuis une entrée utilisateur |
+
+Aucune catégorie rouge ; chaque 🟡 a un résiduel identifié, tracé en issue et défendable.
+Les erreurs PostgreSQL brutes sont masquées au client (elles exposeraient noms de tables
+et contraintes) et journalisées côté serveur.
 
 # 5. Accessibilité (RGAA)
 
@@ -290,6 +412,9 @@ d'écran, boutons icône nommés, groupes de champs en `fieldset`/`legend`) puis
 outillé en conditions réelles** (juillet 2026) : arbre d'accessibilité Chromium — celui
 que consulte réellement un lecteur d'écran — sur neuf écrans, navigation clavier
 scriptée, calcul de contraste WCAG sur les 18 paires du système de design.
+
+Écrans audités : connexion, tableau de bord, liste et fiche équipement (desktop et
+mobile), création d'équipement, scanner, incidents, compte, gestion des utilisateurs.
 
 L'audit a trouvé trois violations réelles, toutes corrigées et re-vérifiées :
 
@@ -346,6 +471,16 @@ aussi un piège d'outillage identifié en route : la couverture v8 marque les sc
 comportementaux (`parse()` sur des cas limites) vérifient réellement la validation, et
 c'est ce que fait le harnais.
 
+Couverture par domaine (mesure du 2026-07-07, pièce 12) :
+
+| Périmètre | Statements | Lecture |
+|---|---|---|
+| `incidents-domain.ts` / `equipment-domain.ts` (Effect) | 100 % | Matrice de transitions et règles d'assignation exhaustives |
+| `auth-core.ts` (JWT, argon2id, refresh, rate limiting) | 92 % | Primitives de sécurité |
+| Schémas Zod (equipment, incidents, auth, users) | 100 % comportemental | Chaque règle testée en positif et en négatif |
+| Coquilles I/O (server functions, client DB) | 23-37 % unitaire | Couvertes par les 13 tests d'intégration RLS et la suite e2e |
+| **Global dépôt** | ~48 % | Artefact de périmètre, expliqué et assumé |
+
 ## 6.3 Le cahier de recettes
 
 Chaque scénario du cahier (pièce 13) correspond à un test Playwright réel — aucun
@@ -357,6 +492,20 @@ qu'une anomalie réelle a été découverte (bouton décoratif sans action, AN-1
 qualifiée, corrigée — et que la correction a révélé une seconde anomalie (crash au
 démontage de l'écran de scan, #23), corrigée dans la foulée.
 
+| Famille de scénarios | Fichier | Nb | Exemples d'assertions |
+|---|---|---|---|
+| Authentification | `auth.spec.ts` | 4 | Login/logout, identifiants invalides, session persistante |
+| RBAC | `rbac.spec.ts` | 3 | Technicien forçant une URL admin → rejeté, y compris au niveau server function |
+| CRUD équipement | `equipment.spec.ts` | 4 | Création → ligne en base, recherche, statuts |
+| Scan QR (mobile) | `scan.spec.ts` | 4 | Navigation par code, saisie manuelle, code inconnu → erreur propre |
+| Tableau de bord | `dashboard.spec.ts` | 3 | KPI cohérents avec la base |
+| Incidents | `incidents.spec.ts` | 3 | Signalement mobile → ligne `open` en base `[DB]`, cycle admin complet |
+| Assignation | `assignment.spec.ts` | 3 | Admin assigne quiconque, technicien seulement lui-même |
+| Compte | `account.spec.ts` | 3 | Changement de mot de passe, mauvais mot de passe actuel |
+| Comptes admin | `admin-users.spec.ts` | 4 | Création + login du compte créé, email dupliqué, désactivation, accès technicien rejeté |
+| Hors-ligne | `offline.spec.ts` | 1 | Incident offline → file → retour réseau → ligne en base `[DB]` |
+| **Total** | | **32** | 32/32 verts, 59 s |
+
 # 7. Versions, qualité et correction des bogues
 
 *Pièces détaillées : 08 (historique), 20 (dernière version stable), 14 (plan de
@@ -365,10 +514,13 @@ correction).*
 ## 7.1 Historique des versions
 
 Conventional Commits imposés par hook (type en anglais, description en français),
-tags annotés aux jalons : `v0.2.0` (base fonctionnelle sans auth), `v0.3.0`
-(authentification + RLS). L'état actuel — incidents, sécurité consolidée,
-accessibilité auditée, PWA offline — constitue le périmètre du tag `v0.4.0`, à poser au
-prochain déploiement. L'épisode le plus significatif de cet historique est un
+tags annotés aux jalons :
+
+| Version | Date | Contenu |
+|---|---|---|
+| `v0.2.0` | 2026-07-03 | Base fonctionnelle : CRUD équipements, scan, QR — sans auth ni RLS |
+| `v0.3.0` | 2026-07-04 | Authentification JWT RS256 + RBAC + Row Level Security |
+| `v0.4.0` (à poser) | — | Incidents, sécurité consolidée, accessibilité auditée, PWA offline | L'épisode le plus significatif de cet historique est un
 *non-événement volontaire* : après la revue de sécurité, les correctifs ont été commités
 en `fix:` visibles plutôt que fondus dans l'historique par rebase — la traçabilité du
 processus vaut plus que l'esthétique de l'historique.
@@ -417,6 +569,15 @@ de migration de schéma, la politique de dépendances, les spécificités du ser
 rotation des clés JWT. Le **manuel d'utilisation** déroule les parcours des deux rôles,
 écran par écran, mode hors-ligne et messages d'erreur compris.
 
+Trois variables d'environnement suffisent à l'exploitation — et leur séparation est une
+décision de sécurité :
+
+| Variable | Rôle PostgreSQL | Usage |
+|---|---|---|
+| `APP_POSTGRES_URL` | `stockflow_app` (soumis à RLS) | Runtime applicatif — obligatoire, l'app refuse de démarrer sans elle |
+| `POSTGRES_URL` | `postgres` (propriétaire) | Migrations et seeds uniquement, jamais le runtime |
+| `JWT_PRIVATE_KEY` / `JWT_PUBLIC_KEY` | — | Paire RS256 (base64), génération documentée dans `.env.example` |
+
 # Conclusion
 
 ## Ce que le projet démontre
@@ -433,11 +594,16 @@ plutôt que subis.
 
 ## Ce qui reste ouvert, et pourquoi c'est écrit
 
-Les risques acceptés (#4-#7), les vulnérabilités transitives dev (#24), la base
-partagée dev/production (dette la plus sérieuse, avec sa stratégie de confinement et sa
-cible : une base de test séparée), les KPI produit non mesurables avant un déploiement
-client réel. Un dossier qui prétendrait n'avoir aucune limite décrirait un projet qui
-n'existe pas.
+| Limite | Nature | Où c'est écrit |
+|---|---|---|
+| Access token non révocable pendant 15 min (#4) | Risque accepté, borné | Pièce 09, § findings acceptés |
+| Pas de logout global multi-session (#5) | Fonction manquante, atténuée par la détection de vol | Pièce 09 |
+| RLS sans effet si la connexion serveur est totalement compromise (#7) | Limite d'architecture, défendue pour ce qu'elle est | Pièces 09 et 14 |
+| 16 vulnérabilités transitives dev-only (#24) | Dette d'outillage, différée par choix | Pièces 07 et 09 (A06) |
+| Base partagée dev/production | Dette la plus sérieuse ; confinement strict (préfixe + sweep), cible : base de test séparée | Pièce 13 |
+| KPI produit (SUS, time-to-value, 3G) non mesurés | Exigent un déploiement client réel | Pièce 17 |
+
+Un dossier qui prétendrait n'avoir aucune limite décrirait un projet qui n'existe pas.
 
 ## Perspectives
 
@@ -469,3 +635,20 @@ d'abord consolider ce qui garantit, ensuite étendre ce qui sert.
 | Manuel de déploiement | `15-manuel-deploiement.md` | § 8 |
 | Manuel d'utilisation | `21-manuel-utilisation.md` | § 8.2 |
 | Manuel de mise à jour | `16-manuel-mise-a-jour.md` | § 8.2 |
+
+# Annexe — Glossaire
+
+| Terme | Définition dans le contexte de StockFlow |
+|---|---|
+| **Server function** | Fonction TanStack Start exécutée côté serveur, appelée depuis le client comme une fonction TypeScript typée — l'unique frontière vers les données |
+| **RLS (Row Level Security)** | Filtrage ligne à ligne appliqué par PostgreSQL lui-même, selon des policies lisant l'identité posée par transaction |
+| **Fail-closed** | Comportement par défaut en cas de contexte manquant : tout refuser (plutôt que tout autoriser silencieusement) |
+| **JWT RS256** | Jeton signé en RSA asymétrique : le serveur signe avec la clé privée, la vérification n'exige que la clé publique |
+| **Rotation de refresh token** | Chaque rafraîchissement de session consomme le jeton et en émet un nouveau ; un jeton rejoué trahit un vol |
+| **argon2id** | Fonction de hachage de mots de passe résistante aux attaques par GPU (recommandation OWASP) |
+| **Service worker** | Script navigateur interceptant les requêtes réseau, permettant cache et fonctionnement hors-ligne |
+| **NetworkFirst / CacheFirst** | Stratégies de cache : essayer le réseau puis retomber sur le cache (données), ou l'inverse (assets immuables) |
+| **IndexedDB** | Base de données native du navigateur, utilisée pour la file d'incidents hors-ligne |
+| **Effect** | Bibliothèque TypeScript de programmation fonctionnelle : erreurs typées et discriminées, fonctions pures testables sans mock |
+| **RGAA** | Référentiel général d'amélioration de l'accessibilité (critères AA du WCAG) |
+| **Conventional Commits** | Convention de messages de commit parsable (`type(scope): description`), imposée ici par hook |

@@ -416,9 +416,19 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
 - Pas de manuel de déploiement ni de manuel de mise à jour rédigés à ce jour (pièces 01 et 16 du
   dossier de certification, ébauchées dans `docs/certification/`).
 
-## Lot Rapport
+## Lot Rapport (session 12, 2026-07-13)
 
-- [ ] Non commencé — pour bien plus tard.
+- [x] `docs/rapport/rapport-bloc2.md` — rapport complet (~27 pages PDF), structure dérivée
+      des 16 pièces officielles : intro/méthode, environnement+CI, conception, réalisations
+      (captures), sécurité (tableaux OWASP + corrections de la revue), accessibilité,
+      tests/couverture/recette, versions/qualité, manuels, conclusion (limites écrites),
+      annexes (correspondance pièces ↔ fichiers, glossaire).
+- [x] Génération PDF reproductible : `bun run rapport` (`scripts/rapport-pdf.ts`,
+      Markdown → HTML → Chromium `page.pdf`, A4, pagination) — pas de dépendance système.
+- [x] Audit de cohérence transversal au passage : pièces 03 (scripts/env à jour),
+      06 (RLS actif, incidents livrés, refresh_tokens + migrations 003-006),
+      17 (KPI couverture atteint, CI post-#26) dépoussiérées.
+- [ ] Relecture humaine du rapport avant remise (contenu figé par le jury, pas par moi).
 
 ---
 
