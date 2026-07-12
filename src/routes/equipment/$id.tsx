@@ -1,8 +1,13 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	useNavigate,
+	useRouter,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Sidebar } from "../../components/Sidebar";
 import { MobileBottomNav, TypeIcon } from "../../components/MobileLayout";
+import { Sidebar } from "../../components/Sidebar";
 import { OpenIncidentBadge, StatusBadge } from "../../components/StatusBadge";
+import type { EquipmentTable } from "../../db/types";
 import {
 	assignEquipmentFn,
 	getAssignableUsersFn,
@@ -10,13 +15,15 @@ import {
 	updateEquipmentStatus,
 } from "../../lib/equipment";
 import { createIncidentFn, getOpenIncidentCountsFn } from "../../lib/incidents";
-import type { EquipmentTable } from "../../db/types";
+import { enqueueIncident, isNetworkError } from "../../lib/offline-queue";
 
 export const Route = createFileRoute("/equipment/$id")({
 	loader: async ({ params, context }) => {
 		const [equipment, assignableUsers, incidentCounts] = await Promise.all([
 			getEquipmentById({ data: { id: params.id } }),
-			context.user?.role === "admin" ? getAssignableUsersFn() : Promise.resolve([]),
+			context.user?.role === "admin"
+				? getAssignableUsersFn()
+				: Promise.resolve([]),
 			getOpenIncidentCountsFn(),
 		]);
 		const openIncidentCount =
@@ -49,7 +56,8 @@ function useMobile() {
 }
 
 function EquipmentDetailPage() {
-	const { equipment, assignableUsers, openIncidentCount } = Route.useLoaderData();
+	const { equipment, assignableUsers, openIncidentCount } =
+		Route.useLoaderData();
 	const { user: currentUser } = Route.useRouteContext();
 	const navigate = useNavigate();
 	const router = useRouter();
@@ -62,10 +70,17 @@ function EquipmentDetailPage() {
 	const [reporting, setReporting] = useState(false);
 	const [reportError, setReportError] = useState<string | null>(null);
 	const [incidentReported, setIncidentReported] = useState(false);
+	const [reportedOffline, setReportedOffline] = useState(false);
 
 	if (!equipment) {
 		return (
-			<div style={{ display: "flex", height: "100vh", background: "var(--sf-canvas)" }}>
+			<div
+				style={{
+					display: "flex",
+					height: "100vh",
+					background: "var(--sf-canvas)",
+				}}
+			>
 				{!isMobile && <Sidebar />}
 				<main
 					style={{
@@ -82,9 +97,7 @@ function EquipmentDetailPage() {
 					</p>
 					<button
 						type="button"
-						onClick={() =>
-							navigate({ to: isMobile ? "/" : "/equipment" })
-						}
+						onClick={() => navigate({ to: isMobile ? "/" : "/equipment" })}
 						style={{
 							padding: "8px 16px",
 							border: "1px solid var(--sf-border)",
@@ -117,7 +130,10 @@ function EquipmentDetailPage() {
 		}
 	}
 
-	async function handleMobileAction(label: string, status: EquipmentTable["status"]) {
+	async function handleMobileAction(
+		label: string,
+		status: EquipmentTable["status"],
+	) {
 		setActionTaken(label);
 		await handleStatusChange(status);
 	}
@@ -149,7 +165,13 @@ function EquipmentDetailPage() {
 			setIncidentReported(true);
 			await router.invalidate();
 		} catch (err) {
-			setReportError(err instanceof Error ? err.message : "Erreur inconnue");
+			if (isNetworkError(err)) {
+				// Hors-ligne : on met en file locale, la sync se fera au retour réseau.
+				await enqueueIncident({ equipment_id: equipment.id, description });
+				setReportedOffline(true);
+			} else {
+				setReportError(err instanceof Error ? err.message : "Erreur inconnue");
+			}
 		} finally {
 			setReporting(false);
 		}
@@ -171,6 +193,7 @@ function EquipmentDetailPage() {
 				reporting={reporting}
 				reportError={reportError}
 				incidentReported={incidentReported}
+				reportedOffline={reportedOffline}
 				onReportIncident={handleReportIncident}
 				openIncidentCount={openIncidentCount}
 			/>
@@ -210,6 +233,7 @@ function MobileEquipmentDetail({
 	reporting,
 	reportError,
 	incidentReported,
+	reportedOffline,
 	onReportIncident,
 	openIncidentCount,
 }: {
@@ -226,6 +250,7 @@ function MobileEquipmentDetail({
 	reporting: boolean;
 	reportError: string | null;
 	incidentReported: boolean;
+	reportedOffline: boolean;
 	onReportIncident: (description: string | null) => void;
 	openIncidentCount: number;
 }) {
@@ -390,7 +415,10 @@ function MobileEquipmentDetail({
 						overflow: "hidden",
 					}}
 				>
-					<InfoRow label="Type" value={TYPE_LABELS[equipment.type] ?? equipment.type} />
+					<InfoRow
+						label="Type"
+						value={TYPE_LABELS[equipment.type] ?? equipment.type}
+					/>
 					{equipment.brand && (
 						<InfoRow label="Marque" value={equipment.brand} />
 					)}
@@ -489,21 +517,28 @@ function MobileEquipmentDetail({
 					<ActionTile
 						icon="user"
 						label={
-							equipment.assigned_to === currentUserId && equipment.assigned_to !== null
+							equipment.assigned_to === currentUserId &&
+							equipment.assigned_to !== null
 								? "Retirer mon attribution"
 								: "M'attribuer"
 						}
-						active={equipment.assigned_to === currentUserId && equipment.assigned_to !== null}
+						active={
+							equipment.assigned_to === currentUserId &&
+							equipment.assigned_to !== null
+						}
 						disabled={
 							assigning ||
-							(equipment.assigned_to !== null && equipment.assigned_to !== currentUserId) ||
+							(equipment.assigned_to !== null &&
+								equipment.assigned_to !== currentUserId) ||
 							(equipment.assigned_to === null &&
 								equipment.status !== "available" &&
 								equipment.status !== "assigned")
 						}
 						onClick={() =>
 							onAssign(
-								equipment.assigned_to === currentUserId ? null : (currentUserId ?? null),
+								equipment.assigned_to === currentUserId
+									? null
+									: (currentUserId ?? null),
 							)
 						}
 					/>
@@ -511,14 +546,17 @@ function MobileEquipmentDetail({
 						icon="alert"
 						label="Signaler panne"
 						tone="warn"
-						active={reportFormOpen || incidentReported}
-						disabled={reporting || incidentReported}
+						active={reportFormOpen || incidentReported || reportedOffline}
+						disabled={reporting || incidentReported || reportedOffline}
 						onClick={() => setReportFormOpen((v) => !v)}
 					/>
 					<ActionTile
 						icon="wrench"
 						label="Maintenance"
-						active={actionTaken === "En maintenance" || equipment.status === "maintenance"}
+						active={
+							actionTaken === "En maintenance" ||
+							equipment.status === "maintenance"
+						}
 						disabled={updating}
 						onClick={() => onStatusChange("En maintenance", "maintenance")}
 					/>
@@ -526,14 +564,17 @@ function MobileEquipmentDetail({
 						icon="check"
 						label="Remettre dispo"
 						tone="ok"
-						active={actionTaken === "Remis en stock" || equipment.status === "available"}
+						active={
+							actionTaken === "Remis en stock" ||
+							equipment.status === "available"
+						}
 						disabled={updating}
 						onClick={() => onStatusChange("Remis en stock", "available")}
 					/>
 				</section>
 
 				{/* Incident report form */}
-				{reportFormOpen && !incidentReported && (
+				{reportFormOpen && !incidentReported && !reportedOffline && (
 					<form
 						style={{
 							margin: "0 14px 16px",
@@ -611,6 +652,25 @@ function MobileEquipmentDetail({
 					>
 						Panne signalée · un administrateur qualifiera l'incident
 					</div>
+				)}
+
+				{reportedOffline && (
+					<output
+						style={{
+							display: "block",
+							margin: "0 14px 16px",
+							padding: "10px 12px",
+							background: "var(--sf-warning-tint)",
+							border: "1px solid var(--sf-warning-border)",
+							borderRadius: 10,
+							fontSize: 12.5,
+							color: "var(--sf-warning)",
+							fontWeight: 500,
+						}}
+					>
+						Incident enregistré hors-ligne · il sera synchronisé au retour du
+						réseau
+					</output>
 				)}
 
 				{reportError && (
@@ -715,7 +775,11 @@ function InfoRow({
 	label,
 	value,
 	last,
-}: { label: string; value: string; last?: boolean }) {
+}: {
+	label: string;
+	value: string;
+	last?: boolean;
+}) {
 	return (
 		<div
 			style={{
@@ -727,7 +791,9 @@ function InfoRow({
 				gap: 12,
 			}}
 		>
-			<span style={{ fontSize: 12.5, color: "var(--sf-fg-muted)", flexShrink: 0 }}>
+			<span
+				style={{ fontSize: 12.5, color: "var(--sf-fg-muted)", flexShrink: 0 }}
+			>
 				{label}
 			</span>
 			<span
@@ -807,7 +873,9 @@ function ActionTile({
 			}}
 		>
 			<ActionIcon name={icon} stroke={iconStroke} />
-			<span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.005em" }}>
+			<span
+				style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.005em" }}
+			>
 				{label}
 			</span>
 		</button>
@@ -817,7 +885,10 @@ function ActionTile({
 function ActionIcon({
 	name,
 	stroke = "currentColor",
-}: { name: "user" | "alert" | "wrench" | "check"; stroke?: string }) {
+}: {
+	name: "user" | "alert" | "wrench" | "check";
+	stroke?: string;
+}) {
 	const s = {
 		width: 18,
 		height: 18,
@@ -914,7 +985,13 @@ function DesktopEquipmentDetail({
 	};
 
 	return (
-		<div style={{ display: "flex", height: "100vh", background: "var(--sf-canvas)" }}>
+		<div
+			style={{
+				display: "flex",
+				height: "100vh",
+				background: "var(--sf-canvas)",
+			}}
+		>
 			<Sidebar />
 			<main
 				style={{
@@ -1135,12 +1212,16 @@ function DesktopEquipmentDetail({
 											padding: "14px 20px",
 											border: `1px solid ${btn.border}`,
 											background:
-												equipment.status === btn.status ? btn.activeBg : "var(--sf-bg)",
+												equipment.status === btn.status
+													? btn.activeBg
+													: "var(--sf-bg)",
 											borderRadius: 8,
 											fontSize: 14,
 											fontWeight: 500,
 											color:
-												equipment.status === btn.status ? btn.activeColor : btn.color,
+												equipment.status === btn.status
+													? btn.activeColor
+													: btn.color,
 											cursor:
 												updating || equipment.status === btn.status
 													? "not-allowed"
@@ -1150,7 +1231,8 @@ function DesktopEquipmentDetail({
 											alignItems: "center",
 											justifyContent: "center",
 											gap: 8,
-											opacity: updating || equipment.status === btn.status ? 0.6 : 1,
+											opacity:
+												updating || equipment.status === btn.status ? 0.6 : 1,
 											transition: "opacity 0.15s",
 										}}
 									>
@@ -1216,13 +1298,17 @@ function DesktopEquipmentDetail({
 								{equipment.brand && (
 									<div style={rowStyle}>
 										<dt style={labelStyle}>Marque</dt>
-										<dd style={{ ...valueStyle, margin: 0 }}>{equipment.brand}</dd>
+										<dd style={{ ...valueStyle, margin: 0 }}>
+											{equipment.brand}
+										</dd>
 									</div>
 								)}
 								{equipment.model && (
 									<div style={rowStyle}>
 										<dt style={labelStyle}>Modèle</dt>
-										<dd style={{ ...valueStyle, margin: 0 }}>{equipment.model}</dd>
+										<dd style={{ ...valueStyle, margin: 0 }}>
+											{equipment.model}
+										</dd>
 									</div>
 								)}
 								{equipment.serial_number && (
@@ -1283,8 +1369,11 @@ function AssignmentSection({
 }) {
 	const [selected, setSelected] = useState("");
 	const isAdmin = currentUserRole === "admin";
-	const canAssign = equipment.status === "available" || equipment.status === "assigned";
-	const assignedUser = assignableUsers.find((u) => u.id === equipment.assigned_to);
+	const canAssign =
+		equipment.status === "available" || equipment.status === "assigned";
+	const assignedUser = assignableUsers.find(
+		(u) => u.id === equipment.assigned_to,
+	);
 
 	const assignBtnStyle: React.CSSProperties = {
 		padding: "7px 14px",
@@ -1346,8 +1435,18 @@ function AssignmentSection({
 			</div>
 
 			{isAdmin ? (
-				<div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-					<label htmlFor="assign-user-select" style={{ fontSize: 12.5, color: "var(--sf-fg-muted)" }}>
+				<div
+					style={{
+						display: "flex",
+						gap: 10,
+						flexWrap: "wrap",
+						alignItems: "center",
+					}}
+				>
+					<label
+						htmlFor="assign-user-select"
+						style={{ fontSize: 12.5, color: "var(--sf-fg-muted)" }}
+					>
 						Assigner à
 					</label>
 					<select
@@ -1383,15 +1482,26 @@ function AssignmentSection({
 						Assigner
 					</button>
 					{equipment.assigned_to !== null && (
-						<button type="button" disabled={assigning} onClick={() => onAssign(null)} style={unassignBtnStyle}>
+						<button
+							type="button"
+							disabled={assigning}
+							onClick={() => onAssign(null)}
+							style={unassignBtnStyle}
+						>
 							Retirer l'attribution
 						</button>
 					)}
 				</div>
 			) : (
 				<div style={{ display: "flex", gap: 10 }}>
-					{equipment.assigned_to === currentUserId && equipment.assigned_to !== null ? (
-						<button type="button" disabled={assigning} onClick={() => onAssign(null)} style={unassignBtnStyle}>
+					{equipment.assigned_to === currentUserId &&
+					equipment.assigned_to !== null ? (
+						<button
+							type="button"
+							disabled={assigning}
+							onClick={() => onAssign(null)}
+							style={unassignBtnStyle}
+						>
 							Retirer mon attribution
 						</button>
 					) : equipment.assigned_to === null ? (
@@ -1415,7 +1525,10 @@ function AssignmentSection({
 			)}
 
 			{assignError && (
-				<p role="alert" style={{ margin: 0, fontSize: 13, color: "var(--sf-danger)" }}>
+				<p
+					role="alert"
+					style={{ margin: 0, fontSize: 13, color: "var(--sf-danger)" }}
+				>
 					{assignError}
 				</p>
 			)}

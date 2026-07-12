@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useEffect } from "react";
+import { OfflineSyncBanner } from "../components/OfflineSyncBanner";
 import { getSessionFn } from "../lib/auth";
 import appCss from "../styles.css?url";
 
@@ -85,6 +86,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body style={{ margin: 0, height: "100%" }}>
+				<OfflineSyncBanner />
 				{children}
 				<TanStackDevtools
 					config={{ position: "bottom-right" }}
