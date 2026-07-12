@@ -250,16 +250,27 @@ correctifs : docs/certification/09-securisation.md.
 - [x] Suite de tests : 72/72 verts (7 tests unitaires validation incident + 2 tests RLS
       ajoutés en session 6 bis).
 
-## Lot PWA offline
+## Lot PWA offline (session 2026-07-12, issue #9 fermée)
 
-- [ ] **Absent.** `vite-plugin-pwa` est dans `devDependencies` mais jamais importé dans
-      `vite.config.ts` — pas de service worker généré, pas de cache offline.
-- [x] Manifest corrigé cette session : `manifest.webmanifest` référençait `/icon-192.png` et
-      `/icon-512.png`, absents du repo. Fichiers dupliqués depuis `logo192.png`/`logo512.png`.
-- [ ] Le manifest n'est **toujours pas lié** dans le `<head>` (`src/routes/__root.tsx` n'a pas de
-      `<link rel="manifest">`) — l'app n'est pas installable en l'état, indépendamment du fix
-      d'icônes. Hors périmètre de cette session (décision explicite : corriger seulement la
-      référence cassée, pas câbler le PWA complet).
+- [x] Manifest : `manifest.json` TanStack périmé supprimé, `manifest.webmanifest` lié dans le
+      `<head>` (`__root.tsx`) avec `theme-color` + `apple-touch-icon` — app installable.
+- [x] Service worker : `vite-plugin-pwa` câblé (`generateSW`), cache runtime uniquement —
+      `CacheFirst` assets, `NetworkFirst` navigations (`sf-pages`) et server fns **GET**
+      (`sf-data`), jamais les POST. Piège d'intégration résolu : le plugin émet dans `dist/`
+      avant que Nitro assemble `.output/public` → copie dans le script `build`.
+- [x] Garde auth tolérante offline : `beforeLoad` retombe sur l'identité en cache
+      (localStorage, champs non sensibles, purge au logout) sur erreur de transport ;
+      barrière serveur inchangée.
+- [x] File d'incidents offline : `src/lib/offline-queue.ts` (logique pure `flushItems`
+      testée + IndexedDB natif), bandeau global `OfflineSyncBanner` (flush auto sur
+      `online` + bouton), enqueue quand `createIncidentFn` échoue en réseau (vue mobile).
+- [x] Tests : +5 vitest (file), +1 e2e (OF1 : offline → file → sync → ligne en base),
+      suite complète 99 vitest + 32 e2e verts. SW vérifié sur build de prod (Chromium :
+      SW contrôlant, caches peuplés, `/login` servi hors-ligne).
+- Périmètre assumé : seule la création d'incident est offline ; détail dans
+  `18-architecture.md` (section « Fonctionnement hors-ligne »).
+- Spec/plan : `docs/superpowers/specs/2026-07-12-pwa-offline-design.md`,
+  `docs/superpowers/plans/2026-07-12-pwa-offline.md`.
 
 ## Lot Harnais de tests
 

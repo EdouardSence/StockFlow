@@ -1,7 +1,7 @@
 # 11 — Harnais de tests
 
 > **Document vivant** : mis à jour à chaque session ajoutant des tests. Décrit l'état présent
-> (94 tests vitest + 31 scénarios e2e Playwright, 2026-07-07), pas une couverture finale.
+> (99 tests vitest + 32 scénarios e2e Playwright, 2026-07-12), pas une couverture finale.
 
 ## Tests existants
 
@@ -15,11 +15,13 @@
 | `src/lib/equipment-domain.test.ts` | Vitest | Noyau fonctionnel pur (Effect) de `assignEquipment` : introuvable, assignation depuis `available`/`assigned` (succès) et `broken`/`maintenance` (échec typé), désassignation depuis les 4 statuts (`broken`/`maintenance` préservés, pas écrasés) | 10 |
 | `src/lib/auth.test.ts` | Vitest | Schémas Zod `loginSchema` (email/mot de passe) et `changePasswordSchema` (self-service, issue #13) : payload valide + normalisation email, email invalide, mot de passe vide/trop court, champ manquant | 8 |
 | `src/lib/users.test.ts` | Vitest | Schémas Zod `newUserSchema`/`userIdSchema` (admin, issue #12) : payload valide, mot de passe trop court, rôle invalide, nom vide, email invalide, id valide/vide | 7 |
+| `src/lib/offline-queue.test.ts` | Vitest | Logique pure de la file d'incidents offline (PWA, issue #9) : `flushItems` (ordre d'envoi, arrêt au premier échec sans perte, liste vide) et `isNetworkError` | 5 |
 
-**Total : 94 tests vitest**, tous verts (`bun run test`), plus **31 scénarios e2e
+**Total : 99 tests vitest**, tous verts (`bun run test`), plus **32 scénarios e2e
 Playwright** (`bun run test:e2e`, local uniquement — voir `13-cahier-de-recettes.md`,
-dont AC1-AC3 pour le changement de mot de passe self-service et AU1-AU4 pour la gestion
-des comptes via UI admin).
+dont AC1-AC3 pour le changement de mot de passe self-service, AU1-AU4 pour la gestion
+des comptes via UI admin, et OF1 pour la création d'incident hors-ligne avec
+synchronisation au retour du réseau).
 
 ### Première utilisation d'Effect dans le codebase (session 6)
 
@@ -35,7 +37,7 @@ métier critique.
 Le JSX de présentation (routes, composants) n'a pas de suite de tests unitaires dédiée — choix
 assumé (voir `CLAUDE.md` § Tests) : l'objectif de couverture (≥ 80 %) porte sur la logique
 métier pure de `src/lib/*.ts`, pas sur la présentation. Les parcours complets (navigateur →
-route → server function → Postgres) sont couverts par les 31 scénarios e2e Playwright
+route → server function → Postgres) sont couverts par les 32 scénarios e2e Playwright
 (`13-cahier-de-recettes.md`), pas par des tests unitaires JSX.
 
 ## Mesure de couverture
