@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "build": "rm -rf dist && vite build && cp dist/sw.js dist/workbox-*.js .output/public/",
     "preview": "vite preview",
     "migrate": "bun run scripts/migrate.ts",
     "test": "vitest run",

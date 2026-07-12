@@ -6,6 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { useEffect } from "react";
 import { getSessionFn } from "../lib/auth";
 import appCss from "../styles.css?url";
 
@@ -55,6 +56,13 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	// Enregistrement du service worker (prod uniquement : pas de SW généré en dev).
+	useEffect(() => {
+		if (import.meta.env.PROD && "serviceWorker" in navigator) {
+			navigator.serviceWorker.register("/sw.js");
+		}
+	}, []);
+
 	return (
 		<html lang="fr" style={{ height: "100%" }}>
 			<head>
