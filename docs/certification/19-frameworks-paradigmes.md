@@ -25,11 +25,11 @@ lecture directe du code (`package.json`, `src/`), pas une reformulation du pitch
 - **Server functions comme unique frontière** vers les données, chacune portant explicitement
   `authMiddleware`/`adminMiddleware` (pas de logique métier dans les composants React).
 
-## Effect : évalué au cadrage, intégration différée au bon domaine
+## Effect : évalué au cadrage, intégré au bon domaine (session 6)
 
-`package.json` déclare `effect` (`^3.21.2`), mais aucun import dans `src/` à ce jour (`useEffect`
-de React n'a aucun rapport). Ce n'est pas une dette de dépendance inutilisée : Effect a été
-évalué et retenu au cadrage Bloc 1 pour la logique métier critique. Son intégration a été
-délibérément reportée sur le domaine le plus adapté à ses garanties (transitions d'état, règles
-métier avec cas d'erreur réels) plutôt qu'utilisée de façon cosmétique sur du code déjà simple
-(auth). Intégration prévue en session 6 (pannes & assignation).
+Effect (`^3.21.2`) a été évalué et retenu au cadrage Bloc 1 pour la logique métier critique,
+puis délibérément réservé au domaine le plus adapté à ses garanties plutôt qu'utilisé de façon
+cosmétique sur du code déjà simple (auth). Intégration effective en session 6 (2026-07-05) :
+`src/lib/incidents-domain.ts` (matrice de transitions du cycle de vie incident) et
+`src/lib/equipment-domain.ts` (règles d'assignation) — fonctions pures, erreurs discriminées
+(`Data.TaggedError`), couvertes exhaustivement en Vitest (voir `11-harnais-de-tests.md`).
