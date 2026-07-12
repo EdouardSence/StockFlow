@@ -15,7 +15,7 @@ référence — l'état de mesure réelle (fait / à mesurer) est indiqué pour 
 | 2 | Réduction de l'inventaire fantôme | -50 % | Non mesurable avant déploiement client réel |
 | 3 | Parc scannable | 100 % sous 6 mois | Fonctionnalité QR/scan livrée (`scan.tsx`, génération QR) ; déploiement client non commencé |
 | 4 | Temps de chargement | < 2 s en 3G | Non mesuré (pas de test de charge/Lighthouse réalisé à ce jour) |
-| 5 | Couverture de tests logique métier | ≥ 80 % sur `src/lib/*.ts` | Voir `11-harnais-de-tests.md` — mesure `bun run test:coverage` à exécuter et consigner |
+| 5 | Couverture de tests logique métier | ≥ 80 % sur `src/lib/*.ts` | **Atteint et mesuré** (2026-07-07, `12-couverture-de-code.md`) : domaines Effect 100 %, auth-core 92 %, schémas 100 % comportemental |
 | 6 | SUS (System Usability Scale) | 80/100 visé | Non mesuré (nécessite panel d'utilisateurs, pas encore mené) |
 | 7 | Vulnérabilités critiques OWASP | 0 | Revue adversariale menée (session 3, voir `09-securisation.md`) — 0 finding critique confirmé non corrigé à ce jour |
 | 8 | Coût d'hébergement | ≤ 30 €/mois | Vercel + Supabase, paliers gratuits actuels — coût réel non encore facturé (pas de trafic client) |
@@ -26,7 +26,8 @@ Ce ne sont pas les KPI produit ci-dessus, mais les garde-fous automatisés qui b
 régression avant qu'elle n'atteigne `main` (détail complet : `01-deploiement-continu.md`) :
 
 - **CI** (`.github/workflows/ci.yml`) : `lint` (Biome) → `typecheck` (`tsc --noEmit`) →
-  `test` (Vitest) → `build` (Vite + Nitro), séquentiel, un échec bloque le merge.
+  tests purs (Vitest, hors intégration DB — issue #26) → `build` (Vite + Nitro),
+  séquentiel, un échec bloque le merge.
 - **Hooks locaux** (Husky) : `pre-commit` (`lint && typecheck`), `commit-msg` (commitlint,
   format Conventional Commits imposé).
 - **Aucun seuil de couverture n'est actuellement appliqué en CI** (`test:coverage` existe en

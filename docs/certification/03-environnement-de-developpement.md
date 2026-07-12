@@ -14,9 +14,11 @@
 ## Scripts (`package.json`)
 
 - `bun run dev` — serveur de dev (Vite, port 3000)
-- `bun run build` — build production
-- `bun run lint` / `bun run typecheck` / `bun run test`
-- `bun run migrate` — applique les migrations SQL non appliquées
+- `bun run build` — build production (+ copie du service worker PWA dans `.output/public`)
+- `bun run preview` — sert le build de production
+- `bun run lint` / `bun run typecheck` / `bun run test` / `bun run test:coverage`
+- `bun run test:e2e` — suite Playwright (local uniquement, base partagée — cf. CLAUDE.md)
+- `bun run migrate` — rejoue les migrations SQL (idempotentes, ordre alphabétique)
 - `bun run check` — Biome check (lint + format en une passe)
 
 ## Pourquoi pas ESLint/Prettier
@@ -27,5 +29,7 @@ complément — décision prise en session 0 bis.
 
 ## Variables d'environnement
 
-Voir `.env.example`. En développement local, `POSTGRES_URL` doit être renseigné (actuellement
-vide dans `.env.local` — dette connue, voir `PROGRESS.md` § Lot Déploiement).
+Voir `.env.example` (documente les trois variables réellement utilisées et la génération
+des clés JWT). En local, `APP_POSTGRES_URL` (rôle applicatif RLS) suffit au runtime ;
+`POSTGRES_URL` (rôle propriétaire) ne sert qu'aux migrations. Détail des rôles :
+`09-securisation.md` et `15-manuel-deploiement.md`.
