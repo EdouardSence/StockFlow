@@ -1,5 +1,23 @@
 # 02 — Prototype logiciel
 
+## Le prototype livré (état au 2026-07-12)
+
+Application complète et déployée (Vercel + Supabase), couvrant les parcours du cadrage :
+
+| Parcours | Écrans | État |
+|---|---|---|
+| Connexion / session | `/login`, refresh silencieux, rate limiting | ✅ |
+| Tableau de bord | `/` (KPI, parc récent, incidents ouverts — desktop) | ✅ |
+| Inventaire | `/equipment` (liste, recherche, badges), `/equipment/new`, `/equipment/{id}` | ✅ |
+| QR + scan mobile | génération à la création, `/scan` (caméra + saisie manuelle) | ✅ |
+| Incidents | signalement mobile depuis la fiche, cycle admin `/incidents` | ✅ |
+| Hors-ligne (PWA) | installable, consultation offline, incident hors-ligne + file de sync | ✅ (2026-07-12) |
+| Comptes | `/account` (mot de passe), `/admin/users` (admin) | ✅ |
+
+Le détail d'usage écran par écran vit dans `21-manuel-utilisation.md` ; l'architecture
+dans `18-architecture.md`. La suite de ce document décrit la session d'alignement visuel
+sur le design de référence (historique, conservé tel quel).
+
 ## Alignement design system (session, 2026-07-04)
 
 Le code réel (routes `equipment/*`, `login`, `scan`, composants partagés) a été développé
@@ -46,9 +64,9 @@ authentifiée, mêmes viewports avant/après.
 
 ### Dette / hors périmètre
 
-- La liste des équipements (`equipment/index.tsx`) n'a aucun lien cliquable vers la fiche
-  détail (`equipment/$id`) — constaté en préparant les captures (une navigation directe par
-  URL a été nécessaire). Pré-existant, non introduit par cette session, non corrigé ici
-  (changement de comportement, hors périmètre visuel strict).
+- La liste des équipements (`equipment/index.tsx`) n'avait aucun lien cliquable vers la
+  fiche détail (`equipment/$id`) — constaté en préparant les captures. Pré-existant, non
+  corrigé dans cette session (hors périmètre visuel strict). **Résorbé depuis** : la liste
+  navigue vers la fiche via `<Link>` (vérifié le 2026-07-12).
 - `FakeQR.tsx` n'est référencé nulle part dans les routes (code mort) — laissé tel quel
   (fond blanc/points sombres), non retouché.
