@@ -35,7 +35,25 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
   server functions equipment, erreurs Postgres masquées au client (garde F11 dans
   `withAuthContext`), en-têtes HTTP de sécurité (CSP/XFO/HSTS/Permissions-Policy) vérifiés
   en production. 74 tests vitest, e2e 24/24.
+- Rate limiting du login trois niveaux (2026-07-07, issue #15) + audit OWASP Top 10
+  formalisé (#18) — voir `09-securisation.md`.
+- Self-service mot de passe `/account` (#13) et gestion des comptes admin `/admin/users`
+  (#12, migration 006) — 94 tests vitest, e2e 31/31.
+- Accessibilité (2026-07-07, issues #11/#19/#25) : audit RGAA outillé complet
+  (`10-accessibilite.md`), sélecteur de type en vrais radios natifs, focus clavier
+  visible rétabli (suppression des `outline:none` inline), contraste AA du texte
+  « faint » corrigé. Couverture de code clôturée sur le bon périmètre (#16,
+  `12-couverture-de-code.md`).
+- **PWA offline (2026-07-12, issue #9)** : app installable (manifest lié), service
+  worker Workbox (consultation hors-ligne des pages visitées), création d'incident
+  hors-ligne avec file IndexedDB et bandeau de synchronisation visible. 99 tests
+  vitest + e2e 32/32 (scénario OF1). Voir `18-architecture.md` § Fonctionnement
+  hors-ligne.
+- Pièces documentaires 04/05/07 rédigées, manuel d'utilisation créé
+  (`21-manuel-utilisation.md`), README réel (2026-07-12).
 - Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
+  Un tag `v0.4.0` serait justifié à ce stade (auth+RLS → incidents → sécurité → a11y →
+  PWA) — à poser lors de la prochaine session de déploiement.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)
 
