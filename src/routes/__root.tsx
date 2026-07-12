@@ -23,10 +23,26 @@ if (typeof window !== "undefined") {
 export const Route = createRootRoute({
 	// Garde UX : redirige vers /login sans session. La vraie barrière de
 	// sécurité reste côté serveur (authMiddleware sur les server functions).
+	// Hors-ligne, getSessionFn échoue en erreur réseau : on retombe sur la
+	// dernière identité connue (champs non sensibles) pour servir le shell —
+	// les données affichées viennent du cache SW déjà autorisé, et toute
+	// mutation repassera par le serveur (401 possible au flush).
 	beforeLoad: async ({ location }) => {
 		if (location.pathname === "/login") return {};
-		const user = await getSessionFn();
+		let user: Awaited<ReturnType<typeof getSessionFn>>;
+		try {
+			user = await getSessionFn();
+		} catch {
+			if (typeof window !== "undefined") {
+				const cached = window.localStorage.getItem("sf-offline-user");
+				if (cached) return { user: JSON.parse(cached) };
+			}
+			throw redirect({ to: "/login" });
+		}
 		if (!user) throw redirect({ to: "/login" });
+		if (typeof window !== "undefined") {
+			window.localStorage.setItem("sf-offline-user", JSON.stringify(user));
+		}
 		return { user };
 	},
 	head: () => ({

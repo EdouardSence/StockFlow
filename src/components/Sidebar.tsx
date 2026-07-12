@@ -298,6 +298,8 @@ export function Sidebar({
 					aria-label="Se déconnecter"
 					onClick={async () => {
 						await logoutFn();
+						// Purge l'identité offline : plus de shell hors-ligne après déconnexion.
+						window.localStorage.removeItem("sf-offline-user");
 						window.location.href = "/login";
 					}}
 					style={{
