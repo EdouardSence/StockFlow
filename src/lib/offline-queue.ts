@@ -42,3 +42,74 @@ export async function flushItems(
 	}
 	return { sent, remaining: [], aborted: false };
 }
+
+// ---------------------------------------------------------------------------
+// Persistance IndexedDB (API native, pas de dépendance). Non testée en jsdom
+// (pas d'IndexedDB) : couverte par le scénario e2e offline.
+// ---------------------------------------------------------------------------
+
+const DB_NAME = "stockflow-offline";
+const STORE = "incident-queue";
+
+function openDb(): Promise<IDBDatabase> {
+	return new Promise((resolve, reject) => {
+		const req = indexedDB.open(DB_NAME, 1);
+		req.onupgradeneeded = () => {
+			req.result.createObjectStore(STORE, { keyPath: "id" });
+		};
+		req.onsuccess = () => resolve(req.result);
+		req.onerror = () => reject(req.error);
+	});
+}
+
+function requestToPromise<T>(req: IDBRequest<T>): Promise<T> {
+	return new Promise((resolve, reject) => {
+		req.onsuccess = () => resolve(req.result);
+		req.onerror = () => reject(req.error);
+	});
+}
+
+async function withStore<T>(
+	mode: IDBTransactionMode,
+	fn: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
+	const db = await openDb();
+	try {
+		return await requestToPromise(
+			fn(db.transaction(STORE, mode).objectStore(STORE)),
+		);
+	} finally {
+		db.close();
+	}
+}
+
+function notifyQueueChanged(): void {
+	window.dispatchEvent(new CustomEvent("sf-queue-changed"));
+}
+
+export async function enqueueIncident(input: {
+	equipment_id: string;
+	description: string | null;
+}): Promise<void> {
+	const item: QueuedIncident = {
+		id: crypto.randomUUID(),
+		equipment_id: input.equipment_id,
+		description: input.description,
+		queued_at: new Date().toISOString(),
+	};
+	await withStore("readwrite", (s) => s.add(item));
+	notifyQueueChanged();
+}
+
+export async function listQueued(): Promise<QueuedIncident[]> {
+	const items = await withStore("readonly", (s) => s.getAll());
+	// Ordre chronologique de saisie garanti à l'affichage comme au flush.
+	return (items as QueuedIncident[]).sort((a, b) =>
+		a.queued_at.localeCompare(b.queued_at),
+	);
+}
+
+export async function removeQueued(id: string): Promise<void> {
+	await withStore("readwrite", (s) => s.delete(id));
+	notifyQueueChanged();
+}
