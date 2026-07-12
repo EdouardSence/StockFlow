@@ -382,6 +382,19 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
 - [x] `docs/certification/01-deploiement-continu.md` — correction de la phrase périmée « pas
       encore passé en conditions réelles » (la CI a tourné sur tout le lot auth/RLS, 8 commits).
 
+## Lot Documentation + housekeeping (session 2026-07-12, après la PWA)
+
+- [x] README réel (remplace le boilerplate TanStack) + badge de statut CI.
+- [x] Pièces 04 (framework), 05 (langages), 07 (référentiel de composants) rédigées ;
+      manuel d'utilisation créé (`21-manuel-utilisation.md`). Restent : manuels de
+      déploiement et de mise à jour (issue #21, arbitrage hébergement à trancher).
+- [x] Documents vivants remis à jour : 02 (état livré + dette liste→fiche résorbée),
+      11 (99 vitest + 32 e2e), 13 (OF1, exécution 32/32), 19 (Effect intégré), 20.
+- [x] **CI réparée (issue #26)** : rouge depuis le 2026-07-03 sans détection — step Test
+      mourait à l'import (`APP_POSTGRES_URL` absent en CI). Correctif : URL factice +
+      exclusion des tests d'intégration DB en CI (base partagée, politique identique à
+      l'e2e). Premier run vert depuis 9 jours ; incident consigné dans la pièce 01.
+
 ## Lot Déploiement + manuels
 
 ### Remarques (état réel constaté)
@@ -392,8 +405,9 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
   (rôle applicatif RLS) est posé en local — le dev server se connecte, `/equipment` répond.
   `POSTGRES_URL` (rôle postgres, migrations) reste vide en local ; les migrations passent par
   le MCP Supabase.
-- **⚠️ Action requise avant le prochain déploiement Vercel** : ajouter en Production les
-  variables `APP_POSTGRES_URL`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` (valeurs dans `.env.local`).
+- ~~⚠️ Action requise avant le prochain déploiement Vercel : ajouter en Production les
+  variables `APP_POSTGRES_URL`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`~~ **Résolu le 2026-07-06**
+  (issue #20 fermée : variables posées et vérifiées en production).
   Sans `APP_POSTGRES_URL`, l'app tournerait avec le rôle postgres et RLS serait inopérant ;
   sans les clés JWT, toute requête auth échoue au démarrage.
 - Projet Supabase se met en pause automatiquement (plan gratuit, `INACTIVE` après inactivité) —
@@ -408,9 +422,12 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
 
 ---
 
-## Reprise prochaine session
+## Reprise prochaine session (mis à jour 2026-07-12)
 
-- Poser les 3 variables d'env sur Vercel (voir ⚠️ ci-dessus) puis déployer et vérifier l'auth
-  en production.
-- Construire le Lot Pannes & assignation (table `incidents` prête, policies RLS déjà en place).
-- Résorber la dette Zod sur les server functions equipment.
+- **Arbitrage hébergement** (Vercel+Supabase actuel vs Scalingo promis au cadrage Bloc 1) —
+  à trancher, puis rédiger les manuels de déploiement et de mise à jour (issue #21).
+- Poser le tag `v0.4.0` lors de la session de déploiement (voir `20-derniere-version-stable.md`).
+- Session 12 : assemblage du rapport ~30 pages depuis `docs/certification/` + audit de
+  cohérence transversal (chiffres/statuts identiques partout : rapport, code, Kanban, README).
+- Résiduel accepté : #24 (vulnérabilités transitives dev, différées par choix), #4-#7
+  (limitations sécurité documentées).

@@ -9,6 +9,13 @@ les correctifs réellement appliqués — pas fermée silencieusement.
 Voir issue [#3](https://github.com/EdouardSence/StockFlow/issues/3) — dette lint (13 erreurs de
 build, a11y notamment), ouverte puis fermée avec résumé des correctifs le 2026-07-02.
 
+Autre exemple complet du cycle (2026-07-12) : issue
+[#26](https://github.com/EdouardSence/StockFlow/issues/26) — CI rouge pendant 9 jours sans
+détection (step Test mourant à l'import faute d'`APP_POSTGRES_URL`, angle mort local/CI).
+Qualifiée (constat, reproduction, cause, impact, correctif proposé) **avant** correction,
+fermée avec le résumé du correctif vérifié (run vert) et une mesure anti-récidive (badge de
+statut CI dans le README).
+
 ## Synthèse du suivi qualité et plan de correction
 
 ### Méthodologie
