@@ -437,7 +437,7 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
 - ~~Arbitrage hébergement~~ **Tranché le 2026-07-13** : on reste sur Vercel+Supabase, écart
   de cadrage assumé et argumenté (`15-manuel-deploiement.md`, avec annexe portabilité
   Scalingo). Manuels de déploiement et de mise à jour rédigés — issue #21 refermable.
-- Poser le tag `v0.4.0` lors de la session de déploiement (voir `20-derniere-version-stable.md`).
+- ~~Poser le tag `v0.4.0`~~ **Posé le 2026-07-13** (annoté, poussé — voir `20-derniere-version-stable.md`).
 - Session 12 : assemblage du rapport ~30 pages depuis `docs/certification/` + audit de
   cohérence transversal (chiffres/statuts identiques partout : rapport, code, Kanban, README).
 - Résiduel accepté : #24 (vulnérabilités transitives dev, différées par choix), #4-#7

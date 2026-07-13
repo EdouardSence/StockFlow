@@ -6,6 +6,7 @@
 |---|---|---|
 | `v0.2.0` | 2026-07-03 | Retrofit session 0 bis — CRUD équipements, scan, génération QR, sans auth ni RLS |
 | `v0.3.0` | 2026-07-04 | Authentification JWT RS256 + RBAC + Row Level Security |
+| `v0.4.0` | 2026-07-13 | Incidents, sécurité consolidée, accessibilité auditée, PWA offline |
 
 ## Convention de commit
 

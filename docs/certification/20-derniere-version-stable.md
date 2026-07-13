@@ -5,7 +5,7 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
 
 > **Document vivant** : à mettre à jour à chaque nouveau tag git, pas figé sur `v0.3.0`.
 
-## Depuis `v0.3.0` (non tagué) — session 6, pannes & assignation (2026-07-05)
+## Depuis `v0.3.0` — jusqu'au tag `v0.4.0` (2026-07-13)
 
 - Cycle de vie incident (`open → in_progress → resolved`, linéaire strict) : noyau pur
   `src/lib/incidents-domain.ts` (Effect) + coquille `src/lib/incidents.ts` (server functions).
@@ -51,9 +51,9 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
   hors-ligne.
 - Pièces documentaires 04/05/07 rédigées, manuel d'utilisation créé
   (`21-manuel-utilisation.md`), README réel (2026-07-12).
-- Pas encore taggé — snapshot `v0.3.0` ci-dessous toujours la dernière version taguée.
-  Un tag `v0.4.0` serait justifié à ce stade (auth+RLS → incidents → sécurité → a11y →
-  PWA) — à poser lors de la prochaine session de déploiement.
+- **Taggé `v0.4.0` le 2026-07-13** — l'ensemble ci-dessus (auth+RLS → incidents →
+  sécurité → a11y → PWA) constitue la dernière version taguée. Le snapshot `v0.3.0`
+  ci-dessous est conservé comme état de référence antérieur.
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)
 

@@ -520,7 +520,9 @@ tags annotés aux jalons :
 |---|---|---|
 | `v0.2.0` | 2026-07-03 | Base fonctionnelle : CRUD équipements, scan, QR — sans auth ni RLS |
 | `v0.3.0` | 2026-07-04 | Authentification JWT RS256 + RBAC + Row Level Security |
-| `v0.4.0` (à poser) | — | Incidents, sécurité consolidée, accessibilité auditée, PWA offline | L'épisode le plus significatif de cet historique est un
+| `v0.4.0` | 2026-07-13 | Incidents, sécurité consolidée, accessibilité auditée, PWA offline |
+
+L'épisode le plus significatif de cet historique est un
 *non-événement volontaire* : après la revue de sécurité, les correctifs ont été commités
 en `fix:` visibles plutôt que fondus dans l'historique par rebase — la traçabilité du
 processus vaut plus que l'esthétique de l'historique.
