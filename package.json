@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "rm -rf dist && vite build && cp dist/sw.js dist/workbox-*.js .output/public/",
+    "build": "rm -rf dist && vite build && sh -c 'D=.vercel/output/static; [ -d \"$D\" ] || D=.output/public; cp dist/sw.js dist/workbox-*.js \"$D\"/'",
     "preview": "vite preview",
     "migrate": "bun run scripts/migrate.ts",
     "rapport": "bun run scripts/rapport-pdf.ts docs/rapport/rapport-bloc2.md docs/rapport/rapport-bloc2.pdf",

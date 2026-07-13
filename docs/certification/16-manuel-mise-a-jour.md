@@ -40,8 +40,10 @@ code encore déployé), puis déploiement du code qui l'exploite.
 - `bun audit` à chaque montée : les 16 vulnérabilités transitives **dev-only** connues
   sont tracées (issue #24, différées par choix — aucune n'affecte le runtime de prod).
 - Après toute montée touchant Vite/Nitro/vite-plugin-pwa : vérifier que le build produit
-  toujours `sw.js` copié dans `.output/public/` (piège documenté dans CLAUDE.md et
-  `18-architecture.md`).
+  toujours `sw.js` copié dans la sortie statique — `.vercel/output/static/` sur Vercel,
+  `.output/public/` en local (piège documenté dans CLAUDE.md et `18-architecture.md` ;
+  l'issue #34 a montré qu'une cible codée en dur casse silencieusement les déploiements :
+  vérifier le statut Vercel après push, la CI GitHub ne le voit pas).
 
 ## Spécificités PWA (service worker)
 

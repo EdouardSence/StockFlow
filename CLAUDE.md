@@ -15,9 +15,12 @@ Projet de certification RNCP 39583 niveau 7, Bloc 2 (code source + dossier 30 pa
 - Erreurs prod : Sentry (import dynamique côté client uniquement, cf. `src/routes/__root.tsx`)
 - QR : génération `qrcode`, scan `html5-qrcode`
 - PWA offline : `vite-plugin-pwa` (generateSW, cache runtime uniquement — le plugin émet
-  `sw.js` dans `dist/` AVANT que Nitro assemble `.output/public`, d'où la copie dans le
-  script `build` ; ne pas la supprimer). File d'incidents offline : `src/lib/offline-queue.ts`
-  (IndexedDB natif, pas de dépendance) + bandeau `OfflineSyncBanner`.
+  `sw.js` dans `dist/` AVANT que Nitro assemble sa sortie, d'où la copie dans le script
+  `build` ; ne pas la supprimer). La cible dépend du preset Nitro : `.vercel/output/static/`
+  sur Vercel, `.output/public/` en local — le script détecte le bon dossier (issue #34 :
+  cibler seulement `.output/public` cassait TOUS les déploiements Vercel, prod figée).
+  File d'incidents offline : `src/lib/offline-queue.ts` (IndexedDB natif, pas de
+  dépendance) + bandeau `OfflineSyncBanner`.
 - Déploiement : Vercel, intégration Supabase native (`POSTGRES_URL` / `DATABASE_URL`)
 
 ## Modèle de données (post-migration 002)
