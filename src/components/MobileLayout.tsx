@@ -1,15 +1,47 @@
+import { useEffect, useState } from "react";
 import type { EquipmentTable } from "../db/types";
+
+/**
+ * Détection mobile partagée (breakpoint 767px). L'état initial DOIT être
+ * `false` des deux côtés : initialiser avec `window.innerWidth` rendait un
+ * premier arbre client différent du HTML SSR → erreur d'hydratation React
+ * (issue #32). L'effet bascule juste après l'hydratation.
+ */
+export function useMobile() {
+	const [isMobile, setIsMobile] = useState(false);
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		const mq = window.matchMedia("(max-width: 767px)");
+		const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+		mq.addEventListener("change", handler);
+		setIsMobile(mq.matches);
+		return () => mq.removeEventListener("change", handler);
+	}, []);
+	return isMobile;
+}
 
 export function StockFlowLogo({ size = 20 }: { size?: number }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+		<svg
+			width={size}
+			height={size}
+			viewBox="0 0 24 24"
+			fill="none"
+			aria-hidden="true"
+		>
 			<rect x="3" y="3" width="11" height="11" rx="2" fill="#6366f1" />
 			<rect x="10" y="10" width="11" height="11" rx="2" fill="#4338ca" />
 		</svg>
 	);
 }
 
-export function TypeIcon({ type, size = 18 }: { type: EquipmentTable["type"]; size?: number }) {
+export function TypeIcon({
+	type,
+	size = 18,
+}: {
+	type: EquipmentTable["type"];
+	size?: number;
+}) {
 	const s = {
 		width: size,
 		height: size,
@@ -64,7 +96,10 @@ type NavTab = {
 function NavIcon({
 	name,
 	stroke,
-}: { name: NavTab["iconName"]; stroke: string }) {
+}: {
+	name: NavTab["iconName"];
+	stroke: string;
+}) {
 	const s = {
 		width: 22,
 		height: 22,
@@ -113,12 +148,36 @@ function NavIcon({
 	}
 }
 
-export function MobileBottomNav({ active }: { active: "home" | "scan" | "stock" | "profile" }) {
+export function MobileBottomNav({
+	active,
+}: {
+	active?: "home" | "scan" | "stock" | "profile";
+}) {
 	const tabs: NavTab[] = [
-		{ href: "/", iconName: "home", label: "Accueil", active: active === "home" },
-		{ href: "/scan", iconName: "scan", label: "Scanner", active: active === "scan" },
-		{ href: "/equipment", iconName: "box", label: "Stock", active: active === "stock" },
-		{ href: null, iconName: "user", label: "Profil", active: active === "profile" },
+		{
+			href: "/",
+			iconName: "home",
+			label: "Accueil",
+			active: active === "home",
+		},
+		{
+			href: "/scan",
+			iconName: "scan",
+			label: "Scanner",
+			active: active === "scan",
+		},
+		{
+			href: "/equipment",
+			iconName: "box",
+			label: "Stock",
+			active: active === "stock",
+		},
+		{
+			href: "/account",
+			iconName: "user",
+			label: "Profil",
+			active: active === "profile",
+		},
 	];
 
 	return (

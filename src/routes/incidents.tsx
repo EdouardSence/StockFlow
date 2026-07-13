@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { MobileBottomNav, useMobile } from "../components/MobileLayout";
 import { Sidebar } from "../components/Sidebar";
 import type { IncidentsTable } from "../db/types";
 import { advanceIncidentFn, listIncidentsFn } from "../lib/incidents";
@@ -81,6 +82,7 @@ type IncidentRow = Awaited<ReturnType<typeof listIncidentsFn>>[number];
 function IncidentsPage() {
 	const incidents = Route.useLoaderData();
 	const router = useRouter();
+	const isMobile = useMobile();
 	const [resolvedExpanded, setResolvedExpanded] = useState(false);
 	const [advancingId, setAdvancingId] = useState<string | null>(null);
 
@@ -98,8 +100,15 @@ function IncidentsPage() {
 	}
 
 	return (
-		<div style={{ display: "flex", height: "100vh", background: "var(--sf-canvas)" }}>
-			<Sidebar openIncidentCount={active.length} />
+		<div
+			style={{
+				display: "flex",
+				flexDirection: isMobile ? "column" : "row",
+				height: "100dvh",
+				background: "var(--sf-canvas)",
+			}}
+		>
+			{!isMobile && <Sidebar openIncidentCount={active.length} />}
 			<main
 				style={{
 					flex: 1,
@@ -118,12 +127,26 @@ function IncidentsPage() {
 						background: "var(--sf-bg)",
 					}}
 				>
-					<h1 style={{ margin: 0, fontSize: 17, fontWeight: 600, color: "var(--sf-fg)" }}>
+					<h1
+						style={{
+							margin: 0,
+							fontSize: 17,
+							fontWeight: 600,
+							color: "var(--sf-fg)",
+						}}
+					>
 						Incidents
 					</h1>
 				</header>
 
-				<div style={{ flex: 1, overflowY: "auto", padding: 28, maxWidth: 720 }}>
+				<div
+					style={{
+						flex: 1,
+						overflowY: "auto",
+						padding: isMobile ? 14 : 28,
+						maxWidth: 720,
+					}}
+				>
 					<section
 						aria-label="Incidents ouverts"
 						style={{
@@ -142,7 +165,14 @@ function IncidentsPage() {
 								borderBottom: "1px solid var(--sf-border)",
 							}}
 						>
-							<h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--sf-fg)" }}>
+							<h2
+								style={{
+									margin: 0,
+									fontSize: 15,
+									fontWeight: 600,
+									color: "var(--sf-fg)",
+								}}
+							>
 								Incidents ouverts
 							</h2>
 							<span
@@ -161,7 +191,14 @@ function IncidentsPage() {
 						</div>
 
 						{active.length === 0 && (
-							<p style={{ margin: 0, padding: 20, fontSize: 13, color: "var(--sf-fg-muted)" }}>
+							<p
+								style={{
+									margin: 0,
+									padding: 20,
+									fontSize: 13,
+									color: "var(--sf-fg-muted)",
+								}}
+							>
 								Aucun incident ouvert.
 							</p>
 						)}
@@ -190,8 +227,11 @@ function IncidentsPage() {
 										padding: "12px 20px",
 										background: "rgba(39,39,42,.25)",
 										border: "none",
-										borderTop: active.length > 0 ? "none" : "1px solid var(--sf-border)",
-										borderBottom: resolvedExpanded ? "1px solid var(--sf-border-soft)" : "none",
+										borderTop:
+											active.length > 0 ? "none" : "1px solid var(--sf-border)",
+										borderBottom: resolvedExpanded
+											? "1px solid var(--sf-border-soft)"
+											: "none",
 										cursor: "pointer",
 										fontFamily: "inherit",
 										textAlign: "left",
@@ -208,7 +248,13 @@ function IncidentsPage() {
 									>
 										▾
 									</span>
-									<span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--sf-fg-muted)" }}>
+									<span
+										style={{
+											fontSize: 12.5,
+											fontWeight: 600,
+											color: "var(--sf-fg-muted)",
+										}}
+									>
 										Résolus récemment
 									</span>
 									<span
@@ -226,12 +272,15 @@ function IncidentsPage() {
 									</span>
 								</button>
 								{resolvedExpanded &&
-									resolved.map((inc) => <ResolvedIncidentRow key={inc.id} incident={inc} />)}
+									resolved.map((inc) => (
+										<ResolvedIncidentRow key={inc.id} incident={inc} />
+									))}
 							</>
 						)}
 					</section>
 				</div>
 			</main>
+			{isMobile && <MobileBottomNav />}
 		</div>
 	);
 }
@@ -245,7 +294,8 @@ function IncidentRowView({
 	advancing: boolean;
 	onAdvance: () => void;
 }) {
-	const advanceLabel = incident.status === "open" ? "Prendre en charge" : "Marquer résolu";
+	const advanceLabel =
+		incident.status === "open" ? "Prendre en charge" : "Marquer résolu";
 	return (
 		<div
 			style={{
@@ -256,16 +306,37 @@ function IncidentRowView({
 				borderBottom: "1px solid var(--sf-border-soft)",
 			}}
 		>
-			<div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-				<span style={{ fontFamily: "var(--sf-mono)", fontSize: 11, color: "var(--sf-fg-faint)" }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: 8,
+					flexWrap: "wrap",
+				}}
+			>
+				<span
+					style={{
+						fontFamily: "var(--sf-mono)",
+						fontSize: 11,
+						color: "var(--sf-fg-faint)",
+					}}
+				>
 					{incident.id.slice(0, 8)}
 				</span>
 				<IncidentBadge status={incident.status} />
-				<span style={{ fontSize: 11, color: "var(--sf-fg-faint)", marginLeft: "auto" }}>
+				<span
+					style={{
+						fontSize: 11,
+						color: "var(--sf-fg-faint)",
+						marginLeft: "auto",
+					}}
+				>
 					{formatDate(incident.created_at)}
 				</span>
 			</div>
-			<span style={{ fontSize: 13, fontWeight: 600, color: "var(--sf-fg-soft)" }}>
+			<span
+				style={{ fontSize: 13, fontWeight: 600, color: "var(--sf-fg-soft)" }}
+			>
 				{incident.description ?? "Sans description"}
 			</span>
 			<span style={{ fontSize: 12, color: "var(--sf-fg-muted)" }}>
@@ -282,8 +353,14 @@ function IncidentRowView({
 					fontFamily: "inherit",
 					fontSize: 11.5,
 					fontWeight: 600,
-					color: incident.status === "open" ? "var(--sf-warning)" : "var(--sf-success)",
-					background: incident.status === "open" ? "var(--sf-warning-tint)" : "var(--sf-success-tint)",
+					color:
+						incident.status === "open"
+							? "var(--sf-warning)"
+							: "var(--sf-success)",
+					background:
+						incident.status === "open"
+							? "var(--sf-warning-tint)"
+							: "var(--sf-success-tint)",
 					border: `1px solid ${incident.status === "open" ? "var(--sf-warning-border)" : "var(--sf-success-border)"}`,
 					borderRadius: 8,
 					padding: "5px 10px",
@@ -310,15 +387,29 @@ function ResolvedIncidentRow({ incident }: { incident: IncidentRow }) {
 			}}
 		>
 			<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-				<span style={{ fontFamily: "var(--sf-mono)", fontSize: 11, color: "var(--sf-fg-faint)" }}>
+				<span
+					style={{
+						fontFamily: "var(--sf-mono)",
+						fontSize: 11,
+						color: "var(--sf-fg-faint)",
+					}}
+				>
 					{incident.id.slice(0, 8)}
 				</span>
 				<IncidentBadge status={incident.status} />
-				<span style={{ fontSize: 11, color: "var(--sf-fg-faint)", marginLeft: "auto" }}>
+				<span
+					style={{
+						fontSize: 11,
+						color: "var(--sf-fg-faint)",
+						marginLeft: "auto",
+					}}
+				>
 					résolu {incident.resolved_at ? formatDate(incident.resolved_at) : ""}
 				</span>
 			</div>
-			<span style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg-muted)" }}>
+			<span
+				style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg-muted)" }}
+			>
 				{incident.description ?? "Sans description"}
 			</span>
 			<span style={{ fontSize: 11.5, color: "var(--sf-fg-faint)" }}>

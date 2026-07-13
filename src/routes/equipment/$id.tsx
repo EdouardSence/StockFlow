@@ -3,8 +3,12 @@ import {
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { MobileBottomNav, TypeIcon } from "../../components/MobileLayout";
+import { useState } from "react";
+import {
+	MobileBottomNav,
+	TypeIcon,
+	useMobile,
+} from "../../components/MobileLayout";
 import { Sidebar } from "../../components/Sidebar";
 import { OpenIncidentBadge, StatusBadge } from "../../components/StatusBadge";
 import type { EquipmentTable } from "../../db/types";
@@ -39,21 +43,6 @@ const TYPE_LABELS: Record<string, string> = {
 	printer: "Imprimante",
 	other: "Autre",
 };
-
-function useMobile() {
-	const [isMobile, setIsMobile] = useState(
-		typeof window !== "undefined" ? window.innerWidth < 768 : false,
-	);
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		const mq = window.matchMedia("(max-width: 767px)");
-		const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-		mq.addEventListener("change", handler);
-		setIsMobile(mq.matches);
-		return () => mq.removeEventListener("change", handler);
-	}, []);
-	return isMobile;
-}
 
 function EquipmentDetailPage() {
 	const { equipment, assignableUsers, openIncidentCount } =

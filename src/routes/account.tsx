@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { MobileBottomNav, useMobile } from "../components/MobileLayout";
 import { Sidebar } from "../components/Sidebar";
-import { changePasswordFn } from "../lib/auth";
+import { changePasswordFn, logoutFn } from "../lib/auth";
 
 export const Route = createFileRoute("/account")({
 	component: AccountPage,
@@ -24,6 +25,7 @@ type Phase = "editing" | "submitting" | "done";
 
 function AccountPage() {
 	const { user } = Route.useRouteContext();
+	const isMobile = useMobile();
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
@@ -56,11 +58,12 @@ function AccountPage() {
 		<div
 			style={{
 				display: "flex",
-				height: "100vh",
+				flexDirection: isMobile ? "column" : "row",
+				height: "100dvh",
 				background: "var(--sf-canvas)",
 			}}
 		>
-			<Sidebar />
+			{!isMobile && <Sidebar />}
 			<main
 				style={{
 					flex: 1,
@@ -83,7 +86,7 @@ function AccountPage() {
 						Paramètres
 					</span>
 				</header>
-				<div style={{ padding: 28, maxWidth: 480 }}>
+				<div style={{ padding: isMobile ? 16 : 28, maxWidth: 480 }}>
 					<h1
 						style={{
 							fontSize: 20,
@@ -220,8 +223,36 @@ function AccountPage() {
 							{phase === "submitting" ? "Mise à jour…" : "Mettre à jour"}
 						</button>
 					</form>
+
+					{/* Sur mobile la sidebar (et son bouton de déconnexion) n'existe pas. */}
+					{isMobile && (
+						<button
+							type="button"
+							onClick={async () => {
+								await logoutFn();
+								window.localStorage.removeItem("sf-offline-user");
+								window.location.href = "/login";
+							}}
+							style={{
+								marginTop: 16,
+								width: "100%",
+								padding: "11px 16px",
+								border: "1px solid var(--sf-border)",
+								background: "var(--sf-bg)",
+								color: "var(--sf-danger)",
+								borderRadius: 9,
+								fontSize: 13.5,
+								fontWeight: 500,
+								cursor: "pointer",
+								fontFamily: "inherit",
+							}}
+						>
+							Se déconnecter
+						</button>
+					)}
 				</div>
 			</main>
+			{isMobile && <MobileBottomNav active="profile" />}
 		</div>
 	);
 }

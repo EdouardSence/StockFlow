@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useMobile } from "../../components/MobileLayout";
 import { Sidebar } from "../../components/Sidebar";
 import type { EquipmentTable } from "../../db/types";
 import { createEquipmentFn } from "../../lib/equipment";
@@ -190,6 +191,7 @@ const TYPES: { id: EquipmentTable["type"]; label: string }[] = [
 
 function NewEquipmentPage() {
 	const navigate = useNavigate();
+	const isMobile = useMobile();
 	const [form, setForm] = useState({
 		name: "",
 		type: "pc" as EquipmentTable["type"],
@@ -238,7 +240,7 @@ function NewEquipmentPage() {
 				background: "var(--sf-canvas)",
 			}}
 		>
-			<Sidebar />
+			{!isMobile && <Sidebar />}
 			<main
 				style={{
 					flex: 1,
@@ -323,14 +325,20 @@ function NewEquipmentPage() {
 					</div>
 				</header>
 
-				<div style={{ flex: 1, overflow: "auto", padding: "28px 28px 60px" }}>
+				<div
+					style={{
+						flex: 1,
+						overflow: "auto",
+						padding: isMobile ? "18px 14px 48px" : "28px 28px 60px",
+					}}
+				>
 					<div
 						style={{
 							maxWidth: 1080,
 							margin: "0 auto",
 							display: "grid",
-							gridTemplateColumns: "1fr 360px",
-							gap: 28,
+							gridTemplateColumns: isMobile ? "1fr" : "1fr 360px",
+							gap: isMobile ? 18 : 28,
 						}}
 					>
 						{/* Left: form */}
@@ -398,7 +406,9 @@ function NewEquipmentPage() {
 											aria-label="Type d'équipement"
 											style={{
 												display: "grid",
-												gridTemplateColumns: "repeat(6, 1fr)",
+												gridTemplateColumns: isMobile
+													? "repeat(2, 1fr)"
+													: "repeat(6, 1fr)",
 												gap: 8,
 											}}
 										>
@@ -457,7 +467,7 @@ function NewEquipmentPage() {
 								<div
 									style={{
 										display: "grid",
-										gridTemplateColumns: "1fr 1fr",
+										gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
 										gap: 14,
 										marginTop: 18,
 									}}

@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import {
+	MobileBottomNav,
+	TypeIcon,
+	useMobile,
+} from "../../components/MobileLayout";
 import { Sidebar } from "../../components/Sidebar";
 import {
 	OpenIncidentBadge,
@@ -68,6 +73,7 @@ function EquipmentList() {
 	);
 	const [filter, setFilter] = useState<FilterId>("all");
 	const [query, setQuery] = useState("");
+	const isMobile = useMobile();
 
 	const counts = useMemo(() => {
 		const c = {
@@ -103,6 +109,199 @@ function EquipmentList() {
 		{ id: "broken", label: "En panne", count: counts.broken },
 		{ id: "maintenance", label: "Maintenance", count: counts.maintenance },
 	];
+
+	if (isMobile) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					height: "100dvh",
+					background: "var(--sf-canvas)",
+				}}
+			>
+				<header style={{ padding: "18px 18px 10px", flexShrink: 0 }}>
+					<h1
+						style={{
+							fontSize: 20,
+							fontWeight: 600,
+							letterSpacing: "-0.02em",
+							color: "var(--sf-fg)",
+							margin: 0,
+						}}
+					>
+						Stock
+					</h1>
+					<p
+						style={{
+							fontSize: 12.5,
+							color: "var(--sf-fg-muted)",
+							margin: "3px 0 0",
+						}}
+					>
+						{filtered.length} sur {equipment.length} équipement
+						{equipment.length !== 1 ? "s" : ""}
+					</p>
+				</header>
+
+				<div style={{ padding: "0 14px 10px", flexShrink: 0 }}>
+					<input
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						placeholder="Nom, n° série, utilisateur"
+						aria-label="Rechercher un équipement"
+						style={{
+							width: "100%",
+							boxSizing: "border-box",
+							padding: "10px 12px",
+							background: "var(--sf-bg)",
+							border: "1px solid var(--sf-border)",
+							borderRadius: 9,
+							fontSize: 13.5,
+							color: "var(--sf-fg)",
+							fontFamily: "inherit",
+						}}
+					/>
+				</div>
+
+				<div
+					style={{
+						display: "flex",
+						gap: 6,
+						padding: "0 14px 12px",
+						overflowX: "auto",
+						flexShrink: 0,
+					}}
+				>
+					{filterTabs.map((t) => (
+						<button
+							key={t.id}
+							type="button"
+							onClick={() => setFilter(t.id)}
+							style={{
+								padding: "6px 12px",
+								border: "1px solid var(--sf-border)",
+								background:
+									filter === t.id ? "var(--sf-surface-2)" : "var(--sf-bg)",
+								borderRadius: 999,
+								fontSize: 12.5,
+								fontWeight: 500,
+								whiteSpace: "nowrap",
+								color: filter === t.id ? "var(--sf-fg)" : "var(--sf-fg-muted)",
+								cursor: "pointer",
+								fontFamily: "inherit",
+								flexShrink: 0,
+							}}
+						>
+							{t.label} {t.count}
+						</button>
+					))}
+				</div>
+
+				<div
+					style={{
+						padding: "0 14px 14px",
+						display: "flex",
+						flexDirection: "column",
+						gap: 8,
+						flex: 1,
+						minHeight: 0,
+						overflowY: "auto",
+					}}
+				>
+					{filtered.length === 0 ? (
+						<div
+							style={{
+								padding: "40px 0",
+								textAlign: "center",
+								color: "var(--sf-fg-muted)",
+								fontSize: 13.5,
+							}}
+						>
+							Aucun équipement trouvé.
+						</div>
+					) : (
+						filtered.map((e) => (
+							<Link
+								key={e.id}
+								to="/equipment/$id"
+								params={{ id: e.id }}
+								style={{ textDecoration: "none", flexShrink: 0 }}
+							>
+								<div
+									style={{
+										padding: "12px 14px",
+										background: "var(--sf-bg)",
+										border: "1px solid var(--sf-border)",
+										borderRadius: 12,
+										display: "flex",
+										alignItems: "center",
+										gap: 12,
+									}}
+								>
+									<span
+										style={{
+											width: 36,
+											height: 36,
+											borderRadius: 9,
+											background: "var(--sf-surface)",
+											border: "1px solid var(--sf-border)",
+											display: "inline-flex",
+											alignItems: "center",
+											justifyContent: "center",
+											color: "var(--sf-fg)",
+											flexShrink: 0,
+										}}
+									>
+										<TypeIcon type={e.type} size={16} />
+									</span>
+									<div style={{ flex: 1, minWidth: 0 }}>
+										<div
+											style={{
+												fontSize: 13,
+												fontWeight: 500,
+												letterSpacing: "-0.005em",
+												whiteSpace: "nowrap",
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												color: "var(--sf-fg)",
+											}}
+										>
+											{e.name}
+										</div>
+										<div
+											style={{
+												fontSize: 11,
+												fontFamily: "var(--sf-mono)",
+												color: "var(--sf-fg-muted)",
+												marginTop: 1,
+											}}
+										>
+											{e.serial_number ?? e.id.slice(0, 8)}
+										</div>
+									</div>
+									<span
+										style={{
+											display: "inline-flex",
+											alignItems: "center",
+											gap: 6,
+										}}
+									>
+										<StatusBadge status={e.status} />
+										<OpenIncidentBadge
+											count={incidentCountById.get(e.id) ?? 0}
+										/>
+									</span>
+								</div>
+							</Link>
+						))
+					)}
+				</div>
+
+				<MobileBottomNav active="stock" />
+			</div>
+		);
+	}
 
 	return (
 		<div
@@ -563,11 +762,14 @@ function EquipmentList() {
 												}}
 											>
 												<td style={tdStyle}>
-													<div
+													<Link
+														to="/equipment/$id"
+														params={{ id: e.id }}
 														style={{
 															display: "flex",
 															flexDirection: "column",
 															gap: 2,
+															textDecoration: "none",
 														}}
 													>
 														<span
@@ -588,7 +790,7 @@ function EquipmentList() {
 														>
 															{e.id.slice(0, 8)}
 														</span>
-													</div>
+													</Link>
 												</td>
 												<td style={{ ...tdStyle, color: "var(--sf-fg-soft)" }}>
 													{TYPE_LABELS[e.type] ?? e.type}

@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { getEquipmentById } from "../lib/equipment";
 
@@ -38,7 +38,10 @@ function ScanPage() {
 	const [scanKey, setScanKey] = useState(0);
 	const [rawResult, setRawResult] = useState<string | null>(null);
 	const [cameraError, setCameraError] = useState<string | null>(null);
-	const scannerRef = useRef<{ stop: () => Promise<void>; clear: () => void } | null>(null);
+	const scannerRef = useRef<{
+		stop: () => Promise<void>;
+		clear: () => void;
+	} | null>(null);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies(scanKey): scanKey n'est pas lu dans l'effet, il sert de trigger volontaire pour relancer le scanner (bouton Rescanner)
 	useEffect(() => {
@@ -78,7 +81,9 @@ function ScanPage() {
 				// tenterait un stop() sur un scanner jamais démarré (issue #23).
 				scannerRef.current = null;
 				if (!cancelled) {
-					setCameraError("Impossible d'accéder à la caméra. Vérifiez les permissions.");
+					setCameraError(
+						"Impossible d'accéder à la caméra. Vérifiez les permissions.",
+					);
 				}
 			}
 		}
@@ -246,7 +251,9 @@ function ScannerScreen({
 						<XIcon />
 					</button>
 				</Link>
-				<div style={{ fontSize: 14, fontWeight: 600, letterSpacing: "-0.01em" }}>
+				<div
+					style={{ fontSize: 14, fontWeight: 600, letterSpacing: "-0.01em" }}
+				>
 					Scanner
 				</div>
 				<div style={{ width: 36 }} />
@@ -489,7 +496,10 @@ function ScannerScreen({
 function RawResultScreen({
 	result,
 	onRescan,
-}: { result: string; onRescan: () => void }) {
+}: {
+	result: string;
+	onRescan: () => void;
+}) {
 	return (
 		<div
 			style={{

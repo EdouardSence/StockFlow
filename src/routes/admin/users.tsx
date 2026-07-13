@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { MobileBottomNav, useMobile } from "../../components/MobileLayout";
 import { Sidebar } from "../../components/Sidebar";
 import { createUserFn, deactivateUserFn, listUsersFn } from "../../lib/users";
 
@@ -27,6 +28,7 @@ function AdminUsersPage() {
 	const users = Route.useLoaderData();
 	const { user: currentUser } = Route.useRouteContext();
 	const router = useRouter();
+	const isMobile = useMobile();
 
 	const [form, setForm] = useState({
 		name: "",
@@ -76,11 +78,12 @@ function AdminUsersPage() {
 		<div
 			style={{
 				display: "flex",
-				height: "100vh",
+				flexDirection: isMobile ? "column" : "row",
+				height: "100dvh",
 				background: "var(--sf-canvas)",
 			}}
 		>
-			<Sidebar />
+			{!isMobile && <Sidebar />}
 			<main
 				style={{
 					flex: 1,
@@ -106,10 +109,10 @@ function AdminUsersPage() {
 
 				<div
 					style={{
-						padding: 28,
+						padding: isMobile ? 14 : 28,
 						display: "flex",
 						flexDirection: "column",
-						gap: 24,
+						gap: isMobile ? 16 : 24,
 						maxWidth: 900,
 					}}
 				>
@@ -121,91 +124,95 @@ function AdminUsersPage() {
 							overflow: "hidden",
 						}}
 					>
-						<table
-							style={{
-								width: "100%",
-								borderCollapse: "collapse",
-								fontSize: 13,
-							}}
-						>
-							<thead>
-								<tr style={{ background: "var(--sf-surface)" }}>
-									<th style={thStyle}>Nom</th>
-									<th style={thStyle}>Email</th>
-									<th style={thStyle}>Rôle</th>
-									<th style={thStyle}>Statut</th>
-									<th style={thStyle}>
-										<span
-											style={{
-												position: "absolute",
-												width: 1,
-												height: 1,
-												padding: 0,
-												margin: -1,
-												overflow: "hidden",
-												clip: "rect(0, 0, 0, 0)",
-												whiteSpace: "nowrap",
-												border: 0,
-											}}
-										>
-											Actions
-										</span>
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{users.map((u) => (
-									<tr
-										key={u.id}
-										style={{ borderTop: "1px solid var(--sf-border)" }}
-									>
-										<td style={tdStyle}>{u.name}</td>
-										<td style={tdStyle}>{u.email}</td>
-										<td style={tdStyle}>
-											{u.role === "admin" ? "Administrateur" : "Technicien"}
-										</td>
-										<td style={tdStyle}>
+						{/* La table est plus large qu'un écran de téléphone : elle défile
+						    dans son propre conteneur, jamais la page. */}
+						<div style={{ overflowX: "auto" }}>
+							<table
+								style={{
+									width: "100%",
+									borderCollapse: "collapse",
+									fontSize: 13,
+								}}
+							>
+								<thead>
+									<tr style={{ background: "var(--sf-surface)" }}>
+										<th style={thStyle}>Nom</th>
+										<th style={thStyle}>Email</th>
+										<th style={thStyle}>Rôle</th>
+										<th style={thStyle}>Statut</th>
+										<th style={thStyle}>
 											<span
 												style={{
-													fontSize: 11.5,
-													padding: "2px 8px",
-													borderRadius: 999,
-													color: u.active
-														? "var(--sf-success)"
-														: "var(--sf-fg-muted)",
-													background: u.active
-														? "var(--sf-success-tint)"
-														: "var(--sf-surface-2)",
+													position: "absolute",
+													width: 1,
+													height: 1,
+													padding: 0,
+													margin: -1,
+													overflow: "hidden",
+													clip: "rect(0, 0, 0, 0)",
+													whiteSpace: "nowrap",
+													border: 0,
 												}}
 											>
-												{u.active ? "Actif" : "Désactivé"}
+												Actions
 											</span>
-										</td>
-										<td style={{ ...tdStyle, textAlign: "right" }}>
-											{u.active && u.id !== currentUser?.id && (
-												<button
-													type="button"
-													onClick={() => handleDeactivate(u.id)}
-													disabled={pendingId === u.id}
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{users.map((u) => (
+										<tr
+											key={u.id}
+											style={{ borderTop: "1px solid var(--sf-border)" }}
+										>
+											<td style={tdStyle}>{u.name}</td>
+											<td style={tdStyle}>{u.email}</td>
+											<td style={tdStyle}>
+												{u.role === "admin" ? "Administrateur" : "Technicien"}
+											</td>
+											<td style={tdStyle}>
+												<span
 													style={{
-														padding: "5px 10px",
-														border: "1px solid var(--sf-border)",
-														background: "var(--sf-bg)",
-														borderRadius: 6,
-														fontSize: 12,
-														color: "var(--sf-danger)",
-														cursor: "pointer",
-														fontFamily: "inherit",
+														fontSize: 11.5,
+														padding: "2px 8px",
+														borderRadius: 999,
+														color: u.active
+															? "var(--sf-success)"
+															: "var(--sf-fg-muted)",
+														background: u.active
+															? "var(--sf-success-tint)"
+															: "var(--sf-surface-2)",
 													}}
 												>
-													{pendingId === u.id ? "…" : "Désactiver"}
-												</button>
-											)}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+													{u.active ? "Actif" : "Désactivé"}
+												</span>
+											</td>
+											<td style={{ ...tdStyle, textAlign: "right" }}>
+												{u.active && u.id !== currentUser?.id && (
+													<button
+														type="button"
+														onClick={() => handleDeactivate(u.id)}
+														disabled={pendingId === u.id}
+														style={{
+															padding: "5px 10px",
+															border: "1px solid var(--sf-border)",
+															background: "var(--sf-bg)",
+															borderRadius: 6,
+															fontSize: 12,
+															color: "var(--sf-danger)",
+															cursor: "pointer",
+															fontFamily: "inherit",
+														}}
+													>
+														{pendingId === u.id ? "…" : "Désactiver"}
+													</button>
+												)}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
 					</section>
 
 					<section
@@ -344,6 +351,7 @@ function AdminUsersPage() {
 					</section>
 				</div>
 			</main>
+			{isMobile && <MobileBottomNav />}
 		</div>
 	);
 }
