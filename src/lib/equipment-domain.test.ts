@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import type { EquipmentTable } from "../db/types";
 import {
+	assignEquipment,
 	EquipmentNotFoundError,
 	EquipmentUnavailableError,
-	assignEquipment,
 } from "./equipment-domain";
 
 function makeEquipment(

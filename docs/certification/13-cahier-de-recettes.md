@@ -2,7 +2,7 @@
 
 Pièce officielle Bloc 2 « Cahier de recettes » (C2.3.1). Chaque scénario ci-dessous
 correspond à un test Playwright réel (`e2e/`, `bun run test:e2e`) — aucun scénario « sur le
-papier ». **Dernière exécution : 2026-07-12, 32/32 scénarios passés en 59 s** (Chromium
+papier ». **Dernière exécution : 2026-07-13, 36/36 scénarios passés en 66 s** (Chromium
 headless, serveur dev local, base réelle). Les assertions ne se limitent pas à l'UI : les
 scénarios marqués `[DB]` vérifient aussi la ligne Postgres réellement écrite/lue.
 
@@ -146,12 +146,29 @@ cette suite (elle tourne contre le serveur dev, sans SW) : vérifiée sur build 
 2026-07-12 (Chromium headless — SW contrôlant, caches `sf-pages`/`sf-assets`, `/login`
 servi hors-ligne), consignée dans `18-architecture.md`.
 
+### Navigation mobile & sidebar (`e2e/mobile-nav.spec.ts`, ajouté 2026-07-13)
+
+Recette des correctifs issus de la passe de vérification mobile du 2026-07-13
+(anomalies AN-3 à AN-6 ci-dessous).
+
+| ID | Acteur | Prérequis | Étapes | Résultat attendu | Obtenu |
+|----|--------|-----------|--------|------------------|--------|
+| MN1 | tech | viewport 390×844 | Ouvrir `/equipment` (onglet Stock) | Liste mobile en cartes cliquables vers la fiche, bottom nav présente, aucune sidebar desktop | ✅ passé |
+| MN2 | tech | viewport 390×844 | Taper l'onglet « Profil » | Navigation vers `/account`, formulaire mot de passe + bouton « Se déconnecter » visibles | ✅ passé |
+| MN3 | tech | viewport desktop | Ouvrir `/equipment` | Sidebar : nom et rôle réels du compte connecté, aucune entrée « Utilisateurs » | ✅ passé |
+| MN4 | admin | viewport desktop | Ouvrir `/equipment`, cliquer le nom d'une ligne | Sidebar : entrées Utilisateurs/Incidents présentes ; le clic ouvre la fiche `/equipment/$id` | ✅ passé |
+
 ## Anomalies détectées
 
 | ID | Détection | Anomalie | Sévérité | Suivi |
 |----|-----------|----------|----------|-------|
 | AN-1 | Rédaction de SC2 (session 10) | Bouton « Saisir le code manuellement » (`scan.tsx`) sans handler — purement décoratif ; aucune voie de repli sans caméra | Low (fonctionnel) | [Issue #22](https://github.com/EdouardSence/StockFlow/issues/22) — **corrigée** (session 10 bis, `fix(scan):`) : mini-formulaire + vérification serveur, recette SC3/SC4 |
 | AN-2 | Écriture de SC3 (session 10 bis) | Après échec caméra, quitter `/scan` crashe (« Something went wrong ») : `stop()` html5-qrcode jette en synchrone dans le cleanup | Medium (fonctionnel) | [Issue #23](https://github.com/EdouardSence/StockFlow/issues/23) — **corrigée** dans le même `fix(scan):` (bloquait la recette de AN-1), trace Playwright à l'appui |
+
+| AN-3 | Passe de vérification mobile Playwright (2026-07-13) | Sidebar : identité « Édouard S. / Administrateur » codée en dur quel que soit le compte ; entrées admin visibles pour un technicien | Medium (fonctionnel) | Issues [#27](https://github.com/EdouardSence/StockFlow/issues/27) / [#33](https://github.com/EdouardSence/StockFlow/issues/33) — **corrigées** (`fix(sidebar):`), recette MN3/MN4 |
+| AN-4 | idem | 5 routes (/equipment, /equipment/new, /account, /incidents, /admin/users) rendaient le layout desktop sur téléphone (sidebar 250px sur 390px) ; onglet « Profil » de la bottom nav sans lien ; débordement horizontal 370px sur /admin/users | High (parcours mobile cassé) | Issues [#28](https://github.com/EdouardSence/StockFlow/issues/28) / [#29](https://github.com/EdouardSence/StockFlow/issues/29) / [#31](https://github.com/EdouardSence/StockFlow/issues/31) — **corrigées** (`fix(mobile):`), recette MN1/MN2 |
+| AN-5 | idem | Liste équipements : lignes non cliquables, la fiche n'était accessible que via dashboard ou scan | Medium (fonctionnel) | Issue [#30](https://github.com/EdouardSence/StockFlow/issues/30) — **corrigée**, recette MN4 |
+| AN-6 | idem | Erreur d'hydratation React sur /account : `useMobile` initialisait sur `window.innerWidth`, divergent du HTML SSR | Low (auto-récupérée par React, coût de re-render) | Issue [#32](https://github.com/EdouardSence/StockFlow/issues/32) — **corrigée** (état initial `false`, bascule post-hydratation) |
 
 Fausse piste écartée pendant la rédaction (pas une anomalie) : le premier jet de R3
 attendait un refus HTTP ≥ 400 ; l'enquête a montré que TanStack Start sérialise les erreurs

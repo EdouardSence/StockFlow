@@ -1,4 +1,4 @@
-import { Kysely, PostgresDialect, type Transaction, sql } from "kysely";
+import { Kysely, PostgresDialect, sql, type Transaction } from "kysely";
 import pg from "pg";
 import type { SessionUser } from "../lib/auth-core";
 import type { Database } from "./types";
@@ -74,7 +74,9 @@ export async function withAuthContext<T>(
 		if (isPgError(err)) {
 			// Détail complet côté serveur (logs Vercel), message générique côté client.
 			console.error("[db] erreur Postgres masquée au client :", err);
-			throw new Error("Opération impossible. Réessayez ou contactez un administrateur.");
+			throw new Error(
+				"Opération impossible. Réessayez ou contactez un administrateur.",
+			);
 		}
 		throw err;
 	}

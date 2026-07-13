@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
-import { SignJWT, importPKCS8, importSPKI, jwtVerify } from "jose";
+import { importPKCS8, importSPKI, jwtVerify, SignJWT } from "jose";
 import type { UsersTable } from "../db/types";
 
 export type Role = UsersTable["role"];
@@ -122,7 +122,10 @@ export class AuthError extends Error {
 	}
 }
 
-export function assertRole(user: SessionUser | null, ...allowed: Role[]): SessionUser {
+export function assertRole(
+	user: SessionUser | null,
+	...allowed: Role[]
+): SessionUser {
 	if (!user) throw new AuthError("UNAUTHORIZED");
 	if (!allowed.includes(user.role)) throw new AuthError("FORBIDDEN");
 	return user;
@@ -132,10 +135,7 @@ export function assertRole(user: SessionUser | null, ...allowed: Role[]): Sessio
 // ponytail: limiteur en mémoire par instance — suffisant contre le brute-force
 // naïf en mono-instance ; store partagé (Redis/DB) si multi-instance à fort trafic.
 
-export function createLoginRateLimiter(
-	max = 5,
-	windowMs = 15 * 60 * 1000,
-) {
+export function createLoginRateLimiter(max = 5, windowMs = 15 * 60 * 1000) {
 	const attempts = new Map<string, { count: number; resetAt: number }>();
 	return {
 		isLimited(key: string, now: number = Date.now()): boolean {

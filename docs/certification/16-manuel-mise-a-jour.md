@@ -8,7 +8,7 @@
    - CI GitHub Actions : lint → typecheck → tests purs → build (badge dans le README —
      leçon de l'issue #26 : un rouge doit se voir) ;
    - suites locales avant tout changement à risque : `bun run test` (99 tests, intégration
-     RLS incluse) et `bun run test:e2e` (32 scénarios, base réelle — local uniquement).
+     RLS incluse) et `bun run test:e2e` (36 scénarios, base réelle — local uniquement).
 3. Push sur `main` → déploiement production Vercel automatique. Une PR donne un
    déploiement preview pour valider avant merge.
 4. Jalon significatif → tag annoté `vX.Y.Z` (historique : `08-historique-versions.md`).

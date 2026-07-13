@@ -447,11 +447,11 @@ cas limites, et la file offline. S'y ajoutent **13 tests d'intégration RLS** ex
 contre la vraie base : ils simulent un contournement du wrapper applicatif et prouvent
 que PostgreSQL refuse (fail-closed vérifié, pas supposé).
 
-**32 scénarios Playwright** couvrent les parcours complets contre le serveur réel et la
+**36 scénarios Playwright** couvrent les parcours complets contre le serveur réel et la
 vraie base : authentification, RBAC (un technicien qui force l'URL d'un écran admin est
 rejeté), CRUD équipement, scan (y compris la saisie manuelle et le code inconnu),
 incidents (la tuile mobile crée une vraie ligne en base, vérifiée en SQL), assignation,
-comptes, et le scénario offline complet. La base étant partagée avec la production
+comptes, navigation mobile, et le scénario offline complet. La base étant partagée avec la production
 (dette documentée), la suite e2e ne tourne **jamais en CI** : exécution locale
 supervisée, données confinées par un préfixe strict et un nettoyage systématique avant
 et après.
@@ -484,7 +484,7 @@ Couverture par domaine (mesure du 2026-07-07, pièce 12) :
 ## 6.3 Le cahier de recettes
 
 Chaque scénario du cahier (pièce 13) correspond à un test Playwright réel — aucun
-scénario « sur le papier ». Dernière exécution : **32/32 verts en 59 secondes**. Les
+scénario « sur le papier ». Dernière exécution : **36/36 verts en 66 secondes**. Les
 assertions ne s'arrêtent pas à l'interface : les scénarios marqués `[DB]` vérifient la
 ligne PostgreSQL réellement écrite (statut, rapporteur, intégrité). La rédaction du
 cahier a elle-même servi de filet : c'est en écrivant le scénario de saisie manuelle
@@ -504,7 +504,8 @@ démontage de l'écran de scan, #23), corrigée dans la foulée.
 | Compte | `account.spec.ts` | 3 | Changement de mot de passe, mauvais mot de passe actuel |
 | Comptes admin | `admin-users.spec.ts` | 4 | Création + login du compte créé, email dupliqué, désactivation, accès technicien rejeté |
 | Hors-ligne | `offline.spec.ts` | 1 | Incident offline → file → retour réseau → ligne en base `[DB]` |
-| **Total** | | **32** | 32/32 verts, 59 s |
+| Navigation mobile & sidebar | `mobile-nav.spec.ts` | 4 | Liste mobile en cartes, onglet Profil → /account, identité réelle et nav filtrée par rôle dans la sidebar |
+| **Total** | | **36** | 36/36 verts, 66 s |
 
 # 7. Versions, qualité et correction des bogues
 
@@ -531,7 +532,7 @@ processus vaut plus que l'esthétique de l'historique.
 
 La pièce 20 est un document vivant qui décrit, à chaque instant, ce que contient la
 dernière version stable : fonctionnalités opérationnelles, suites de tests vertes
-(99 unitaires + 32 e2e), dettes connues au moment du snapshot. C'est la pièce qui
+(99 unitaires + 36 e2e), dettes connues au moment du snapshot. C'est la pièce qui
 empêche le dossier de dériver du code.
 
 ## 7.3 Plan de correction des bogues

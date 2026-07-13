@@ -430,9 +430,37 @@ numérotation locale déjà en place (02/04/06/12 pris par d'autres sujets) — 
       17 (KPI couverture atteint, CI post-#26) dépoussiérées.
 - [ ] Relecture humaine du rapport avant remise (contenu figé par le jury, pas par moi).
 
+## Lot Vérification mobile (2026-07-13, après-midi)
+
+Retour terrain (téléphone réel) : au-delà de l'accueil, le parcours mobile tombait sur
+le layout desktop. Passe de vérification Playwright complète (390×844, tech + admin,
+toutes les routes, screenshots examinés) → 7 anomalies qualifiées en issues avant
+correctif (#27–#33), corrigées le jour même :
+
+- [x] #27/#33 — Sidebar : identité « Édouard S. / Administrateur » codée en dur +
+      entrées admin visibles pour un technicien → identité lue du contexte racine,
+      nav filtrée par rôle (`fix(sidebar):`, `1cbef8d`).
+- [x] #28 — /equipment, /equipment/new, /account, /incidents, /admin/users rendaient
+      la sidebar 250px sur 390px → `useMobile` partagé, layouts mobiles, /equipment
+      en cartes avec recherche/filtres (`fix(mobile):`, `0c112b0`).
+- [x] #29 — Onglet « Profil » de la bottom nav mort (`href: null`) → relié à /account,
+      bouton « Se déconnecter » ajouté (seul point de déconnexion mobile).
+- [x] #30 — Liste équipements : lignes non cliquables → nom = lien vers la fiche.
+- [x] #31 — /admin/users : débordement horizontal 370px → table dans un conteneur
+      `overflow-x: auto`.
+- [x] #32 — Erreur d'hydratation React (/account) : `useMobile` initialisait sur
+      `window.innerWidth` ≠ SSR → état initial `false`, bascule post-hydratation.
+- [x] Recette e2e `mobile-nav.spec.ts` (MN1–MN4) ; suites : 99 vitest + **36/36 e2e**.
+- [x] Documents vivants synchronisés : pièces 11, 13 (famille MN + AN-3…AN-6), 16, 20,
+      rapport Bloc 2 (PDF régénéré).
+
+Leçon : les e2e existants passaient tous alors que le parcours mobile réel était cassé —
+ils testaient l'accueil et le scan en mobile, jamais les autres routes. La recette doit
+suivre les usages réels, pas seulement les features à leur livraison.
+
 ---
 
-## Reprise prochaine session (mis à jour 2026-07-12)
+## Reprise prochaine session (mis à jour 2026-07-13)
 
 - ~~Arbitrage hébergement~~ **Tranché le 2026-07-13** : on reste sur Vercel+Supabase, écart
   de cadrage assumé et argumenté (`15-manuel-deploiement.md`, avec annexe portabilité

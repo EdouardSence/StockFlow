@@ -7,9 +7,7 @@ import {
 	transitionIncident,
 } from "./incidents-domain";
 
-function makeIncident(
-	status: IncidentsTable["status"],
-): IncidentsTable {
+function makeIncident(status: IncidentsTable["status"]): IncidentsTable {
 	return {
 		id: "inc-1",
 		equipment_id: "eq-1",
@@ -60,9 +58,7 @@ describe("transitionIncident", () => {
 				} else {
 					expect(result._tag).toBe("Left");
 					if (result._tag === "Left") {
-						expect(result.left).toBeInstanceOf(
-							InvalidIncidentTransitionError,
-						);
+						expect(result.left).toBeInstanceOf(InvalidIncidentTransitionError);
 						expect(result.left.from).toBe(from);
 						expect(result.left.to).toBe(to);
 					}
@@ -72,7 +68,10 @@ describe("transitionIncident", () => {
 	}
 
 	it("préserve resolved_at déjà posé quand la cible n'est pas resolved (cas impossible en pratique mais couvert)", () => {
-		const incident = { ...makeIncident("open"), resolved_at: "2026-06-01T00:00:00.000Z" };
+		const incident = {
+			...makeIncident("open"),
+			resolved_at: "2026-06-01T00:00:00.000Z",
+		};
 		const result = Effect.runSync(
 			Effect.either(transitionIncident(incident, "in_progress")),
 		);

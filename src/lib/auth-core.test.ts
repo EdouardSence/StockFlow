@@ -53,9 +53,7 @@ describe("access token (JWT RS256)", () => {
 	it("rejette un token altéré", async () => {
 		const token = await signAccessToken(user, keys.privateKey);
 		const [header, payload, sig] = token.split(".");
-		const tampered = JSON.parse(
-			Buffer.from(payload, "base64url").toString(),
-		);
+		const tampered = JSON.parse(Buffer.from(payload, "base64url").toString());
 		tampered.role = "admin"; // tentative d'escalade de privilèges
 		const forged = `${header}.${Buffer.from(JSON.stringify(tampered)).toString("base64url")}.${sig}`;
 		expect(await verifyAccessToken(forged, keys.publicKey)).toBeNull();
@@ -170,7 +168,8 @@ describe("createTieredLoginLimiter (issue #15)", () => {
 
 	it("brute-force distribué : 20 échecs sur un email via 20 IPs → 21e IP bloquée aussi", () => {
 		const l = createTieredLoginLimiter();
-		for (let i = 0; i < 20; i++) l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
+		for (let i = 0; i < 20; i++)
+			l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
 		expect(l.isLimited("99.99.99.99", "cible@x.fr", T0)).toBe(true);
 		// Un autre compte n'est pas affecté depuis une IP vierge.
 		expect(l.isLimited("99.99.99.99", "autre@x.fr", T0)).toBe(false);
@@ -185,7 +184,8 @@ describe("createTieredLoginLimiter (issue #15)", () => {
 
 	it("le succès ne purge que la paire, pas les compteurs email/IP", () => {
 		const l = createTieredLoginLimiter();
-		for (let i = 0; i < 19; i++) l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
+		for (let i = 0; i < 19; i++)
+			l.recordFailure(`10.0.0.${i}`, "cible@x.fr", T0);
 		l.reset("10.0.0.1", "cible@x.fr");
 		l.recordFailure("10.0.0.50", "cible@x.fr", T0);
 		// 20 échecs cumulés sur l'email malgré le reset intermédiaire.

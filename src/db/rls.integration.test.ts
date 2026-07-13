@@ -78,7 +78,11 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 			`INSERT INTO users (id, name, email, role, password_hash, created_at)
 			 VALUES ($1, 'RLS Test', $2, 'technician', $3, NOW())
 			 ON CONFLICT (id) DO NOTHING`,
-			[FIXTURE_USER_ID, FIXTURE_USER_EMAIL, await hashPassword(FIXTURE_USER_PASSWORD)],
+			[
+				FIXTURE_USER_ID,
+				FIXTURE_USER_EMAIL,
+				await hashPassword(FIXTURE_USER_PASSWORD),
+			],
 			true,
 		);
 		// Équipement assigné au technicien de test (FK users → inséré après lui).
@@ -100,7 +104,12 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 			[FIXTURE_EQUIPMENT_ID, FIXTURE_EQUIPMENT_ASSIGNED_ID],
 			true,
 		);
-		await run(admin, "DELETE FROM users WHERE id = $1", [FIXTURE_USER_ID], true);
+		await run(
+			admin,
+			"DELETE FROM users WHERE id = $1",
+			[FIXTURE_USER_ID],
+			true,
+		);
 		await pool.end();
 	}, 30_000);
 
@@ -117,30 +126,41 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 
 		it("ne peut pas insérer d'equipment", async () => {
 			await expect(
-				run(null, "INSERT INTO equipment (id, name, type, qr_code) VALUES ('x', 'x', 'pc', 'x')"),
+				run(
+					null,
+					"INSERT INTO equipment (id, name, type, qr_code) VALUES ('x', 'x', 'pc', 'x')",
+				),
 			).rejects.toThrow(/row-level security/i);
 		});
 
 		it("ne peut pas modifier l'equipment existant (0 ligne touchée)", async () => {
-			const r = await run(null, "UPDATE equipment SET status = 'broken' WHERE id = $1", [
-				FIXTURE_EQUIPMENT_ID,
-			]);
+			const r = await run(
+				null,
+				"UPDATE equipment SET status = 'broken' WHERE id = $1",
+				[FIXTURE_EQUIPMENT_ID],
+			);
 			expect(r.rowCount).toBe(0);
 		});
 	});
 
 	describe("claims technician", () => {
 		it("lit et modifie equipment", async () => {
-			const r = await run(tech, "SELECT * FROM equipment WHERE id = $1", [FIXTURE_EQUIPMENT_ID]);
-			expect(r.rowCount).toBe(1);
-			const u = await run(tech, "UPDATE equipment SET status = 'maintenance' WHERE id = $1", [
+			const r = await run(tech, "SELECT * FROM equipment WHERE id = $1", [
 				FIXTURE_EQUIPMENT_ID,
 			]);
+			expect(r.rowCount).toBe(1);
+			const u = await run(
+				tech,
+				"UPDATE equipment SET status = 'maintenance' WHERE id = $1",
+				[FIXTURE_EQUIPMENT_ID],
+			);
 			expect(u.rowCount).toBe(1);
 		});
 
 		it("ne peut pas supprimer equipment (réservé admin)", async () => {
-			const r = await run(tech, "DELETE FROM equipment WHERE id = $1", [FIXTURE_EQUIPMENT_ID]);
+			const r = await run(tech, "DELETE FROM equipment WHERE id = $1", [
+				FIXTURE_EQUIPMENT_ID,
+			]);
 			expect(r.rowCount).toBe(0);
 		});
 
@@ -151,7 +171,9 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 
 		it("ne peut jamais lire password_hash, même sur sa propre ligne", async () => {
 			await expect(
-				run(tech, "SELECT password_hash FROM users WHERE id = $1", [FIXTURE_USER_ID]),
+				run(tech, "SELECT password_hash FROM users WHERE id = $1", [
+					FIXTURE_USER_ID,
+				]),
 			).rejects.toThrow(/permission denied/i);
 		});
 
@@ -193,29 +215,40 @@ describe.skipIf(!APP_URL)("RLS — défense en profondeur", () => {
 
 	describe("claims admin", () => {
 		it("peut supprimer equipment (rollback, fixture conservée)", async () => {
-			const r = await run(admin, "DELETE FROM equipment WHERE id = $1", [FIXTURE_EQUIPMENT_ID]);
+			const r = await run(admin, "DELETE FROM equipment WHERE id = $1", [
+				FIXTURE_EQUIPMENT_ID,
+			]);
 			expect(r.rowCount).toBe(1);
 		});
 
 		it("voit tous les users mais pas password_hash (grant par colonnes)", async () => {
 			const r = await run(admin, "SELECT id FROM users");
 			expect(r.rowCount).toBeGreaterThanOrEqual(1);
-			await expect(run(admin, "SELECT password_hash FROM users")).rejects.toThrow(
-				/permission denied/i,
-			);
+			await expect(
+				run(admin, "SELECT password_hash FROM users"),
+			).rejects.toThrow(/permission denied/i);
 		});
 	});
 
 	describe("flux login via SECURITY DEFINER (seul accès au hash)", () => {
 		it("auth_login_lookup fonctionne sans claims et permet la vérification argon2", async () => {
-			const r = await run(null, "SELECT * FROM auth_login_lookup($1)", [FIXTURE_USER_EMAIL]);
+			const r = await run(null, "SELECT * FROM auth_login_lookup($1)", [
+				FIXTURE_USER_EMAIL,
+			]);
 			expect(r.rowCount).toBe(1);
-			expect(await verifyPassword(r.rows[0].password_hash, FIXTURE_USER_PASSWORD)).toBe(true);
-			expect(await verifyPassword(r.rows[0].password_hash, "mauvais mot de passe")).toBe(false);
+			expect(
+				await verifyPassword(r.rows[0].password_hash, FIXTURE_USER_PASSWORD),
+			).toBe(true);
+			expect(
+				await verifyPassword(r.rows[0].password_hash, "mauvais mot de passe"),
+			).toBe(false);
 		});
 
 		it("auth_login_lookup ne renvoie rien pour un email inconnu", async () => {
-			const r = await run(null, "SELECT * FROM auth_login_lookup('inconnu@example.com')");
+			const r = await run(
+				null,
+				"SELECT * FROM auth_login_lookup('inconnu@example.com')",
+			);
 			expect(r.rowCount).toBe(0);
 		});
 	});

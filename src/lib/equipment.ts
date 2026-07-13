@@ -27,7 +27,11 @@ const optionalText = (max: number) =>
 		.transform((v) => (v?.trim() ? v.trim() : null));
 
 export const newEquipmentSchema = z.object({
-	name: z.string("Le nom est requis").trim().min(1, "Le nom est requis").max(200),
+	name: z
+		.string("Le nom est requis")
+		.trim()
+		.min(1, "Le nom est requis")
+		.max(200),
 	type: equipmentTypeSchema,
 	status: equipmentStatusSchema.default("available"),
 	brand: optionalText(200),
@@ -175,6 +179,10 @@ export const assignEquipmentFn = createServerFn({ method: "POST" })
 				.where("id", "=", data.id)
 				.execute();
 
-			return { id: data.id, status: updated.status, assigned_to: updated.assigned_to };
+			return {
+				id: data.id,
+				status: updated.status,
+				assigned_to: updated.assigned_to,
+			};
 		});
 	});

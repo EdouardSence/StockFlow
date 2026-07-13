@@ -47,13 +47,19 @@ Pièce officielle Bloc 2 « Dernière version fonctionnelle/fiable/viable ». Nu
 - **PWA offline (2026-07-12, issue #9)** : app installable (manifest lié), service
   worker Workbox (consultation hors-ligne des pages visitées), création d'incident
   hors-ligne avec file IndexedDB et bandeau de synchronisation visible. 99 tests
-  vitest + e2e 32/32 (scénario OF1). Voir `18-architecture.md` § Fonctionnement
+  vitest + e2e 32/32 à date (scénario OF1). Voir `18-architecture.md` § Fonctionnement
   hors-ligne.
 - Pièces documentaires 04/05/07 rédigées, manuel d'utilisation créé
   (`21-manuel-utilisation.md`), README réel (2026-07-12).
 - **Taggé `v0.4.0` le 2026-07-13** — l'ensemble ci-dessus (auth+RLS → incidents →
   sécurité → a11y → PWA) constitue la dernière version taguée. Le snapshot `v0.3.0`
   ci-dessous est conservé comme état de référence antérieur.
+- Correctifs post-tag (2026-07-13, issues #27–#33) : passe de vérification mobile
+  Playwright — layout mobile sur toutes les routes (plus seulement accueil/scan/fiche),
+  onglet Profil relié à `/account` (+ déconnexion mobile), liste équipements cliquable,
+  identité réelle et nav filtrée par rôle dans la sidebar, erreur d'hydratation
+  `useMobile` corrigée. 99 tests vitest + e2e 36/36 (famille MN ajoutée, voir
+  `13-cahier-de-recettes.md` AN-3…AN-6).
 
 ## Snapshot au tag `v0.3.0` (2026-07-04 — « Authentification JWT + RBAC + RLS »)
 

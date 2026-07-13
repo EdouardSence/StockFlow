@@ -8,8 +8,12 @@ import {
 
 describe("newEquipmentSchema — validation", () => {
 	it("refuse un nom vide ou blanc", () => {
-		expect(newEquipmentSchema.safeParse({ name: "", type: "pc" }).success).toBe(false);
-		expect(newEquipmentSchema.safeParse({ name: "   ", type: "pc" }).success).toBe(false);
+		expect(newEquipmentSchema.safeParse({ name: "", type: "pc" }).success).toBe(
+			false,
+		);
+		expect(
+			newEquipmentSchema.safeParse({ name: "   ", type: "pc" }).success,
+		).toBe(false);
 	});
 
 	it("refuse un nom manquant", () => {
@@ -24,14 +28,19 @@ describe("newEquipmentSchema — validation", () => {
 
 	it("accepte une entrée valide et tous les types connus", () => {
 		for (const type of equipmentTypeSchema.options) {
-			expect(newEquipmentSchema.safeParse({ name: "Test", type }).success).toBe(true);
+			expect(newEquipmentSchema.safeParse({ name: "Test", type }).success).toBe(
+				true,
+			);
 		}
 	});
 
 	it("refuse un statut inconnu", () => {
 		expect(
-			newEquipmentSchema.safeParse({ name: "Test", type: "pc", status: "cassé" })
-				.success,
+			newEquipmentSchema.safeParse({
+				name: "Test",
+				type: "pc",
+				status: "cassé",
+			}).success,
 		).toBe(false);
 	});
 
@@ -53,12 +62,20 @@ describe("newEquipmentSchema — défauts et normalisation", () => {
 	});
 
 	it("préserve un statut explicite", () => {
-		const r = newEquipmentSchema.parse({ name: "Test", type: "pc", status: "broken" });
+		const r = newEquipmentSchema.parse({
+			name: "Test",
+			type: "pc",
+			status: "broken",
+		});
 		expect(r.status).toBe("broken");
 	});
 
 	it("champs optionnels absents ou blancs normalisés à null", () => {
-		const r = newEquipmentSchema.parse({ name: "Test", type: "pc", brand: "  " });
+		const r = newEquipmentSchema.parse({
+			name: "Test",
+			type: "pc",
+			brand: "  ",
+		});
 		expect(r.brand).toBeNull();
 		expect(r.model).toBeNull();
 		expect(r.serial_number).toBeNull();
@@ -82,14 +99,29 @@ describe("newEquipmentSchema — défauts et normalisation", () => {
 
 describe("updateEquipmentStatusSchema / assignEquipmentSchema", () => {
 	it("refuse un id vide et un statut inconnu", () => {
-		expect(updateEquipmentStatusSchema.safeParse({ id: "", status: "broken" }).success).toBe(false);
-		expect(updateEquipmentStatusSchema.safeParse({ id: "eq-1", status: "hs" }).success).toBe(false);
-		expect(updateEquipmentStatusSchema.safeParse({ id: "eq-1", status: "broken" }).success).toBe(true);
+		expect(
+			updateEquipmentStatusSchema.safeParse({ id: "", status: "broken" })
+				.success,
+		).toBe(false);
+		expect(
+			updateEquipmentStatusSchema.safeParse({ id: "eq-1", status: "hs" })
+				.success,
+		).toBe(false);
+		expect(
+			updateEquipmentStatusSchema.safeParse({ id: "eq-1", status: "broken" })
+				.success,
+		).toBe(true);
 	});
 
 	it("assignation : userId null (désassigner) accepté, chaîne vide refusée", () => {
-		expect(assignEquipmentSchema.safeParse({ id: "eq-1", userId: null }).success).toBe(true);
-		expect(assignEquipmentSchema.safeParse({ id: "eq-1", userId: "user-1" }).success).toBe(true);
-		expect(assignEquipmentSchema.safeParse({ id: "eq-1", userId: "" }).success).toBe(false);
+		expect(
+			assignEquipmentSchema.safeParse({ id: "eq-1", userId: null }).success,
+		).toBe(true);
+		expect(
+			assignEquipmentSchema.safeParse({ id: "eq-1", userId: "user-1" }).success,
+		).toBe(true);
+		expect(
+			assignEquipmentSchema.safeParse({ id: "eq-1", userId: "" }).success,
+		).toBe(false);
 	});
 });
