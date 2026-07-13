@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouterState } from "@tanstack/react-router";
 import {
 	AlertTriangle,
 	LayoutDashboard,
@@ -9,6 +9,7 @@ import {
 	Users,
 } from "lucide-react";
 import { logoutFn } from "../lib/auth";
+import type { SessionUser } from "../lib/auth-core";
 
 function StockFlowLogo() {
 	return (
@@ -45,6 +46,19 @@ export function Sidebar({
 }) {
 	const { location } = useRouterState();
 	const pathname = location.pathname;
+	// Identité posée par le beforeLoad racine ; absente uniquement sur /login,
+	// où la sidebar n'est jamais rendue.
+	const { user } = useRouteContext({ from: "__root__" }) as {
+		user?: SessionUser;
+	};
+	const isAdmin = user?.role === "admin";
+	const initials =
+		user?.name
+			.split(/\s+/)
+			.map((w) => w[0])
+			.slice(0, 2)
+			.join("")
+			.toUpperCase() ?? "?";
 
 	const navItems: NavItem[] = [
 		{
@@ -58,14 +72,24 @@ export function Sidebar({
 			icon: <Package size={15} />,
 			count: equipmentCount,
 		},
-		{ path: "/admin/users", label: "Utilisateurs", icon: <Users size={15} /> },
-		{
-			path: "/incidents",
-			label: "Incidents",
-			icon: <AlertTriangle size={15} />,
-			count: openIncidentCount,
-			accent: true,
-		},
+		// Entrées réservées : le serveur refuse de toute façon (adminMiddleware),
+		// mais ne pas afficher de liens qui rejettent.
+		...(isAdmin
+			? ([
+					{
+						path: "/admin/users",
+						label: "Utilisateurs",
+						icon: <Users size={15} />,
+					},
+					{
+						path: "/incidents",
+						label: "Incidents",
+						icon: <AlertTriangle size={15} />,
+						count: openIncidentCount,
+						accent: true,
+					},
+				] as NavItem[])
+			: []),
 		{ path: "/account", label: "Paramètres", icon: <Settings size={15} /> },
 	];
 
@@ -273,7 +297,7 @@ export function Sidebar({
 						flexShrink: 0,
 					}}
 				>
-					ES
+					{initials}
 				</span>
 				<div
 					style={{
@@ -287,10 +311,10 @@ export function Sidebar({
 					<span
 						style={{ fontSize: 12.5, fontWeight: 500, color: "var(--sf-fg)" }}
 					>
-						Édouard S.
+						{user?.name ?? "—"}
 					</span>
 					<span style={{ fontSize: 11, color: "var(--sf-fg-muted)" }}>
-						Administrateur
+						{isAdmin ? "Administrateur" : "Technicien"}
 					</span>
 				</div>
 				<button
