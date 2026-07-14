@@ -466,7 +466,10 @@ suivre les usages réels, pas seulement les features à leur livraison.
   de cadrage assumé et argumenté (`15-manuel-deploiement.md`, avec annexe portabilité
   Scalingo). Manuels de déploiement et de mise à jour rédigés — issue #21 refermable.
 - ~~Poser le tag `v0.4.0`~~ **Posé le 2026-07-13** (annoté, poussé — voir `20-derniere-version-stable.md`).
-- Session 12 : assemblage du rapport ~30 pages depuis `docs/certification/` + audit de
-  cohérence transversal (chiffres/statuts identiques partout : rapport, code, Kanban, README).
+- ~~Session 12 : assemblage du rapport ~30 pages depuis `docs/certification/` + audit de
+  cohérence transversal~~ **Fait** : rapport assemblé le 2026-07-13 ; audit de cohérence
+  transversal final passé le 2026-07-14 — couverture remesurée (44,8 % stmts, pièce 12 +
+  rapport § 6.2), « 13 » tests d'intégration RLS corrigés en 15 (pièce 09 + rapport § 6.1),
+  PDF régénéré.
 - Résiduel accepté : #24 (vulnérabilités transitives dev, différées par choix), #4-#7
   (limitations sécurité documentées).

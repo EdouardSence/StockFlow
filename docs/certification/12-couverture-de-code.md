@@ -146,3 +146,12 @@ mocker Kysely/`withAuthContext` — un test qui vérifierait le mock, pas le com
 contraire à la convention du projet (jamais de mock DB, intégration réelle ou rien).
 Décision : **issue #16 close sans travail supplémentaire**, le déficit apparent est un
 artefact de la métrique, pas un déficit de vérification.
+
+## Remesure du 2026-07-14 (audit de cohérence final, 99/99 tests verts)
+
+Statements 44,8 % (120/268) · Branches 61,8 % (63/102) · Functions 25,5 % (25/98) ·
+Lines 46,6 %. La baisse depuis le 2026-07-07 vient de l'entrée de `offline-queue.ts`
+(issue #9) dans le périmètre : coquille I/O IndexedDB (27,5 % stmts), couverte par le
+scénario e2e offline complet (`13-cahier-de-recettes.md`) — même lecture que les autres
+coquilles. Domaine pur toujours à 100 %, `auth-core.ts` à 92,2 % stmts : le critère
+≥ 80 % sur la logique métier pure reste atteint.

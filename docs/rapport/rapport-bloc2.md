@@ -443,7 +443,7 @@ de l'environnement de développement.
 et vérification JWT, expiration, verrouillage d'algorithme, argon2id, rotation des
 refresh tokens, rate limiting), les 9 combinaisons de transitions du cycle de vie
 incident, les règles d'assignation, tous les schémas de validation d'entrée avec leurs
-cas limites, et la file offline. S'y ajoutent **13 tests d'intégration RLS** exécutés
+cas limites, et la file offline. S'y ajoutent **15 tests d'intégration RLS** exécutés
 contre la vraie base : ils simulent un contournement du wrapper applicatif et prouvent
 que PostgreSQL refuse (fail-closed vérifié, pas supposé).
 
@@ -461,7 +461,7 @@ et après.
 Le critère du cadrage : ≥ 80 % sur la logique métier **pure**. Résultat : les domaines
 Effect (incidents, assignation) sont à **100 %**, les primitives de sécurité à **92 %**,
 tous les schémas de validation à 100 % comportemental (chaque règle testée par un cas
-qui passe et un cas qui échoue). Le pourcentage *global* du dépôt (~48 % de statements)
+qui passe et un cas qui échoue). Le pourcentage *global* du dépôt (~45 % de statements)
 est plus bas — et la pièce 12 explique pourquoi c'est un artefact de mesure et non un
 trou : les coquilles d'entrée/sortie (server functions, client de base de données) sont
 délibérément couvertes par les tests d'intégration et de bout en bout, pas par des tests
@@ -471,15 +471,15 @@ aussi un piège d'outillage identifié en route : la couverture v8 marque les sc
 comportementaux (`parse()` sur des cas limites) vérifient réellement la validation, et
 c'est ce que fait le harnais.
 
-Couverture par domaine (mesure du 2026-07-07, pièce 12) :
+Couverture par domaine (remesure du 2026-07-14, pièce 12) :
 
 | Périmètre | Statements | Lecture |
 |---|---|---|
 | `incidents-domain.ts` / `equipment-domain.ts` (Effect) | 100 % | Matrice de transitions et règles d'assignation exhaustives |
 | `auth-core.ts` (JWT, argon2id, refresh, rate limiting) | 92 % | Primitives de sécurité |
 | Schémas Zod (equipment, incidents, auth, users) | 100 % comportemental | Chaque règle testée en positif et en négatif |
-| Coquilles I/O (server functions, client DB) | 23-37 % unitaire | Couvertes par les 13 tests d'intégration RLS et la suite e2e |
-| **Global dépôt** | ~48 % | Artefact de périmètre, expliqué et assumé |
+| Coquilles I/O (server functions, client DB) | 23-37 % unitaire | Couvertes par les 15 tests d'intégration RLS et la suite e2e |
+| **Global dépôt** | ~45 % | Artefact de périmètre, expliqué et assumé |
 
 ## 6.3 Le cahier de recettes
 

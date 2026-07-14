@@ -95,7 +95,7 @@ une obligation.
 - `src/lib/auth-core.test.ts` — 18 tests unitaires : signature/vérification JWT, expiration,
   clé étrangère, token altéré (tentative d'escalade de rôle), argon2id ok/ko, unicité et hash
   des refresh tokens, RBAC, rate limiting.
-- `src/db/rls.integration.test.ts` — 13 tests d'intégration contre la base réelle, exécutés
+- `src/db/rls.integration.test.ts` — 15 tests d'intégration contre la base réelle, exécutés
   avec la **connexion applicative brute, sans la couche applicative** (simulation d'un
   contournement) : sans claims rien n'est visible ni modifiable ; un technicien ne peut ni
   supprimer un équipement, ni lire un autre utilisateur, ni lire `password_hash` (même le
@@ -123,7 +123,7 @@ applicable au périmètre.
 
 | # | Catégorie | Statut | Preuves et résiduels |
 |---|-----------|--------|----------------------|
-| A01 | Broken Access Control | ✅ | `authMiddleware`/`adminMiddleware` sur toutes les server functions ; RLS 13 policies fail-closed (`withAuthContext` obligatoire) ; grants par colonnes sur `password_hash`. Preuves : 13 tests d'intégration RLS sur base réelle, e2e R1-R3 (dont replay d'un appel admin-only avec session technicien → FORBIDDEN). Résiduel : RLS à claims auto-déclarés, sans effet si la connexion app est compromise (constat transversal ci-dessous, #7). |
+| A01 | Broken Access Control | ✅ | `authMiddleware`/`adminMiddleware` sur toutes les server functions ; RLS 13 policies fail-closed (`withAuthContext` obligatoire) ; grants par colonnes sur `password_hash`. Preuves : 15 tests d'intégration RLS sur base réelle, e2e R1-R3 (dont replay d'un appel admin-only avec session technicien → FORBIDDEN). Résiduel : RLS à claims auto-déclarés, sans effet si la connexion app est compromise (constat transversal ci-dessous, #7). |
 | A02 | Cryptographic Failures | ✅ | argon2id (jamais de plaintext), JWT RS256 algorithme verrouillé, refresh tokens hashés SHA-256 en base, cookies httpOnly+Secure+SameSite=Strict, HSTS 2 ans (#17), TLS bout en bout (Vercel/Supabase). Preuves : 18 tests auth-core (token altéré, clé étrangère, expiration). |
 | A03 | Injection | ✅ | SQL : exclusivement Kysely paramétré + fonctions `SECURITY DEFINER` à `search_path` figé — zéro SQL concaténé (convention CLAUDE.md, vérifiable par grep). XSS : React échappe par défaut, `dangerouslySetInnerHTML` absent du codebase (0 occurrence), CSP en défense en profondeur. Entrées : Zod sur toutes les server functions à payload (#14). |
 | A04 | Insecure Design | ✅ | Noyau métier pur testé exhaustivement (state machine incidents, règles d'assignation — 100 % de couverture), fail-closed par défaut (RLS, démarrage sans `APP_POSTGRES_URL` refusé), revue de sécurité adversariale multi-agents avec réfutation indépendante (session 3), décisions d'architecture documentées avec alternatives écartées. |
