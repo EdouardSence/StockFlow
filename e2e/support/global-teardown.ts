@@ -8,6 +8,9 @@ export default async function globalTeardown() {
 		const swept = await sweepEphemeralData();
 		console.log("[e2e] sweep post-suite :", swept);
 	} catch (err) {
-		console.error("[e2e] sweep post-suite en échec — relancer manuellement :", err);
+		console.error(
+			"[e2e] sweep post-suite en échec — relancer manuellement :",
+			err,
+		);
 	}
 }
