@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "migrate": "bun run scripts/migrate.ts",
     "rapport": "bun run scripts/rapport-pdf.ts docs/rapport/rapport-bloc2.md docs/rapport/rapport-bloc2.pdf",
+    "rapport:bloc4": "bun run scripts/rapport-pdf.ts docs/rapport/rapport-bloc4.md docs/rapport/rapport-bloc4.pdf",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

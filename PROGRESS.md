@@ -458,6 +458,26 @@ Leçon : les e2e existants passaient tous alors que le parcours mobile réel ét
 ils testaient l'accueil et le scan en mobile, jamais les autres routes. La recette doit
 suivre les usages réels, pas seulement les features à leur livraison.
 
+## Lot Bloc 4 (2026-07-15) — brouillon complet, un mois avant la fenêtre
+
+Fenêtre de rendu Bloc 4 : 17-21 août. Sprint anticipé (plan de route du 2026-07-14) :
+
+- [x] Ticket support réel (pièce 8) ouvert en premier — latence externe :
+      question officielle sur l'isolation des GUC `SET LOCAL` à travers le pooler
+      transaction-mode (supabase/supabase discussion #47946), qualifiée dans
+      `23-support-client.md`, statut « en attente » tracé honnêtement.
+- [x] Supervision (pièce 2, C4.1.2) vérifiée sur l'instance Sentry réelle — pas
+      d'invention : règle d'alerte active depuis mai (nouvelle erreur + escalade,
+      email), déclenchée pour de vrai le 2026-07-04 (16 s après la 1re occurrence de
+      STOCKFLOW-PWA-2 = l'erreur d'hydratation de #32). Issue Sentry résolue avec
+      commentaire de traçabilité. Limites écrites (`22-supervision-alerte.md`) : init
+      non gatée par l'env (bruit dev tagué production), capture client only.
+- [x] `docs/rapport/rapport-bloc4.md` + PDF (14 pages ≤ 20) : les 8 pièces, dont
+      fiche + traitement de #26 (CI rouge 9 jours), journal des versions, recommandations
+      recentrées maintenance. Script `bun run rapport:bloc4`.
+- [ ] Avant dépôt (17 août) : mettre à jour la pièce 8 avec la réponse du ticket
+      (ou l'état « en attente » daté), relecture à froid.
+
 ---
 
 ## Reprise prochaine session (mis à jour 2026-07-13)
