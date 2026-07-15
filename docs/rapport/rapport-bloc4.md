@@ -40,6 +40,13 @@ leurs commits, tickets avec leurs URL). Ce qui n'est pas fait est écrit comme t
 Le référentiel des composants tiers et sa politique de suivi sont tenus dans le dépôt
 (`docs/certification/07-referentiel-composants.md`). Le processus opérationnel :
 
+**Fréquence, périmètre, type** : les mises à jour sont **manuelles** (pas de bot type
+Dependabot/Renovate — choix assumé pour un projet mono-développeur : chaque montée est
+relue, pas fusionnée en masse), à **cadence mensuelle**, avec montée **immédiate** en
+cas d'alerte de sécurité touchant le runtime. Le périmètre couvert est l'ensemble des
+dépendances déclarées dans `package.json` (runtime et outillage), résolues et
+verrouillées par `bun.lock`.
+
 1. **Versions verrouillées** : `bun.lock` est commité — chaque environnement (dev, CI,
    production Vercel) installe exactement les mêmes versions résolues. Aucune montée de
    version implicite.
@@ -94,6 +101,16 @@ Le couple « nouvelle erreur » + « escalade » couvre les deux modalités atte
 signalement de l'inédit et signalement du pic — avec le modèle adaptatif de Sentry
 plutôt qu'un seuil arbitraire.
 
+## Surveillance de la disponibilité
+
+Sentry surveille les erreurs ; la **disponibilité** est surveillée par une sonde dédiée
+(`.github/workflows/uptime.yml`) : un workflow planifié vérifie **toutes les 15 minutes**
+que l'URL de production répond HTTP 200 (3 tentatives espacées, pour ne pas alerter sur
+un raté réseau transitoire). Un échec déclenche la notification email GitHub et fait
+passer au rouge le badge « Uptime » du README — le même principe que le badge CI né de
+l'incident #26 (§ 5) : un rouge doit se voir. La sonde détecte ce qu'aucune erreur
+cliente ne peut signaler : une panne totale où plus rien ne se charge.
+
 ## Preuve de fonctionnement bout en bout
 
 - Dernier déclenchement réel : **2026-07-04 21:10:13 UTC, 16 secondes après la première
@@ -132,7 +149,7 @@ la revue adversariale a trouvé les défauts de sécurité (7 findings du lot au
 la supervision Sentry a capturé l'erreur d'hydratation, et **le retour terrain** (test
 sur téléphone réel, 2026-07-13) a révélé ce que 36 tests e2e verts ne voyaient pas :
 le parcours mobile cassé au-delà de l'accueil (7 anomalies, issues #27-#33, corrigées
-le jour même). Trente-quatre issues qualifiées au total à ce jour.
+le jour même). Trente-deux issues qualifiées au total à ce jour.
 
 # 4. Fiche de consignation d'une anomalie réelle
 
@@ -178,33 +195,51 @@ Le traitement de #26, étape par étape :
 
 # 6. Recommandations d'amélioration
 
-Recentrées maintenance et supervision, par ordre de valeur :
+Recentrées maintenance et supervision, par ordre de valeur, avec pour chacune un ordre
+de grandeur du coût de mise en œuvre (le coût monétaire est nul dans tous les cas —
+plans gratuits des services déjà utilisés) :
 
 1. **Base de test séparée** (branche Supabase ou second projet) — la dette la plus
    sérieuse du projet : elle interdit aujourd'hui les tests d'intégration et e2e en CI.
    La lever ferait passer la CI de « tests purs » à « protection complète ».
+   *Délai estimé : 1 à 2 jours (provisionnement, migrations, adaptation du sweep e2e et
+   de la CI). Gain : détection des régressions d'accès aux données à chaque push, au
+   lieu d'une exécution locale à la demande.*
 2. **Conditionner l'init Sentry à l'environnement** et poser explicitement le tag
    `environment` — découvert en vérifiant la supervision (§ 2) : le bruit des sessions
    de dev remonte aujourd'hui tagué `production`, ce qui dégrade le signal des alertes.
+   *Délai : moins d'une heure (deux lignes dans `__root.tsx`). Gain : alertes fiables,
+   zéro faux volume.*
 3. **Seuil de couverture en gate CI** sur la logique métier pure (le critère ≥ 80 % du
    Bloc 2, aujourd'hui vérifié à la main à chaque remesure).
+   *Délai : une demi-journée (config Vitest `coverage.thresholds` ciblée sur `src/lib`).
+   Gain : le critère devient auto-vérifié, une régression de couverture bloque le merge.*
 4. **Recette e2e alignée sur les usages réels, rejouée périodiquement** — pas seulement
    à la livraison des features : la leçon du lot mobile (36 tests verts, parcours réel
    cassé) est qu'un cahier de recettes vieillit dès que l'usage évolue.
-5. **Supervision de disponibilité** simple (ping de l'URL de production) — aujourd'hui,
-   une panne totale ne serait signalée par personne ; c'est acceptable pour un MVP sans
-   client réel, ça ne le serait plus en exploitation.
+   *Délai : récurrent, ~1 h par mois. Gain : les angles morts du harnais sont découverts
+   par la recette, pas par l'utilisateur.*
+
+Une cinquième recommandation identifiée lors de la rédaction — supervision de
+disponibilité (ping de la production) — a été **mise en œuvre avant le dépôt** de ce
+dossier (§ 2, sonde uptime du 2026-07-15, délai réel : une heure) : la liste ci-dessus
+ne contient que ce qui reste à faire.
 
 # 7. Journal des versions (C4.3.2)
 
 *Pièce source : `docs/certification/08-historique-versions.md` ; dernière version
 stable détaillée dans la pièce 20.*
 
-| Version | Date | Tag git | Contenu |
-|---|---|---|---|
-| v0.2.0 | 2026-07-03 | `v0.2.0` (annoté) | CRUD équipements, scan, génération QR — sans auth ni RLS |
-| v0.3.0 | 2026-07-04 | `v0.3.0` (annoté) | Authentification JWT RS256 + RBAC + Row Level Security |
-| v0.4.0 | 2026-07-13 | `v0.4.0` (annoté) | Incidents, sécurité consolidée, accessibilité auditée, PWA offline. **Version en production.** |
+| Version | Date | Tag git | Nouveautés | Anomalies corrigées |
+|---|---|---|---|---|
+| v0.2.0 | 2026-07-03 | `v0.2.0` (annoté) | CRUD équipements, scan, génération QR — sans auth ni RLS | Dette lint initiale #3 (13 erreurs → 0) |
+| v0.3.0 | 2026-07-04 | `v0.3.0` (annoté) | Authentification JWT RS256 + RBAC + Row Level Security | 7 correctifs de la revue de sécurité adversariale (commits `fix:` distincts et datés) |
+| v0.4.0 | 2026-07-13 | `v0.4.0` (annoté) | Incidents, sécurité consolidée, accessibilité auditée, PWA offline. **Version en production.** | AN-1/AN-2 de la recette (#22, #23), 3 violations d'accessibilité (#25), sélecteur radio natif (#11), réparation CI (#26) |
+
+Le déploiement étant continu (push sur `main` = production), les correctifs entre deux
+jalons partent en production sans attendre le tag suivant — depuis `v0.4.0` : parcours
+mobile #27-#33 (dont l'erreur d'hydratation #32, § 2), build PWA sur Vercel #34. Chaque
+correctif déployé est documenté par son issue et son commit `fix:`.
 
 Règles de tenue du journal :
 
@@ -251,12 +286,20 @@ missing_ok) étaient déjà couverts par `withAuthContext` et les policies fail-
 **Décision** : pattern confirmé et conservé tel quel, aucune modification de code ni
 d'infrastructure ; la dette « comportement observé, non documenté » est levée.
 
+**Contribution des parties prenantes** : le candidat a qualifié le problème (lecture du
+code et de la configuration réelle, identification des deux garanties critiques) et posé
+la question argumentée ; le support communautaire Supabase (canal officiel du plan
+gratuit) a apporté la réponse technique et deux points de vigilance opérationnels ; la
+documentation PostgreSQL officielle sert de source normative (comportement de `SET
+LOCAL`) ; le remerciement a été posté et la réponse marquée comme acceptée — l'échange
+complet est public et consultable à l'URL du ticket.
+
 # Conclusion
 
 La maintenance de StockFlow ne repose pas sur des intentions mais sur des mécanismes en
 place et éprouvés par de vrais incidents : des versions verrouillées et auditées, une
 supervision qui a réellement alerté en 16 secondes, un processus de consignation qui a
-absorbé 34 anomalies sans en perdre une, un journal de versions qui n'a jamais été
+absorbé 32 anomalies sans en perdre une, un journal de versions qui n'a jamais été
 réécrit, et un recours au support éditeur documenté. Les deux incidents racontés ici
 (#26, #32) ont chacun laissé une mesure anti-récidive derrière eux — c'est le critère
 d'une maintenance qui apprend, plutôt qu'une maintenance qui répare.

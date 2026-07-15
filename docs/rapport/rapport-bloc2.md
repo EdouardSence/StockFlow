@@ -61,7 +61,7 @@ l'étendue.
 
 Le projet a été conduit en sessions thématiques (« lots ») tracées dans `PROGRESS.md` :
 chaque lot part d'un objectif, se termine par des tests verts et une documentation à
-jour, et alimente un Kanban GitHub (« StockFlow — Suivi qualité & certification », 26
+jour, et alimente un Kanban GitHub (« StockFlow — Suivi qualité & certification », 32
 issues à ce jour). Deux disciplines transverses ont structuré le travail :
 
 - **Traçabilité** : tout bug ou dette découvert devient une issue GitHub qualifiée
@@ -461,8 +461,13 @@ et après.
 Le critère du cadrage : ≥ 80 % sur la logique métier **pure**. Résultat : les domaines
 Effect (incidents, assignation) sont à **100 %**, les primitives de sécurité à **92 %**,
 tous les schémas de validation à 100 % comportemental (chaque règle testée par un cas
-qui passe et un cas qui échoue). Le pourcentage *global* du dépôt (~45 % de statements)
-est plus bas — et la pièce 12 explique pourquoi c'est un artefact de mesure et non un
+qui passe et un cas qui échoue). Au sens du critère d'évaluation — « les tests unitaires
+couvrent la majorité du code développé » — la logique développée spécifiquement pour le
+projet (`src/lib` : domaine métier, primitives d'authentification, validation, file
+offline) est couverte très majoritairement à l'unitaire ; le reste du code développé
+(server functions, routes) est couvert par les tests d'intégration RLS et les 36
+scénarios de bout en bout, qui exécutent le vrai code contre la vraie base. Le
+pourcentage *global* du dépôt (~45 % de statements) est plus bas — et la pièce 12 explique pourquoi c'est un artefact de mesure et non un
 trou : les coquilles d'entrée/sortie (server functions, client de base de données) sont
 délibérément couvertes par les tests d'intégration et de bout en bout, pas par des tests
 unitaires qui ne feraient que mocker ce qu'ils prétendent tester. La pièce documente
@@ -540,7 +545,7 @@ empêche le dossier de dériver du code.
 Le cycle est outillé de bout en bout : détection (revue adversariale, audits,
 utilisation réelle, rédaction des recettes) → qualification en issue GitHub (constat,
 reproduction, cause, impact, plan) → correction → fermeture avec résumé vérifié →
-suivi Kanban. Vingt-six issues à ce jour, toutes qualifiées. Deux exemples complets du
+suivi Kanban. Trente-deux issues à ce jour, toutes qualifiées. Deux exemples complets du
 cycle sont documentés : la dette lint initiale (#3, 13 erreurs) et l'incident CI de
 juillet (#26, § 1.2) — ce dernier illustrant aussi la boucle d'amélioration : chaque
 incident produit une mesure anti-récidive, pas seulement un correctif.

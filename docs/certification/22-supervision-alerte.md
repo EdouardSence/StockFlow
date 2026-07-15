@@ -17,8 +17,24 @@ projet `stockflow-pwa`, région UE `de.sentry.io`) — pas une description d'int
   où vivent les parcours critiques (scan, saisie offline) et où les erreurs sont
   invisibles autrement ; côté serveur, les échecs des server functions remontent au
   client en erreurs capturables, et la plateforme (Vercel) fournit ses propres logs de
-  fonction. Une observabilité d'entreprise (APM, tracing distribué, uptime tiers)
-  serait disproportionnée ici et le dossier ne prétend pas l'avoir.
+  fonction. Une observabilité d'entreprise (APM, tracing distribué) serait
+  disproportionnée ici et le dossier ne prétend pas l'avoir.
+
+## Sonde de disponibilité
+
+Sentry surveille les **erreurs** ; la **disponibilité** est surveillée par une sonde
+dédiée (`.github/workflows/uptime.yml`, ajoutée le 2026-07-15 suite à la relecture
+contre la grille d'évaluation) :
+
+- **Sonde** : workflow GitHub Actions planifié toutes les 15 minutes, qui vérifie que
+  l'URL de production répond HTTP 200 (3 tentatives espacées de 20 s pour ne pas
+  alerter sur un raté réseau transitoire).
+- **Signalement** : un run planifié en échec déclenche la notification email GitHub au
+  propriétaire du dépôt, et le badge « Uptime » du README passe au rouge — même
+  principe que le badge CI issu de l'incident #26 : un rouge doit se voir.
+- **Finalité** : détecter une panne totale (déploiement cassé, domaine, plateforme)
+  qu'aucune erreur cliente ne signalerait, puisque plus rien ne se charge. Zéro service
+  tiers supplémentaire : la sonde vit dans le dépôt, versionnée et auditable.
 
 ## Modalité de signalement configurée (l'exigence C4.1.2)
 
@@ -63,9 +79,10 @@ custom supplémentaire — la détection d'escalade de Sentry remplit le rôle d
    réelle), mais le volume est du bruit de dev. Amélioration identifiée (pièce 6 /
    recommandations) : garder l'init derrière `import.meta.env.PROD` et poser
    explicitement `environment`.
-2. **Capture client uniquement** : une erreur serveur qui ne remonte pas au client
-   (ex. tâche de migration) n'est pas vue par Sentry — couverte par les logs Vercel et
-   le caractère supervisé des opérations concernées (migrations lancées à la main).
+2. **Capture d'erreurs côté client uniquement** : une erreur serveur qui ne remonte pas
+   au client (ex. tâche de migration) n'est pas vue par Sentry — couverte par les logs
+   Vercel et le caractère supervisé des opérations concernées (migrations lancées à la
+   main). Une indisponibilité totale, elle, est couverte par la sonde uptime ci-dessus.
 3. La configuration des règles a été **vérifiée en lecture par l'API** ; toute évolution
    de règle se fait dans le dashboard Sentry (l'accès API en écriture n'est pas câblé
    dans l'outillage du projet, et n'a pas besoin de l'être).

@@ -478,8 +478,20 @@ Fenêtre de rendu Bloc 4 : 17-21 août. Sprint anticipé (plan de route du 2026-
 - [x] `docs/rapport/rapport-bloc4.md` + PDF (14 pages ≤ 20) : les 8 pièces, dont
       fiche + traitement de #26 (CI rouge 9 jours), journal des versions, recommandations
       recentrées maintenance. Script `bun run rapport:bloc4`.
-- [x] Réponse du ticket intégrée dans la pièce 8 + rapport §8 (2026-07-15).
-- [ ] Avant dépôt (17 août) : relecture à froid du rapport Bloc 4.
+- [x] Réponse du ticket intégrée dans la pièce 8 + rapport §8 (2026-07-15). Ticket
+      clôturé : remerciement posté, réponse marquée acceptée.
+- [x] Relecture croisée des rapports Blocs 2 et 4 contre la grille d'évaluation
+      officielle (2026-07-15). Trou réel trouvé et comblé : le critère C4.1.2
+      (éliminatoire) exige la surveillance de la **disponibilité** — sonde uptime
+      ajoutée (`.github/workflows/uptime.yml`, ping 15 min + badge README + email
+      GitHub sur échec, premier run vert). Retouches grille : C2.2.2 (« majorité du
+      code développé » pris de front dans §6.2), C4.1.1 (fréquence/périmètre/type),
+      C4.3.1 (coût/délai par recommandation), C4.3.2 (anomalies corrigées par
+      version), C4.3.3 (contribution des parties prenantes). Compteur d'issues
+      unifié à 32 (réel : #3-#34) dans les deux rapports. PDF : Bloc 2 = 26 p.,
+      Bloc 4 = 15 p. (≤ 20). Grille : éliminatoires Bloc 2 = C2.2.1, C2.2.2,
+      C2.2.3, C2.3.1 ; Bloc 4 = C4.1.2, C4.2.1, C4.3.2.
+- [ ] Avant dépôt (17 août) : relecture à froid du rapport Bloc 4 (début août).
 
 ---
 
