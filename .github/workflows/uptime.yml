@@ -1,0 +1,29 @@
+name: Uptime
+
+# Sonde de disponibilité : ping de la production toutes les 15 minutes.
+# Signalement : GitHub notifie par email l'échec d'un run planifié (workflow rouge),
+# et le badge README rend l'état visible — même logique que l'issue #26 (« un rouge
+# doit se voir »). 3 tentatives espacées pour ne pas alerter sur un raté transitoire.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping production
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://stock-flow-gamma-eight.vercel.app/login" || true)
+            if [ "$code" = "200" ]; then
+              echo "OK (HTTP 200, tentative $i)"
+              exit 0
+            fi
+            echo "Tentative $i : HTTP ${code:-aucune réponse}"
+            sleep 20
+          done
+          echo "Production injoignable après 3 tentatives"
+          exit 1

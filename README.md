@@ -1,6 +1,7 @@
 # StockFlow
 
 [![CI](https://github.com/EdouardSence/StockFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/EdouardSence/StockFlow/actions/workflows/ci.yml)
+[![Uptime](https://github.com/EdouardSence/StockFlow/actions/workflows/uptime.yml/badge.svg)](https://github.com/EdouardSence/StockFlow/actions/workflows/uptime.yml)
 
 Gestion de parc informatique pour TPE/PME : inventaire des équipements, QR codes,
 scan mobile, signalement et suivi d'incidents — avec création d'incident hors-ligne
