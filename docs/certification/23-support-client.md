@@ -77,3 +77,7 @@ policies fail-closed sur le pooler transaction-mode. La garantie repose sur la s
 du serveur Postgres, pas seulement sur le comportement observé du pooler — la dette
 « comportement observé, non documenté » du constat initial est levée. Aucun changement de
 code ni d'infrastructure.
+
+Clôture côté ticket (2026-07-15) : remerciement posté avec confirmation que les deux
+points de vigilance sont couverts, et réponse marquée comme acceptée (discussion
+`isAnswered`) — le cycle constat → échange → résolution → clôture est complet.
