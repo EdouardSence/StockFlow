@@ -237,10 +237,19 @@ sécurité, s'appuyer sur un comportement observé plutôt que documenté est un
 `BEGIN; set_config(..., true); …; COMMIT;`, policies fail-closed, et la question de
 l'alternative en mode session.
 
-**Statut au moment de la rédaction** : *(à mettre à jour avant dépôt — réponse reçue et
-lecture critique, ou honnêtement « ticket ouvert, en attente », avec la décision
-conservatoire : le pattern actuel reste en place, les tests d'intégration RLS
-continuent de vérifier le comportement à chaque session)*.
+**Résolution** : réponse reçue le 2026-07-15, moins de 12 h après l'ouverture. Le point
+clé dépasse la question posée : la garantie ne dépend pas du pooler mais du serveur
+Postgres lui-même — `set_config(…, true)` est annulé au commit/rollback par Postgres
+(documentation `SET` : la valeur ne vaut « que pour la transaction courante »), donc le
+GUC a déjà disparu quand la connexion peut être réattribuée. Le danger documenté du mode
+transaction concerne le `SET` de niveau *session*, que StockFlow n'utilise jamais. Le
+pattern est en outre celui de la stack Supabase elle-même (PostgREST injecte
+`request.jwt.claims` par le même mécanisme). Les deux points de vigilance retournés
+(toute requête dans la transaction porteuse de claims ; `current_setting(…, true)` en
+missing_ok) étaient déjà couverts par `withAuthContext` et les policies fail-closed.
+
+**Décision** : pattern confirmé et conservé tel quel, aucune modification de code ni
+d'infrastructure ; la dette « comportement observé, non documenté » est levée.
 
 # Conclusion
 

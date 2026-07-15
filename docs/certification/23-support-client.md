@@ -1,7 +1,7 @@
 # 23 — Problème résolu avec le support client (pièce 8, Bloc 4)
 
-> **Document vivant** — statut au 2026-07-15 : **ticket ouvert, en attente de réponse**.
-> À mettre à jour dès réception d'une réponse (l'échange complet, puis la résolution).
+> Statut au 2026-07-15 : **résolu** — réponse reçue le 2026-07-15 (moins de 12 h après
+> ouverture), pattern confirmé, aucune modification nécessaire.
 
 ## Constat initial (qualification)
 
@@ -35,5 +35,45 @@ documenté est une dette : d'où la demande de confirmation officielle.
 
 ## Échange et résolution
 
-*(à compléter à la réponse — copie de l'échange, lecture critique, décision retenue :
-confirmation du pattern, ou bascule en mode session, ou mitigation supplémentaire)*
+Réponse reçue le **2026-07-15 à 11:23 UTC** (utilisateur `DGO0`), soit moins de 12 h
+après l'ouverture. Synthèse point par point :
+
+1. **Possession de la connexion pendant la transaction : confirmée.** En mode
+   transaction, la *transaction* est l'unité de multiplexage : la connexion serveur est
+   attribuée à un client au `BEGIN` et n'est réattribuée qu'après `COMMIT`/`ROLLBACK`.
+   Entrelacer les requêtes de deux clients dans une transaction ouverte casserait la
+   sémantique transactionnelle elle-même.
+
+2. **Point clé de la réponse : la garantie ne dépend même pas du pooler.** `set_config(…,
+   true)` / `SET LOCAL` est borné à la transaction **par le serveur Postgres lui-même** —
+   la valeur est automatiquement annulée au commit ou rollback (documentation officielle
+   `SET` : *« Specifies that the command takes effect for only the current
+   transaction »*). Au moment où le pooler pourrait redonner la connexion à un autre
+   client, le GUC a déjà disparu, qu'un reset type `DISCARD ALL` s'exécute ou non. La
+   crainte initiale (garantie n° 2) était donc mal posée : le danger documenté du mode
+   transaction concerne le `SET` de niveau *session* — d'où la règle « état
+   transaction-scoped uniquement sur le port 6543 », que StockFlow respecte déjà.
+
+3. **Pattern recommandé : oui.** C'est le mécanisme qu'utilise la stack Supabase
+   elle-même : PostgREST injecte `request.jwt.claims` via `set_config(…, true)` dans la
+   transaction de la requête, et les policies lisent `current_setting('request.jwt.claims',
+   true)` — exactement le pattern de `withAuthContext`. Pas de bascule en mode session
+   (port 5432) nécessaire.
+
+Deux points de vigilance donnés en retour, vérifiés sur le code :
+
+- **Toute requête doit réellement passer dans la transaction porteuse de claims** (le
+  piège classique : une requête auto-commit émise hors `BEGIN`). Couvert : l'accès aux
+  données passe exclusivement par `withAuthContext`, et les policies fail-closed font
+  qu'un oubli dégrade en « zéro ligne », jamais en fuite — le répondant confirme que
+  c'est le bon mode de défaillance.
+- **Garder `current_setting(…, true)`** (missing_ok) pour qu'un GUC absent rende NULL et
+  non une erreur — déjà le cas dans les 13 policies.
+
+### Décision retenue
+
+Pattern **confirmé et conservé tel quel** : transaction explicite + claims `SET LOCAL` +
+policies fail-closed sur le pooler transaction-mode. La garantie repose sur la sémantique
+du serveur Postgres, pas seulement sur le comportement observé du pooler — la dette
+« comportement observé, non documenté » du constat initial est levée. Aucun changement de
+code ni d'infrastructure.

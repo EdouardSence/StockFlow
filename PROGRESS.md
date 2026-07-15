@@ -465,7 +465,10 @@ Fenêtre de rendu Bloc 4 : 17-21 août. Sprint anticipé (plan de route du 2026-
 - [x] Ticket support réel (pièce 8) ouvert en premier — latence externe :
       question officielle sur l'isolation des GUC `SET LOCAL` à travers le pooler
       transaction-mode (supabase/supabase discussion #47946), qualifiée dans
-      `23-support-client.md`, statut « en attente » tracé honnêtement.
+      `23-support-client.md`. **Résolu le 2026-07-15** (réponse < 12 h) : garantie
+      confirmée par la sémantique Postgres elle-même (`SET LOCAL` annulé au
+      commit/rollback, indépendamment du pooler), pattern identique à celui de
+      PostgREST — aucun changement de code. Échange intégré dans la pièce 8.
 - [x] Supervision (pièce 2, C4.1.2) vérifiée sur l'instance Sentry réelle — pas
       d'invention : règle d'alerte active depuis mai (nouvelle erreur + escalade,
       email), déclenchée pour de vrai le 2026-07-04 (16 s après la 1re occurrence de
@@ -475,8 +478,8 @@ Fenêtre de rendu Bloc 4 : 17-21 août. Sprint anticipé (plan de route du 2026-
 - [x] `docs/rapport/rapport-bloc4.md` + PDF (14 pages ≤ 20) : les 8 pièces, dont
       fiche + traitement de #26 (CI rouge 9 jours), journal des versions, recommandations
       recentrées maintenance. Script `bun run rapport:bloc4`.
-- [ ] Avant dépôt (17 août) : mettre à jour la pièce 8 avec la réponse du ticket
-      (ou l'état « en attente » daté), relecture à froid.
+- [x] Réponse du ticket intégrée dans la pièce 8 + rapport §8 (2026-07-15).
+- [ ] Avant dépôt (17 août) : relecture à froid du rapport Bloc 4.
 
 ---
 
