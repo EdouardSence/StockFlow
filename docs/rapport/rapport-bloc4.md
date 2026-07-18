@@ -25,7 +25,9 @@ lang: fr
 StockFlow est une application web de gestion de parc informatique pour TPE/PME :
 inventaire des équipements, étiquetage QR, scan mobile, signalement et suivi des
 incidents — y compris hors connexion (PWA). L'application est en production sur Vercel
-(base PostgreSQL Supabase), version stable `v0.4.0` au moment de la rédaction. La
+(base PostgreSQL Supabase), version stable `v0.4.0` au moment de la rédaction — code
+source : <https://github.com/EdouardSence/StockFlow>, production :
+<https://stock-flow-gamma-eight.vercel.app>. La
 conception, la sécurisation et la recette sont traitées dans le dossier Bloc 2 ; ce
 dossier ne les répète pas — il documente **comment l'application est maintenue en
 condition opérationnelle** : mise à jour, supervision, détection et traitement des

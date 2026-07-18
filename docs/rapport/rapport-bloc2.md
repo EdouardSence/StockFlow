@@ -40,6 +40,9 @@ tests et livraison de la solution. Chaque affirmation renvoie à une pièce dét
 dossier technique (`docs/certification/` dans le dépôt) et, en dernier ressort, au code
 et à l'historique git eux-mêmes — le dépôt est la source de vérité.
 
+- **Code source** : <https://github.com/EdouardSence/StockFlow>
+- **Application en production** : <https://stock-flow-gamma-eight.vercel.app>
+
 ## Périmètre livré
 
 | Parcours | État |
