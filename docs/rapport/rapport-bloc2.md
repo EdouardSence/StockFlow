@@ -442,13 +442,14 @@ de l'environnement de développement.
 
 ## 6.1 Le harnais
 
-**99 tests Vitest** couvrent la logique pure : primitives d'authentification (signature
-et vérification JWT, expiration, verrouillage d'algorithme, argon2id, rotation des
-refresh tokens, rate limiting), les 9 combinaisons de transitions du cycle de vie
-incident, les règles d'assignation, tous les schémas de validation d'entrée avec leurs
-cas limites, et la file offline. S'y ajoutent **15 tests d'intégration RLS** exécutés
-contre la vraie base : ils simulent un contournement du wrapper applicatif et prouvent
-que PostgreSQL refuse (fail-closed vérifié, pas supposé).
+**84 tests unitaires** couvrent la logique pure : primitives d'authentification
+(signature et vérification JWT, expiration, verrouillage d'algorithme, argon2id,
+rotation des refresh tokens, rate limiting), les 9 combinaisons de transitions du cycle
+de vie incident, les règles d'assignation, tous les schémas de validation d'entrée avec
+leurs cas limites, et la file offline. S'y ajoutent **15 tests d'intégration RLS**
+exécutés contre la vraie base — ils simulent un contournement du wrapper applicatif et
+prouvent que PostgreSQL refuse (fail-closed vérifié, pas supposé) — soit **99 tests
+Vitest** au total.
 
 **36 scénarios Playwright** couvrent les parcours complets contre le serveur réel et la
 vraie base : authentification, RBAC (un technicien qui force l'URL d'un écran admin est
@@ -540,7 +541,7 @@ processus vaut plus que l'esthétique de l'historique.
 
 La pièce 20 est un document vivant qui décrit, à chaque instant, ce que contient la
 dernière version stable : fonctionnalités opérationnelles, suites de tests vertes
-(99 unitaires + 36 e2e), dettes connues au moment du snapshot. C'est la pièce qui
+(84 unitaires + 15 intégration RLS + 36 e2e), dettes connues au moment du snapshot. C'est la pièce qui
 empêche le dossier de dériver du code.
 
 ## 7.3 Plan de correction des bogues
@@ -599,7 +600,7 @@ sécurité construite *et* attaquée, une accessibilité auditée en conditions 
 harnais de tests qui prouve au lieu d'affirmer, et le point techniquement le plus risqué
 du cadrage — le hors-ligne — livré avec une conception argumentée.
 
-Sur la méthode : un historique git qui raconte la vérité, 26 issues qualifiées, des
+Sur la méthode : un historique git qui raconte la vérité, 32 issues qualifiées, des
 documents vivants qui suivent le code, et des écarts de cadrage tranchés et écrits
 plutôt que subis.
 
