@@ -1,5 +1,5 @@
 ---
-title: "StockFlow — Dossier projet Bloc 2"
+title: "StockFlow — Dossier projet Bloc 2"
 subtitle: "RNCP 39583 niveau 7 — Concevoir et développer des solutions logicielles"
 author: "Édouard Sence"
 date: "Juillet 2026"
@@ -86,7 +86,7 @@ Chronologie des lots (résumé de `PROGRESS.md`) :
 | Sécurité consolidée | 2026-07-06/07 | Validation Zod partout, en-têtes HTTP, masquage d'erreurs, rate limiting, audit OWASP | |
 | Comptes | 2026-07-07 | Self-service mot de passe, gestion des utilisateurs admin | |
 | Accessibilité | 2026-07-07 | Audit RGAA outillé, 3 violations corrigées, couverture clôturée | |
-| PWA offline | 2026-07-12 | Service worker, consultation offline, incident hors-ligne + file de sync | périmètre `v0.4.0` |
+| PWA offline | 2026-07-12 | Service worker, consultation offline, incident hors-ligne + file de sync | `v0.4.0` |
 | Documentation & CI | 2026-07-12/13 | Manuels, arbitrage hébergement, réparation CI (#26), ce rapport | |
 
 # 1. Environnement de développement et intégration continue
