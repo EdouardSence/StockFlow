@@ -632,10 +632,10 @@ d'abord consolider ce qui garantit, ensuite étendre ce qui sert.
 | Intégration continue | `01-deploiement-continu.md` (fusionné) | § 1.2 |
 | Critères qualité / performance | `17-criteres-qualite-performance.md` | § 1.3 |
 | Architecture logicielle | `18-architecture.md` | § 2.1 |
+| ↳ *sous-composant : modèle de données* | `06-modele-de-donnees.md` | § 2.2 |
+| ↳ *sous-composant : référentiel de composants* | `07-referentiel-composants.md` | § 2.4 |
 | Prototype | `02-prototype-logiciel.md` | § 3 |
 | Frameworks / paradigmes | `19-frameworks-paradigmes.md`, `04-framework.md`, `05-langages.md` | § 2.3 |
-| Référentiel de composants | `07-referentiel-composants.md` | § 2.4 |
-| Modèle de données | `06-modele-de-donnees.md` | § 2.2 |
 | Tests unitaires / harnais | `11-harnais-de-tests.md` | § 6.1 |
 | Couverture de code | `12-couverture-de-code.md` | § 6.2 |
 | Sécurité (OWASP) | `09-securisation.md` | § 4 |
