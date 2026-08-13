@@ -44,7 +44,7 @@ const html = `
   th, td { border: 1px solid #bbb; padding: 2mm 3mm; text-align: left; vertical-align: top; }
   th { background: #f0f0f0; }
   td:last-child, th:last-child { padding-right: 3mm; }
-  td code, th code { white-space: nowrap; word-break: normal; }
+  td code, th code { white-space: normal; word-break: normal; }
   code { font-family: ${mono}; font-size: 9pt; background: #f4f4f4; padding: 0 1mm; border-radius: 2px; word-break: break-word; }
   pre { background: #f7f7f7; border: 1px solid #ddd; padding: 3mm; font-size: 7.5pt; overflow: hidden; line-height: 1.35; }
   pre code { font-family: ${mono}; font-size: inherit; background: none; padding: 0; word-break: normal; white-space: pre; }
