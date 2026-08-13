@@ -38,7 +38,9 @@ Source de vérité : `package.json` (contraintes) + `bun.lock` (versions résolu
 ## Politique de suivi
 
 - **Versions verrouillées** par `bun.lock` (commité) ; montées de version = commit dédié.
-- **Vulnérabilités** : `bun audit` — 16 vulnérabilités transitives **dev-only** connues et
-  tracées (issue #24, différée par choix : aucune n'affecte le runtime de production).
+- **Vulnérabilités** : `bun audit` — vulnérabilités transitives **dev-only** connues et
+  tracées (issue #24, différée par choix : aucune n'affecte le runtime de production —
+  16 au premier inventaire du 2026-07-07, 40 au ré-audit du 2026-08-13, chemins
+  re-vérifiés à chaque mesure).
 - **Pas de nouvelle dépendance sans justification** : la PWA offline a été livrée avec
   zéro ajout (IndexedDB natif plutôt qu'une librairie de file).

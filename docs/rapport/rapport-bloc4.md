@@ -57,10 +57,14 @@ verrouillées par `bun.lock`.
    (lint → typecheck → tests → build), et les suites locales si le runtime est touché
    (99 tests Vitest dont l'intégration RLS ; 36 scénarios e2e Playwright, exécutés en
    local uniquement car la base est partagée — dette documentée au Bloc 2).
-3. **Audit de vulnérabilités à chaque montée** : `bun audit`. État courant : 16
-   vulnérabilités transitives **dev-only** connues, tracées (issue #24) et différées par
-   choix argumenté — aucune n'affecte le runtime de production. La décision est datée et
-   révisable, pas oubliée.
+3. **Audit de vulnérabilités à chaque montée** : `bun audit`. Premier inventaire le
+   2026-07-07 : 16 vulnérabilités transitives, tracées (issue #24) et différées par
+   choix argumenté. Ré-audit du 2026-08-13 pour ce dossier : **40 vulnérabilités**
+   (1 critique, 24 hautes, 12 modérées, 3 faibles) — chaque chemin de dépendance
+   re-vérifié : toutes restent confinées à l'outillage de build et de dev (Vite,
+   devtools, ESLint/commitlint, jsdom, workbox-build), **aucune n'atteint le runtime
+   de production**. L'issue #24 est commentée à chaque re-mesure : la décision de
+   différer est datée et révisable, pas oubliée.
 4. **Pas de nouvelle dépendance sans justification** : la fonctionnalité offline (file
    d'incidents) a été livrée avec zéro dépendance ajoutée (IndexedDB natif plutôt qu'une
    librairie de file d'attente).
@@ -186,7 +190,10 @@ Le traitement de #26, étape par étape :
    (`**/*.integration.test.ts`) sont exclus de la CI — ils exigent la base réelle,
    partagée avec la production, qui n'a pas sa place en CI (même politique que la suite
    e2e). Ils restent exécutés en local à chaque session.
-3. **Vérification** : run CI vert constaté avant fermeture.
+3. **Vérification et livraison par le déploiement continu** : le correctif est un
+   commit `fix:` poussé sur `main`, qui suit la chaîne standard du projet — CI GitHub
+   Actions verte, puis déploiement Vercel automatique déclenché par le push, sans canal
+   de livraison parallèle. Le run CI vert est constaté avant fermeture.
 4. **Mesure anti-récidive** : un badge de statut CI est ajouté au README — la leçon de
    l'incident n'est pas « la CI a cassé » mais « **un rouge doit se voir** ». Depuis
    l'issue #34 (déploiements Vercel en échec, CI GitHub verte), la vérification du

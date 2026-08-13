@@ -37,8 +37,9 @@ code encore déployé), puis déploiement du code qui l'exploite.
 
 - `bun.lock` committé = versions verrouillées ; montée de version = commit dédié qui
   passe CI + suites locales (e2e si le runtime est touché).
-- `bun audit` à chaque montée : les 16 vulnérabilités transitives **dev-only** connues
-  sont tracées (issue #24, différées par choix — aucune n'affecte le runtime de prod).
+- `bun audit` à chaque montée : les vulnérabilités transitives **dev-only** connues
+  sont tracées (issue #24, différées par choix — aucune n'affecte le runtime de prod ;
+  16 au 2026-07-07, 40 au ré-audit du 2026-08-13, chemins re-vérifiés).
 - Après toute montée touchant Vite/Nitro/vite-plugin-pwa : vérifier que le build produit
   toujours `sw.js` copié dans la sortie statique — `.vercel/output/static/` sur Vercel,
   `.output/public/` en local (piège documenté dans CLAUDE.md et `18-architecture.md` ;
