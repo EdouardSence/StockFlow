@@ -27,7 +27,8 @@ documenté est une dette : d'où la demande de confirmation officielle.
 
 - Canal : GitHub Discussions `supabase/supabase`, catégorie **Questions** — le canal de
   support officiel du plan gratuit (le formulaire dashboard route les plans payants).
-- Ticket : <https://github.com/orgs/supabase/discussions/47946>, ouvert le 2026-07-15.
+- Ticket : <https://github.com/orgs/supabase/discussions/47946>, ouvert le 2026-07-14
+  à 23:56 UTC.
 - Contenu : contexte (RLS + JWT maison, rôle applicatif dédié, pattern
   `BEGIN; set_config(..., true); …; COMMIT;`, policies fail-closed) et les trois
   questions ci-dessus, plus la question du mode session (port 5432) comme alternative
@@ -35,8 +36,8 @@ documenté est une dette : d'où la demande de confirmation officielle.
 
 ## Échange et résolution
 
-Réponse reçue le **2026-07-15 à 11:23 UTC** (utilisateur `DGO0`), soit moins de 12 h
-après l'ouverture. Synthèse point par point :
+Réponse reçue le **2026-07-15 à 11:23 UTC** (utilisateur `Baek-Seunghyun`), soit moins
+de 12 h après l'ouverture. Synthèse point par point :
 
 1. **Possession de la connexion pendant la transaction : confirmée.** En mode
    transaction, la *transaction* est l'unité de multiplexage : la connexion serveur est

@@ -42,5 +42,27 @@ Source de vérité : `package.json` (contraintes) + `bun.lock` (versions résolu
   tracées (issue #24, différée par choix : aucune n'affecte le runtime de production —
   16 au premier inventaire du 2026-07-07, 40 au ré-audit du 2026-08-13, chemins
   re-vérifiés à chaque mesure).
+
+  Sortie brute de la dernière mesure (extrait, `bun audit` du 2026-08-19, identique au
+  ré-audit du 2026-08-13 — paquets touchés et ligne de synthèse) :
+
+  ```
+  js-yaml  >=4.0.0 <=4.1.1
+  brace-expansion  >=5.0.0 <5.0.6
+  nanoid  <3.3.16
+  postcss  <=8.5.22
+  undici  >=7.0.0 <7.29.0
+  @babel/core  <=7.29.0
+  shell-quote  >=1.1.0 <=1.8.3
+  fast-uri  >=3.0.0 <3.1.3
+  vite  >=8.0.0 <=8.0.15
+  ws  >=8.0.0 <8.20.1
+  launch-editor  <=2.14.0
+
+  40 vulnerabilities (1 critical, 24 high, 12 moderate, 3 low)
+  ```
+
+  Aucun de ces paquets n'est une dépendance de production directe ou transitive du
+  runtime (chaînes détaillées dans le commentaire de re-mesure de l'issue #24).
 - **Pas de nouvelle dépendance sans justification** : la PWA offline a été livrée avec
   zéro ajout (IndexedDB natif plutôt qu'une librairie de file).

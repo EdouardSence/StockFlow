@@ -9,12 +9,12 @@ lang: fr
 # Sommaire
 
 1. **Introduction** — le projet, le périmètre de ce dossier
-2. **Processus de mise à jour des dépendances**
+2. **Processus de mise à jour des dépendances** (C4.1.1)
 3. **Système de supervision et de signalement** (C4.1.2)
 4. **Collecte et consignation des anomalies** (C4.2.1)
 5. **Fiche de consignation d'une anomalie réelle**
-6. **Traitement d'une anomalie détectée**
-7. **Recommandations d'amélioration**
+6. **Traitement d'une anomalie détectée** (C4.2.2)
+7. **Recommandations d'amélioration** (C4.3.1)
 8. **Journal des versions** (C4.3.2)
 9. **Problème résolu avec le support client**
 10. **Conclusion**
@@ -37,7 +37,7 @@ La discipline est la même que dans le dossier Bloc 2 : tout ce qui est présent
 **réel et vérifiable** (configurations lues sur les instances, incidents datés avec
 leurs commits, tickets avec leurs URL). Ce qui n'est pas fait est écrit comme tel.
 
-# 1. Processus de mise à jour des dépendances
+# 1. Processus de mise à jour des dépendances (C4.1.1)
 
 Le référentiel des composants tiers et sa politique de suivi sont tenus dans le dépôt
 (`docs/certification/07-referentiel-composants.md`). Le processus opérationnel :
@@ -88,11 +88,18 @@ l'instance Sentry réelle le 2026-07-15, par l'API, pas une description d'intent
 Les erreurs runtime côté client (exceptions non attrapées, erreurs d'hydratation React)
 sont capturées par `@sentry/react` (SaaS, région UE), initialisé côté client uniquement
 avec `sendDefaultPii: false` (minimisation RGPD, correctif issu de la revue de sécurité
-du Bloc 2). Indicateurs suivis : nouvelles erreurs (groupées par empreinte), fréquence
-et escalade d'une erreur existante, utilisateurs touchés, régressions. Ce périmètre est
-proportionné à un MVP mono-développeur : le client est là où vivent les parcours
-critiques (scan, saisie offline) et où les erreurs sont invisibles autrement ; les logs
-de fonctions Vercel couvrent le reste.
+du Bloc 2). Ce périmètre est proportionné à un MVP mono-développeur : le client est là
+où vivent les parcours critiques (scan, saisie offline) et où les erreurs sont
+invisibles autrement ; les logs de fonctions Vercel couvrent le reste.
+
+Les indicateurs de suivi retenus, l'objectif de chacun et l'état constaté :
+
+| Indicateur | Objectif | État constaté (vérifié) |
+|---|---|---|
+| Nouvelles erreurs runtime client (groupées par empreinte) | Signalement immédiat de tout défaut inédit | Actif — alerte email 16 s après la première occurrence de `STOCKFLOW-PWA-2` |
+| Escalade d'une erreur existante | Détecter un pic de fréquence sans seuil arbitraire | Actif — règle `541468`, détection d'escalade adaptative Sentry |
+| Utilisateurs touchés, régressions | Mesurer l'impact ; détecter le retour d'une erreur résolue | Actif — `STOCKFLOW-PWA-2` : 38 occurrences, 0 après correctif, issue résolue |
+| Disponibilité de la production | Réponse HTTP 200 vérifiée toutes les 15 minutes | Actif — sonde `uptime.yml` + badge README (en place depuis le 2026-07-15) |
 
 ## Modalité de signalement configurée
 
@@ -157,6 +164,23 @@ sur téléphone réel, 2026-07-13) a révélé ce que 36 tests e2e verts ne voya
 le parcours mobile cassé au-delà de l'accueil (7 anomalies, issues #27-#33, corrigées
 le jour même). Trente-deux issues qualifiées au total à ce jour.
 
+## Registre des anomalies (extrait)
+
+Huit anomalies représentatives des trente-deux, couvrant toutes les sources de
+détection et catégories du triage — le registre complet est le jeu d'issues GitHub du
+dépôt et son Kanban qualité :
+
+| Réf | Anomalie | Catégorie — sévérité | Cause racine | Corrigée dans |
+|---|---|---|---|---|
+| #3 | Dette lint initiale (13 erreurs Biome, dont 10 a11y) | Dette — basse | Rétrofit qualité sur le code des premières sessions | v0.2.0 |
+| #14 | Server functions equipment sans validation runtime | Sécurité — haute | Cast TypeScript au lieu d'un schéma Zod (contrairement à `loginFn`) | v0.4.0 |
+| #15 | Rate limiter inopérant contre brute-force distribué | Sécurité — moyenne | Clé de limitation IP:email seule, contournable en multi-IP | v0.4.0 |
+| #23 | Crash en quittant `/scan` après un échec caméra | Fonctionnel — moyenne | `scanner.stop()` jette en synchrone au démontage si la caméra n'a jamais démarré | v0.4.0 |
+| #25 | Focus clavier invisible sur tous les champs texte | Accessibilité — haute | `outline: none` inline écrase le `:focus-visible` global (spécificité CSS) | v0.4.0 |
+| #26 | CI rouge 9 jours sans détection | Outillage — haute | Client DB jette à l'import ; `.env.local` chargé en local seulement (angle mort local/CI) | v0.4.0 — fiche § 4 |
+| #32 | Erreur d'hydratation React sur `/account` | Fonctionnel — moyenne | HTML serveur ≠ client : état initial dépendant du navigateur | post-v0.4.0 (déploiement continu) |
+| #34 | Déploiements Vercel tous en échec, production figée | Build — critique | Cible de copie `sw.js` codée en dur, inexistante avec le preset Nitro Vercel | post-v0.4.0 (déploiement continu) |
+
 # 4. Fiche de consignation d'une anomalie réelle
 
 Anomalie retenue : **#26**, la plus démonstrative parce qu'elle traverse tout le
@@ -176,7 +200,7 @@ anti-récidive) et qu'elle porte sur l'outillage de maintenance lui-même.
 | **Sévérité** | Haute (perte de garde-fou), sans impact production direct |
 | **Statut** | Corrigée et fermée le 2026-07-12, avec mesure anti-récidive |
 
-# 5. Traitement d'une anomalie détectée
+# 5. Traitement d'une anomalie détectée (C4.2.2)
 
 Le traitement de #26, étape par étape :
 
@@ -202,7 +226,7 @@ Le traitement de #26, étape par étape :
 5. **Clôture commentée** : l'issue est fermée avec le résumé du correctif vérifié,
    alimentant le plan de correction des bogues (pièce 14).
 
-# 6. Recommandations d'amélioration
+# 6. Recommandations d'amélioration (C4.3.1)
 
 Recentrées maintenance et supervision, par ordre de valeur, avec pour chacune un ordre
 de grandeur du coût de mise en œuvre (le coût monétaire est nul dans tous les cas —
@@ -275,7 +299,7 @@ officiellement : l'isolation des GUC `SET LOCAL` entre clients partageant le poo
 la remise à zéro de la connexion entre deux attributions. Pour un mécanisme de
 sécurité, s'appuyer sur un comportement observé plutôt que documenté est une dette.
 
-**Échange** : question posée le 2026-07-15 sur le canal de support du plan gratuit
+**Échange** : question posée le 2026-07-14 sur le canal de support du plan gratuit
 (GitHub Discussions `supabase/supabase`, catégorie Questions) :
 <https://github.com/orgs/supabase/discussions/47946> — contexte complet, pattern
 `BEGIN; set_config(..., true); …; COMMIT;`, policies fail-closed, et la question de
@@ -317,11 +341,11 @@ d'une maintenance qui apprend, plutôt qu'une maintenance qui répare.
 
 | Pièce exigée (Bloc 4) | Ce dossier | Source dans le dépôt |
 |---|---|---|
-| Processus de mise à jour des dépendances | § 1 | `07-referentiel-composants.md`, `16-manuel-mise-a-jour.md` |
+| Processus de mise à jour des dépendances (C4.1.1) | § 1 | `07-referentiel-composants.md`, `16-manuel-mise-a-jour.md` |
 | Système de supervision (C4.1.2) | § 2 | `22-supervision-alerte.md`, `09-securisation.md` |
 | Collecte/consignation des anomalies (C4.2.1) | § 3 | `14-plan-correction-bogues.md` |
 | Fiche de consignation d'une anomalie | § 4 | Issue GitHub #26 |
-| Traitement d'une anomalie détectée | § 5 | Issue #26, rapport Bloc 2 § 1.2 |
-| Recommandations d'amélioration | § 6 | Rapport Bloc 2 (conclusion), pièce 22 |
+| Traitement d'une anomalie détectée (C4.2.2) | § 5 | Issue #26, rapport Bloc 2 § 1.2 |
+| Recommandations d'amélioration (C4.3.1) | § 6 | Rapport Bloc 2 (conclusion), pièce 22 |
 | Journal des versions (C4.3.2) | § 7 | `08-historique-versions.md`, `20-derniere-version-stable.md` |
 | Problème résolu avec le support client | § 8 | `23-support-client.md` |
