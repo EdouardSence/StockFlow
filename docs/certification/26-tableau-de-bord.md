@@ -40,6 +40,11 @@ revérifiés par exécution le 31/08 :
 | Couverture globale | **44,77 %** | `vitest run --coverage` |
 | Couverture `auth-core.ts` | 92,15 % | idem |
 
+Ces quatre valeurs ont été **rejouées le 09/09/2026** sur une installation propre
+(`bun install` depuis le lock régénéré) : 84 tests passés sur 8 fichiers, couverture globale
+44,77 %, `auth-core.ts` à 92,15 %. Identiques au relevé du 31/08 — les chiffres du support
+sont reproductibles par un tiers qui clone le dépôt.
+
 > **Point à traiter avant l'oral.** Les deux fichiers du domaine Effect
 > (`equipment-domain.ts`, `incidents-domain.ts`) **n'apparaissent pas** dans le rapport de
 > couverture, ni avec le provider v8 ni avec istanbul — alors que leurs 14 tests passent. La

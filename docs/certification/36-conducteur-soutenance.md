@@ -202,8 +202,10 @@ aujourd'hui (voir la note en fin de conducteur).
   délibérément, avec sa conséquence.
 - Sept des dix sont **acceptés**. **La différence entre un risque accepté et un risque oublié se
   voit exactement à l'existence de ce tableau.**
-- Trois restent ouverts, dont un trouvé le 31 août en réexécutant les mesures avant de
-  construire ce support.
+- **Deux** restent ouverts. Un troisième — les dépendances non figées — a été **clos le
+  9 septembre** : versions exactes dans `package.json`, lock régénéré, chaîne CI rejouée. Et
+  l'un des deux restants a été trouvé le 31 août en réexécutant les mesures avant de construire
+  ce support, pas signalé de l'extérieur.
 
 **Si on ouvre le suivi du dépôt** — cinq issues ouvertes, et c'est voulu : deux sont au tableau
 (#7, #24), les trois autres sont des limites de conception de l'authentification, arbitrées et

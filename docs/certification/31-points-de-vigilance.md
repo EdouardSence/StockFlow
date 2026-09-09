@@ -17,7 +17,7 @@ soient dites par le porteur du projet avant d'être trouvées par quelqu'un d'au
 | **V2** | Claims JWT auto-déclarés : la RLS protège de l'oubli de contexte et de l'accès anonyme, **pas** d'une connexion applicative compromise | Sécurité | Moyenne | Accepté, documenté | Fausse assurance si la protection est surclamée. La limite est écrite noir sur blanc plutôt que maquillée |
 | **V3** | Rate limiting du login **en mémoire**, donc par instance serverless | Sécurité | Faible | Accepté | Le plafond réel de tentatives est multiplié par le nombre d'instances actives |
 | **V4** | Couverture de tests globale à 44,8 % — élevée sur le noyau critique, faible ailleurs | Qualité | Moyenne | Accepté, assumé | Une régression sur les couches non couvertes passe la CI. Choix délibéré : couvrir le domaine et l'authentification plutôt que d'atteindre un pourcentage |
-| **V5** | Dépendances déclarées en `latest`, dont `nitro-nightly` | Reproductibilité | **Moyenne** | **Ouvert** | Le `bun.lock` verrouille les versions aujourd'hui ; une installation sans lock, ou un `bun update`, peut casser le build sans qu'aucune ligne de code n'ait changé |
+| **V5** | Dépendances déclarées en `latest`, dont `nitro-nightly` | Reproductibilité | Moyenne | **Clos le 09/09** | Sept versions figées à l'exact dans `package.json`, `bun.lock` régénéré, chaîne CI rejouée (lint, typecheck, 84 tests, build). Avant : une installation sans lock, ou un `bun update`, pouvait casser le build sans qu'aucune ligne de code n'ait changé |
 | **V6** | Vulnérabilités transitives sur les dépendances de développement (#24) | Sécurité | Faible | Différé par choix | Périmètre de développement uniquement, pas d'exposition en production |
 | **V7** | Mise en pause du projet Supabase après une semaine d'inactivité (palier gratuit) | Exploitation | Moyenne | Accepté | Indisponibilité au premier accès. **S'est déjà produit** — le projet était `INACTIVE` au début d'une session |
 | **V8** | Ressource humaine unique, sans redondance ni transfert de compétence | Organisation | **Élevée** | Accepté, non traité | Une indisponibilité de deux semaines en juillet faisait manquer le jalon du Bloc 2. Aucune mitigation n'existait |
@@ -38,12 +38,14 @@ consigner ici est ce qui fait que le registre et le suivi public disent la même
 | **V12** (#5) | Pas de déconnexion globale multi-appareils | Faible | Un appareil oublié reste connecté tant que vit son jeton de renouvellement. Mitigé par la rotation systématique et la révocation de toute la famille de jetons en cas de rejeu détecté |
 | **V13** (#6) | `auth_login_lookup` (SECURITY DEFINER) expose `password_hash` à la connexion applicative | Faible | Appelable sans claims posés. Dominé par V2 : qui détient la connexion applicative dispose de chemins plus directs. Le grant par colonnes reste la barrière contre l'accès accidentel |
 
-## Les trois points encore à traiter — V5, V9, V10
+## Les deux points encore à traiter — V9, V10
 
-**V5 — les dépendances non figées.** C'est le point le moins visible et le plus facile à
-corriger : figer les versions exactes dans `package.json` plutôt que de s'en remettre au seul
-fichier de verrouillage. Le risque n'est pas théorique sur un projet qui embarque une
-dépendance *nightly*.
+**V5 est clos.** Les sept dépendances déclarées en `latest` — cinq paquets TanStack, le plugin
+de devtools et l'alias `nitro-nightly` — portent désormais leur version exacte dans
+`package.json`. Le lock a été régénéré sur ces mêmes versions résolues, et la chaîne
+d'intégration rejouée en entier pour vérifier que le figeage ne changeait rien : lint,
+typecheck, 84 tests hors intégration, build. Le point le moins visible du registre était aussi
+le plus facile à corriger — cinq minutes, et le projet n'embarque plus une *nightly* flottante.
 
 **V9 — le relevé de temps.** C'est la vraie lacune de pilotage de ce projet, et elle est
 exposée comme telle au tableau de bord plutôt que dissimulée.
