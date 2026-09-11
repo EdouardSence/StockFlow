@@ -22,7 +22,7 @@ soient dites par le porteur du projet avant d'être trouvées par quelqu'un d'au
 | **V7** | Mise en pause du projet Supabase après une semaine d'inactivité (palier gratuit) | Exploitation | Moyenne | Accepté | Indisponibilité au premier accès. **S'est déjà produit** — le projet était `INACTIVE` au début d'une session |
 | **V8** | Ressource humaine unique, sans redondance ni transfert de compétence | Organisation | **Élevée** | Accepté, non traité | Une indisponibilité de deux semaines en juillet faisait manquer le jalon du Bloc 2. Aucune mitigation n'existait |
 | **V9** | Aucun relevé de temps tenu sur la durée du projet | Pilotage | Moyenne | **Ouvert** | Impossible de mesurer la productivité réelle, de calibrer les estimations suivantes ou de facturer au réel |
-| **V10** | Couverture des domaines Effect non reproductible par la commande standard | Qualité / cohérence | Moyenne | **Ouvert** | Le dossier Bloc 2 annonce 100 % sur ces domaines ; le rapport de couverture ne les affiche pas. À corriger ou reformuler avant le 15/09 |
+| **V10** | Couverture des domaines Effect non reproductible par la commande standard | Qualité / cohérence | Moyenne | **Clos le 11/09** | Les deux domaines étaient mesurés à 100 %, mais masqués par le reporter texte (fichiers intégralement couverts). `skipFull: false` dans `vitest.config.ts` : ils s'affichent, l'annonce du Bloc 2 est démontrable |
 
 ## Les trois limites de sécurité ouvertes dans le suivi
 
@@ -38,7 +38,7 @@ consigner ici est ce qui fait que le registre et le suivi public disent la même
 | **V12** (#5) | Pas de déconnexion globale multi-appareils | Faible | Un appareil oublié reste connecté tant que vit son jeton de renouvellement. Mitigé par la rotation systématique et la révocation de toute la famille de jetons en cas de rejeu détecté |
 | **V13** (#6) | `auth_login_lookup` (SECURITY DEFINER) expose `password_hash` à la connexion applicative | Faible | Appelable sans claims posés. Dominé par V2 : qui détient la connexion applicative dispose de chemins plus directs. Le grant par colonnes reste la barrière contre l'accès accidentel |
 
-## Les deux points encore à traiter — V9, V10
+## Le point encore ouvert — V9 — et les deux clos en septembre
 
 **V5 est clos.** Les sept dépendances déclarées en `latest` — cinq paquets TanStack, le plugin
 de devtools et l'alias `nitro-nightly` — portent désormais leur version exacte dans
@@ -50,10 +50,14 @@ le plus facile à corriger — cinq minutes, et le projet n'embarque plus une *n
 **V9 — le relevé de temps.** C'est la vraie lacune de pilotage de ce projet, et elle est
 exposée comme telle au tableau de bord plutôt que dissimulée.
 
-**V10 — l'écart de couverture.** Découvert le 31 août en réexécutant la mesure avant de
-construire le support, c'est-à-dire par la pratique même que ce dossier revendique : vérifier
-plutôt que croire un résumé. Le trouver soi-même trois semaines avant l'oral vaut mieux que le
-voir surgir en question.
+**V10 est clos, et c'est le plus instructif des trois.** Découvert le 31 août en réexécutant
+la mesure avant de construire le support — par la pratique même que ce dossier revendique :
+vérifier plutôt que croire un résumé. La cause, trouvée le 11 septembre, n'était pas un défaut
+de couverture mais **un défaut d'affichage** : les deux domaines étaient mesurés à 100 %,
+présents dans le rapport JSON et HTML, et le reporter texte masque par défaut les fichiers
+intégralement couverts. L'hypothèse de départ — « la mesure ne les voit pas » — était fausse ;
+seul le rapport consulté les cachait. Une ligne de configuration les rend visibles au terminal.
+L'affirmation du Bloc 2 tenait ; il manquait de pouvoir la montrer.
 
 ## Ce que ce registre dit de la méthode
 

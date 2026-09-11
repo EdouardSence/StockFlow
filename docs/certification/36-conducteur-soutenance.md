@@ -168,8 +168,10 @@ ressources 1, coût direct 0 €.
   pourcentage.
 - Ces chiffres ont été **réexécutés le 31 août**, pas recopiés d'un dossier antérieur.
 
-**Piège** : ne pas annoncer 100 % sur les domaines Effect — la mesure ne le montre pas
-aujourd'hui (voir la note en fin de conducteur).
+**Si la question vient sur les domaines Effect** : 100 %, et c'est montrable —
+`bunx vitest run --coverage` affiche `equipment-domain.ts` et `incidents-domain.ts` à 100 sur
+les quatre colonnes. Le dire sans en faire un argument : le choix est de couvrir le noyau, pas
+d'afficher un pourcentage.
 
 ---
 
@@ -196,16 +198,20 @@ aujourd'hui (voir la note en fin de conducteur).
 ### Slide 10 ⤓ — Points de vigilance · 0:40 · cumul 11:25
 
 **Écran** : le registre des dix points, avec les trois « ouverts » signalés.
+⚠︎ *Le support a été généré le 6/09 : V5 et V10 y sont encore marqués `OUVERT`. **Avant le
+dépôt du 15, passer ces deux cellules à « Clos » dans PowerPoint** — sinon l'écran dit trois
+ouverts pendant que la phrase en dit un.*
 
 **À dire**
 - Un point de vigilance n'est pas un bug : c'est une limite connue, laissée en l'état
   délibérément, avec sa conséquence.
 - Sept des dix sont **acceptés**. **La différence entre un risque accepté et un risque oublié se
   voit exactement à l'existence de ce tableau.**
-- **Deux** restent ouverts. Un troisième — les dépendances non figées — a été **clos le
-  9 septembre** : versions exactes dans `package.json`, lock régénéré, chaîne CI rejouée. Et
-  l'un des deux restants a été trouvé le 31 août en réexécutant les mesures avant de construire
-  ce support, pas signalé de l'extérieur.
+- **Un seul** reste ouvert, le relevé de temps. Deux ont été clos en septembre : les
+  dépendances non figées (9/09), et l'écart de couverture trouvé le 31 août en réexécutant les
+  mesures — qui s'est révélé un défaut d'**affichage**, pas de mesure : les domaines étaient
+  couverts à 100 %, le rapport texte les masquait. « Je l'ai trouvé moi-même, j'ai cherché la
+  cause au lieu de reformuler. »
 
 **Si on ouvre le suivi du dépôt** — cinq issues ouvertes, et c'est voulu : deux sont au tableau
 (#7, #24), les trois autres sont des limites de conception de l'authentification, arbitrées et
@@ -499,7 +505,8 @@ point » assumé vaut mieux qu'une réponse inventée.
 - Jamais une fausse équipe, ni un client rencontré qui ne l'a pas été.
 - Jamais `equipment.type` avec `laptop` ou `phone` → quatre valeurs : `pc`, `screen`,
   `printer`, `other`.
-- Jamais « 100 % de couverture sur les domaines Effect » tant que la mesure ne l'affiche pas.
+- « 100 % sur les domaines Effect » : **exact et montrable depuis le 11/09** — mais jamais en
+  argument de tête. La couverture qui se défend, c'est 44,8 % global, noyau critique couvert.
 - Ne pas ressortir les chiffres non sourcés du cadrage (~5 j/an de saisie, 70 % de
   sous-utilisation). Le Bloc 3 n'en a pas besoin. Si on les demande : **hypothèses de
   dimensionnement, pas des mesures.**

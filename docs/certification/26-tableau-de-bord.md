@@ -45,13 +45,15 @@ Ces quatre valeurs ont été **rejouées le 09/09/2026** sur une installation pr
 44,77 %, `auth-core.ts` à 92,15 %. Identiques au relevé du 31/08 — les chiffres du support
 sont reproductibles par un tiers qui clone le dépôt.
 
-> **Point à traiter avant l'oral.** Les deux fichiers du domaine Effect
-> (`equipment-domain.ts`, `incidents-domain.ts`) **n'apparaissent pas** dans le rapport de
-> couverture, ni avec le provider v8 ni avec istanbul — alors que leurs 14 tests passent. La
-> couverture de 100 % annoncée sur ces domaines dans le dossier Bloc 2 n'est donc pas
-> reproductible par la commande standard. Ce n'est pas une affirmation fausse — les tests
-> couvrent bien le domaine — mais elle n'est pas démontrable à l'écran si le jury demande à
-> voir. À corriger dans la configuration de couverture, ou à reformuler avant le 15/09.
+> **Écart de couverture levé le 11/09.** Les deux fichiers du domaine Effect
+> (`equipment-domain.ts`, `incidents-domain.ts`) n'apparaissaient pas dans le tableau de
+> couverture affiché au terminal, alors que leurs 14 tests passaient. Relevé le 31/08, cause
+> trouvée le 11/09 : **ils étaient mesurés, à 100 %** — présents dans `coverage-final.json` et
+> dans le rapport HTML — mais le reporter texte masque par défaut les fichiers intégralement
+> couverts. Une ligne de configuration (`skipFull: false`, `vitest.config.ts`) les rend visibles :
+> 100 % en instructions, branches, fonctions et lignes sur les deux domaines, couverture globale
+> inchangée à 44,77 %. L'affirmation du dossier Bloc 2 était donc exacte ; elle est désormais
+> démontrable à l'écran par la commande standard.
 
 ## 3. Délais
 
