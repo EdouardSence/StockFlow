@@ -36,7 +36,7 @@ serveur ». Le vocabulaire technique revient après, si le jury le demande — e
 
 **C'est le point le plus exposé du dispositif**, et il tient à une dette connue : la base de
 test est partagée avec la production (risque R3 du tableau de bord). Un reliquat de test
-préfixé `E2E_` visible à l'écran devant le jury, c'est un incident de démonstration *et* une
+préfixé `e2e-ephemeral-` visible à l'écran devant le jury, c'est un incident de démonstration *et* une
 question désagréable sur la séparation des environnements.
 
 À préparer :
@@ -60,6 +60,8 @@ question désagréable sur la séparation des environnements.
 | **Réseau de la salle** | Moyenne | Partage de connexion depuis le téléphone, testé sur place. Application lancée en local sur un second onglet, prête. |
 | **Affichage du mobile au jury** | ~~Élevée~~ **couvert** | Recopie d'écran téléphone → portable **testée** (confirmé le 31/08). À rejouer une fois en répétition J−1. |
 | **Parcours mobile régressé** | Faible | C'est le parcours qui était cassé en juillet et corrigé depuis (#28-#32). À rejouer **sur l'appareil réel** dans les 48 h avant l'oral, pas sur émulateur — c'est précisément l'erreur qui l'avait laissé passer. |
+| **Rechargement hors ligne** | Moyenne | Aucun précache (`globPatterns: []`, `navigateFallback: null`) : une page rechargée, ou une route jamais visitée, ne s'affiche pas hors ligne. Ouvrir la fiche **en ligne**, couper le réseau, **ne jamais recharger**. |
+| **Caméra sur le repli local** | Moyenne | Une URL `http` locale n'est pas un contexte sécurisé : le téléphone n'y a pas accès à la caméra. Sur le repli, passer par la **saisie manuelle** du code (`scan.tsx`). |
 | **Panne de production** | Faible | Voir §5. |
 
 ## 4. Checklists
@@ -71,6 +73,7 @@ question désagréable sur la séparation des environnements.
 - [ ] Imprimer l'étiquette QR de l'équipement de démonstration
 - [ ] Vérifier les deux comptes (connexion réelle, pas seulement leur existence)
 - [ ] Rejouer le scénario complet de bout en bout, chronomètre en main, sur téléphone réel
+- [ ] Rejouer la suite e2e une fois (`bun run test:e2e`, base partagée : sous supervision) — dernier run : 13/07
 - [x] ~~Tester la recopie d'écran téléphone → portable~~ — testé, à rejouer une fois
 - [ ] Enregistrer la capture vidéo de secours, la stocker **en local**
 - [ ] Imprimer la fiche papier : identifiants, URL, ordre des séquences
@@ -89,7 +92,8 @@ question désagréable sur la séparation des environnements.
 
 **Si la production tombe** : basculer sur l'instance locale, déjà lancée sur le second onglet.
 Le dire simplement — « la production ne répond pas, je continue sur l'environnement local,
-c'est le même code au même commit » — et enchaîner. Un incident géré calmement devant un jury
+c'est le même code au même commit » — et enchaîner. Ce repli couvre une panne Vercel, **pas une panne ni une
+pause Supabase** : la base est la même. Un incident géré calmement devant un jury
 de professionnels n'est pas une faute.
 
 **Si les deux tombent** : la capture vidéo. Elle ne satisfait pas le critère à elle seule — la

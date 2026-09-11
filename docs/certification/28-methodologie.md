@@ -38,8 +38,8 @@ laissé à moitié.
 
 **Un lot = borné et finissable en une session.** C'est la règle qui rend le flux tiré
 opérationnel : « Lot Auth », « Lot RLS », « Lot PWA offline ». La session commence par la
-lecture du journal, se termine par sa mise à jour et un commit. Dix lots ont été livrés selon
-cette règle, tous tracés dans `PROGRESS.md`.
+lecture du journal, se termine par sa mise à jour et un commit. Quatorze lots sont tracés
+selon cette règle dans `PROGRESS.md`.
 
 ## 3. Définition of done
 
@@ -51,8 +51,9 @@ quand une partie de l'exécution est déléguée. Un lot est fermé quand :
 3. l'issue GitHub associée est fermée avec un résumé du correctif vérifié ;
 4. la documentation touchée est à jour dans le même commit.
 
-Les hooks locaux (Husky) et la CI GitHub Actions rendent les points 1 mécaniques et bloquants.
-Les points 2 à 4 relèvent de la discipline et sont, eux, faillibles — c'est précisément ce
+Le point 1 n'est qu'en partie mécanique : le hook local (Husky) bloque le commit si lint ou
+typecheck échoue ; la CI rejoue les quatre à chaque push mais **signale sans bloquer** — `main`
+n'est pas protégée. Le reste relève de la discipline, et c'est faillible — c'est précisément ce
 qu'a montré l'incident CI de neuf jours (pièce 30).
 
 ## 4. Alternatives écartées

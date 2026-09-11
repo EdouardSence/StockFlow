@@ -19,7 +19,7 @@ cette pièce.
 
 ## 2. Points de validation planifiés
 
-Cinq points, tous fixés à l'avance, tous tenus.
+Cinq points fixés à l'avance : quatre tenus, le cinquième est la soutenance.
 
 | Point | Date | Objet soumis à validation | Retour obtenu |
 |---|---|---|---|
@@ -29,8 +29,10 @@ Cinq points, tous fixés à l'avance, tous tenus.
 | PV4 — Bilan d'activité | 31 août | Rapport d'activité | Pas de retour reçu à ce jour |
 | PV5 — Recette fonctionnelle | 18 septembre | Démonstration du logiciel, validation avant livraison | À venir |
 
-L'espacement suit les phases du projet, pas un calendrier arbitraire : chaque point valide un
-état livrable, et aucun développement ne se poursuit sur un périmètre non validé.
+L'espacement suit les phases du projet, pas un calendrier arbitraire : chaque point soumet un
+état livrable. Seul PV1 a produit un retour : après PV2, PV3 et PV4, le développement s'est
+poursuivi sans validation explicite, sur le périmètre validé en PV1 — c'est une limite du
+dispositif, pas une validation tacite.
 
 ## 3. Le retour de PV1, et ce qui en a été fait
 
@@ -41,7 +43,7 @@ converti en actions, vérifié. Quatre remarques, quatre suites.
 |---|---|---|
 | **Le coût de possession manquait dans le ROI** — le coût de construction n'est pas le coût de détention | Économique | TCO chiffré et sourcé : 45 $/mois d'infrastructure au tarif public, ligne de maintenance identifiée comme restant à provisionner (pièce 29) |
 | **Structurer la restitution par nature** — économique, management, technique séparés, le technique en appui | Forme | Le support du Bloc 3 est construit ainsi ; la technique n'y intervient qu'en preuve d'une affirmation de gestion |
-| **Incohérence transversale relevée** — le RBAC annoncé à 3 rôles, décrit à 2 ailleurs | Rigueur | Un audit de cohérence transversal est désormais exécuté avant chaque dépôt. Il a produit des corrections réelles : couverture remesurée à 44,8 %, nombre de tests RLS corrigé de 13 à 15. **Le RBAC est aujourd'hui à 2 rôles partout** — `admin` et `technicien` ; le troisième rôle annoncé au cadrage a été abandonné, et c'est dit plutôt que masqué |
+| **Incohérence transversale relevée** — le RBAC annoncé à 3 rôles, décrit à 2 ailleurs | Rigueur | Un audit de cohérence transversal est désormais exécuté avant chaque dépôt. Il a produit des corrections réelles : couverture remesurée à 44,8 %, nombre de tests RLS corrigé de 13 à 15. **Le RBAC est aujourd'hui à 2 rôles partout** — `admin` et `technician` ; le troisième rôle annoncé au cadrage a été abandonné, et c'est dit plutôt que masqué |
 | **Sourcer plutôt qu'affirmer** — une priorisation doit venir du client, pas de la préférence du développeur | Méthode | C'est la remarque la plus exigeante, et la réponse honnête est celle du § 1 : les priorisations de ce projet sont des **décisions de porteur de projet appliquées à un profil-type**, pas des demandes recueillies. Elles sont défendables par le raisonnement, pas par une source client |
 
 **Ce que ce retour a changé au-delà des quatre points.** Il a installé la pratique qui structure
@@ -81,7 +83,7 @@ pilote client.
 | Temps d'inventaire annuel | −50 % | Comparaison avant/après sur un exercice | **Cible, non mesuré** |
 
 **Ce qui a été mesuré, en revanche**, relève de la conformité et non de la satisfaction :
-36 scénarios de recette exécutés sur 36 au vert, 99 tests unitaires et d'intégration verts,
+36 scénarios de recette exécutés sur 36 au vert au dernier passage (13/07), 99 tests unitaires et d'intégration verts,
 aucune anomalie fonctionnelle ouverte. Les cinq issues encore ouvertes dans le suivi ne sont
 pas des anomalies : ce sont des limites de conception arbitrées et documentées, consignées au
 registre de vigilance (pièce 31, V2, V6, V11 à V13). Ce sont des indicateurs de qualité

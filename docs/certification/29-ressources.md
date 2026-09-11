@@ -32,9 +32,13 @@ structurel accepté, pas traité.
 | Supabase | PostgreSQL managé, RLS, pooler `eu-west-1` | Free |
 | Sentry | Erreurs runtime, région UE | Developer |
 
-Toutes les briques de production sont hébergées **dans l'Union européenne** — l'assignation
-équipement→utilisateur est nominative, le RGPD s'applique, et la localisation était une
-exigence de cadrage, pas une commodité.
+Les **données** sont hébergées dans l'Union européenne : base Supabase en Irlande (`eu-west-1`),
+erreurs Sentry en Allemagne. L'assignation équipement→utilisateur est nominative, le RGPD
+s'applique, et la localisation était une exigence de cadrage. **Écart relevé le 11/09 (V14)** :
+les fonctions Vercel s'exécutent dans la région par défaut, `iad1` (Washington) — les données
+personnelles y transitent à chaque requête. La correction tient en une ligne (`regions` →
+`dub1`, Dublin, à côté de la base), mais suppose un redéploiement de la production : elle est
+différée pour ne pas toucher la production à une semaine de la démonstration.
 
 ## 3. Ressources financières
 
@@ -80,3 +84,5 @@ n'est donc pas un confort, c'est la condition d'une mise en service.
 Rapporté au gain récurrent estimé à ~4 500 €/an, l'infrastructure absorbe environ un dixième
 du bénéfice annuel. L'ordre de grandeur annoncé au Bloc 1 (30 €/mois) était juste — ce qui
 manquait, c'était la ligne de maintenance, et elle reste à provisionner.
+Effet sur le payback : ≈ 3,2 ans brut, **≈ 3,6 ans net** du coût d'infrastructure, maintenance
+non comptée.

@@ -41,10 +41,10 @@ directement le cas d'arbitrage qui la suit.
 **À dire**
 - StockFlow : gestion de parc informatique pour TPE/PME de 10 à 100 postes. « Entre l'Excel et
   le GLPI » : la simplicité du premier, la structure du second.
-- Le projet est **livré et déployé** : 116 commits, 10 lots, 3 versions taguées, **cinq jalons de
+- Le projet est **livré et déployé** : 116 commits, 14 lots, 3 versions taguées, **cinq jalons de
   certification tenus sur cinq** — le cinquième étant le dépôt de ce support, le 15 septembre.
-  *Précision si la question vient : 116 toutes branches confondues, 114 sur `main`. Le chiffre
-  est vérifiable dans les deux sens, autant le donner exact.*
+  *Précision si la question vient : relevé du 31 août — 116 toutes branches, 114 sur `main`.
+  Le compteur a avancé depuis : toujours dire « au 31 août ».*
 - **La phrase de cadrage, dite une fois** : « Ce projet est mené par une seule ressource
   humaine, assistée d'agents de développement à qui je délègue des missions bornées. L'équipe
   est donc d'une nature différente d'une équipe salariée, mais les objets du pilotage sont les
@@ -80,7 +80,8 @@ semaines ; l'historique git le démentirait en trente secondes.
 
 ### Slide 4 — Rétroplanning et phases · 1:45 · cumul 5:15
 
-**Écran** : le diagramme — cinq phases, six jalons, la bande d'activité en commits par jour.
+**Écran** : le diagramme — cinq phases, cinq jalons — et en bas le bandeau « 16 journées de
+production, dont 9 en deux semaines de juillet ».
 
 **À dire**
 - Le planning directeur, ce sont les cinq jalons. Tout le reste s'y ordonnance.
@@ -88,7 +89,7 @@ semaines ; l'historique git le démentirait en trente secondes.
   recouvrent**, et c'est assumé : la mesure est intégrée à la réalisation, pas placée en fin de
   chaîne. Sur un projet solo, un contrôle qualité en bout de chaîne produit une dette qu'il n'y
   a personne pour absorber.
-- **Prendre les devants sur la bande d'activité** : « Le cadrage annonçait un rythme régulier de
+- **Prendre les devants sur le bandeau du bas** : « Le cadrage annonçait un rythme régulier de
   six sprints. La réalité, ce sont seize journées de production dont neuf en deux semaines de
   juillet. Je suis alternant, mes fenêtres de disponibilité ne sont pas linéaires, et les jalons
   ont agi comme des forces de rappel. Les échéances ont toutes été tenues ; la régularité
@@ -103,7 +104,7 @@ question.
 
 ### Slide 5 — Affectation des missions et RACI · 1:15 · cumul 6:30
 
-**Écran** : la matrice RACI, 14 activités × 5 rôles.
+**Écran** : la matrice RACI, 12 activités × 5 rôles (la pièce 25 en détaille 14).
 
 **À dire**
 - Cinq rôles, trois portés par la même personne. Les distinguer n'est pas un artifice : ils ont
@@ -113,6 +114,8 @@ question.
   résultat vérifiable mécaniquement. Il n'est **jamais A** — la redevabilité ne se délègue pas à
   une ressource qui ne peut pas répondre devant un client.
 - Une exception sur du code : sécurité et modèle de menace, le R reste au développeur.
+- **Le client est un profil-type** : il est consulté (C) au cadrage et à la recette, jamais exécutant.
+  La recette réelle — sur téléphone physique, le 13 juillet — c'est le développeur qui l'a faite.
 - Handicap : rien à accommoder dans une équipe d'une personne. En revanche le **produit** est
   accessible — référentiel RGAA, audit outillé, trois violations corrigées. Et la communication
   du projet est intégralement écrite et asynchrone, ce qui est la condition qui rendrait un
@@ -131,6 +134,9 @@ question.
 - Matérielles : le téléphone réel n'est pas un confort — c'est son absence dans la recette qui
   a laissé passer un parcours mobile cassé.
 - Financières : 14 536 € HT au budget, dont 12 500 de développement.
+- **Si on demande la localisation** : données en UE (base en Irlande, erreurs en Allemagne), mais les
+  fonctions Vercel tournent dans la région par défaut, aux États-Unis — écart relevé le 11/09 (V14),
+  correction d'une ligne différée pour ne pas redéployer avant la démo.
 
 **Compression** : couper le détail matériel, garder le point de rupture et le total.
 
@@ -144,18 +150,23 @@ question.
 
 **À dire**
 - GitHub Projects (32 issues) pour la file de travail ; `PROGRESS.md`, 510 lignes, pour le
-  journal ; la CI GitHub Actions comme contrôle bloquant.
+  journal ; la CI GitHub Actions, rejouée à chaque push.
 - L'outil est cohérent avec la méthode : **un tableau Kanban est l'outil natif du flux tiré.**
 - Deux règles de tenue qui font la valeur du dispositif : une case n'est cochée que si la
-  vérification a été **exécutée** — build vert, test passant, requête jouée ; et les entrées
-  passées ne sont jamais réécrites, ce qui rend le journal utilisable comme preuve.
+  vérification a été **exécutée** — build vert, test passant, requête jouée ; et le journal est
+  **versionné** : toute modification, même d'une entrée passée, reste visible dans git — c'est ce
+  qui le rend utilisable comme preuve.
+- **Ne jamais dire que la CI bloque** : `main` n'est pas protégée, la CI signale. C'est exactement la
+  leçon de l'incident des neuf jours (slide 18).
+- *Le board GitHub Projects (`projects/3`) est privé : l'avoir ouvert dans un onglet si le jury
+  demande à le voir.*
 
 ---
 
 ### Slide 8 — Tableau de bord · 1:30 · cumul 9:45
 
-**Écran** : les six tuiles — délais 5/5, avancement 31 issues, tests 99, couverture 44,8 %,
-ressources 1, coût direct 0 €.
+**Écran** : les cinq tuiles — 5/5 jalons, 27/32 issues fermées (14 lots · 3 versions), 99 tests,
+36 e2e (36/36 au 13/07), 44,8 % de couverture.
 
 **À dire**
 - Les cinq dimensions exigées : avancement, délais, coûts, risques, ressources humaines.
@@ -166,7 +177,8 @@ ressources 1, coût direct 0 €.
 - **Assumer la couverture** : élevée sur le noyau critique — 92 % sur l'authentification —
   faible ailleurs. C'est un choix : couvrir le domaine et la sécurité plutôt que d'atteindre un
   pourcentage.
-- Ces chiffres ont été **réexécutés le 31 août**, pas recopiés d'un dossier antérieur.
+- Ces chiffres ont été **réexécutés le 31 août**, pas recopiés d'un dossier antérieur, puis
+  **revérifiés le 11 septembre**.
 
 **Si la question vient sur les domaines Effect** : 100 %, et c'est montrable —
 `bunx vitest run --coverage` affiche `equipment-domain.ts` et `incidents-domain.ts` à 100 sur
@@ -191,16 +203,14 @@ d'afficher un pourcentage.
   l'écriture vers la spécification et le contrôle, et que l'estimation initiale ne modélisait
   pas ce déplacement.
 
-**Piège** : ne jamais dire « payback < 4 mois ». C'est ≈ 3,2 ans, puis gain récurrent.
+**Piège** : ne jamais dire « payback < 4 mois ». Brut : ≈ 3,2 ans (14 536 € / 4 500 €). Net du coût
+d'infrastructure : ≈ 3,6 ans, maintenance non comptée. Donner les deux si la question vient.
 
 ---
 
 ### Slide 10 ⤓ — Points de vigilance · 0:40 · cumul 11:25
 
-**Écran** : le registre des dix points, avec les trois « ouverts » signalés.
-⚠︎ *Le support a été généré le 6/09 : V5 et V10 y sont encore marqués `OUVERT`. **Avant le
-dépôt du 15, passer ces deux cellules à « Clos » dans PowerPoint** — sinon l'écran dit trois
-ouverts pendant que la phrase en dit un.*
+**Écran** : le registre des dix points — V5 et V10 clos, V9 seul ouvert.
 
 **À dire**
 - Un point de vigilance n'est pas un bug : c'est une limite connue, laissée en l'état
@@ -208,10 +218,10 @@ ouverts pendant que la phrase en dit un.*
 - Sept des dix sont **acceptés**. **La différence entre un risque accepté et un risque oublié se
   voit exactement à l'existence de ce tableau.**
 - **Un seul** reste ouvert, le relevé de temps. Deux ont été clos en septembre : les
-  dépendances non figées (9/09), et l'écart de couverture trouvé le 31 août en réexécutant les
-  mesures — qui s'est révélé un défaut d'**affichage**, pas de mesure : les domaines étaient
-  couverts à 100 %, le rapport texte les masquait. « Je l'ai trouvé moi-même, j'ai cherché la
-  cause au lieu de reformuler. »
+  dépendances non figées (9/09), et l'écart de couverture relevé le 31 août — qui s'est révélé un
+  **artefact de mesure par agent** : Vitest masque les fichiers couverts à 100 % quand il tourne
+  sous un agent IA ; dans un terminal humain, les domaines ont toujours affiché 100 %. « C'est
+  exactement pour ça que je vérifie ce qu'un agent rapporte. »
 
 **Si on ouvre le suivi du dépôt** — cinq issues ouvertes, et c'est voulu : deux sont au tableau
 (#7, #24), les trois autres sont des limites de conception de l'authentification, arbitrées et
@@ -290,9 +300,9 @@ tourner n'est pas celle que j'avais annoncée. »
 
 **À dire**
 - Rester, en qualifiant l'écart. Trois conditions l'ont rendu acceptable : réversible (annexe de
-  portabilité en cinq étapes chiffrées), tracée (issue #21, manuel de déploiement), bornée (vaut
+  portabilité en cinq étapes documentées), tracée (issue #21, manuel de déploiement), bornée (vaut
   pour le MVP ; si la souveraineté devient contractuelle, l'option A redevient la bonne et son
-  coût est déjà chiffré).
+  chemin est déjà documenté).
 - **L'argument environnemental n'est pas tenu**, et je ne le recycle pas en avantage.
 - « C'est le propre de l'arbitrage de fin de projet : **on ne choisit pas entre une bonne et une
   mauvaise option, on choisit laquelle des deux pertes on accepte.** »
@@ -331,7 +341,7 @@ tourner n'est pas celle que j'avais annoncée. »
 - **Directif** : migrations en production, architecture RLS, secrets. Consigne précise, aucune
   latitude, vérification en base.
 - **Persuasif** : la règle « toute anomalie devient une issue qualifiée *avant* correction » —
-  imposée **et** expliquée, sinon elle est contournée dès qu'elle coûte du temps. 31 issues.
+  imposée **et** expliquée, sinon elle est contournée dès qu'elle coûte du temps. 27 issues fermées.
 - **Participatif** : architecture RLS — l'exécutant produit les options et leurs limites,
   l'arbitrage reste humain.
 - **Délégatif** : conformité lint 13 → 0, génération de tests sur patron, assemblage
@@ -348,8 +358,7 @@ tourner n'est pas celle que j'avais annoncée. »
 - `CLAUDE.md` = charte d'équipe. `PROGRESS.md` = compte rendu de réunion. Issues = tickets.
   Spécifications écrites avant exécution. Commits conventionnels = traçabilité.
 - Deux propriétés qui portent le critère « outils collaboratifs intégrant le partage de
-  ressources » : **tout vit dans le dépôt**, donc accessible à quiconque le clone ; **rien n'est
-  jamais réécrit**, donc l'historique est une preuve, pas une reconstruction.
+  ressources » : **tout vit dans le dépôt**, donc accessible à quiconque le clone ; **tout est versionné**, donc l'historique est une preuve, pas une reconstruction.
 
 **Compression** : garder les deux propriétés, citer deux outils au lieu de cinq.
 
@@ -434,8 +443,8 @@ c'est la colonne de droite qui est à zéro, pas le niveau.
 **Écran** : les cinq points de validation, et les quatre remarques du retour PV1 avec leur suite.
 
 **À dire**
-- Cinq points de validation, fixés à l'avance, tous tenus. Aucun développement ne s'est
-  poursuivi sur un périmètre non validé.
+- Cinq points de validation fixés à l'avance : quatre tenus, le cinquième est aujourd'hui. **Seul
+  PV1 a produit un retour** — le dire, plutôt que de présenter les suivants comme des validations.
 - **Dire le cadre une seule fois, sans détour** : « Le commanditaire de StockFlow est un
   profil-type construit au cadrage, pas une entreprise cliente — c'est la modalité que le
   règlement prévoit pour un projet de formation. Ce qui a réellement tenu ce rôle, c'est le jury
@@ -459,7 +468,7 @@ c'est la colonne de droite qui est à zéro, pas le niveau.
   temps d'inventaire.
 - **Aucun n'a été mesuré, et la raison se dit sans détour : mesurer une satisfaction suppose des
   utilisateurs, et le projet n'a pas eu de pilote client.**
-- Ce qui a été mesuré relève de la conformité, pas de la satisfaction : 36 recettes sur 36, 99
+- Ce qui a été mesuré relève de la conformité, pas de la satisfaction : 36 recettes sur 36 au 13 juillet, 99
   tests verts. **Confondre les deux serait exactement l'affirmation surclamée que le retour du
   Bloc 1 sanctionnait.**
 
@@ -499,7 +508,7 @@ point » assumé vaut mieux qu'une réponse inventée.
 
 ## Les interdits, reconduits du Bloc 1
 
-- Jamais « payback < 4 mois » → ≈ 3,2 ans, puis gain récurrent.
+- Jamais « payback < 4 mois » → brut ≈ 3,2 ans, net d'infrastructure ≈ 3,6 ans, puis gain récurrent.
 - Jamais « COCOMO » → décomposition fonctionnelle pondérée.
 - Jamais SUS ou OWASP présentés comme **prouvés** → visés, mesurés à M+3.
 - Jamais une fausse équipe, ni un client rencontré qui ne l'a pas été.

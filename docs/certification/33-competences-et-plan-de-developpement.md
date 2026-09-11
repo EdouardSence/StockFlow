@@ -50,7 +50,7 @@ professionnelle — il l'a complétée sur ce qu'elle ne couvrait pas.
 
 | Compétence | Niveau | D'où vient ce niveau | Apport de StockFlow |
 |---|---|---|---|
-| Découpage, ordonnancement, chiffrage d'un projet | 3 | Eviden — direction technique de fait d'un projet client (découpage, chiffrage, répartition) ; StockFlow — 10 lots, rétroplanning | Majeur |
+| Découpage, ordonnancement, chiffrage d'un projet | 3 | Eviden — direction technique de fait d'un projet client (découpage, chiffrage, répartition) ; StockFlow — 14 lots, rétroplanning | Majeur |
 | Analyse et reformulation d'un besoin | 3 | Eviden — ateliers de cadrage avec des clients bancaires, qualification de demandes | Faible : le commanditaire de StockFlow est construit |
 | Relation client directe et arbitrage contractuel | 3 | Eviden exclusivement — 20 évolutions commandées, 13 livrées et acceptées | **Aucun** |
 | Leadership technique sans autorité hiérarchique | 3 | Eviden exclusivement — accompagnement d'un arrivant, désignation comme référent par le manager, direction technique d'un projet sans chef désigné | **Aucun** |

@@ -103,7 +103,7 @@ coûté presque autant tout en vidant de son sens l'argument qui la motivait.
 honoré, et il n'est pas transformé ici en avantage. La décision est réversible : le retour à
 l'hébergeur initialement prévu est documenté étape par étape, et le code ne dépend pas du
 fournisseur actuel. Si la souveraineté de l'hébergement devient une exigence de votre côté, le
-chemin de retour est chiffré et disponible.
+chemin de retour est documenté et disponible.
 
 **Ce qui est à décider.** Le passage en exploitation réelle suppose deux décisions de votre
 part : le passage aux offres payantes des services d'hébergement, de l'ordre de 45 $ par mois —

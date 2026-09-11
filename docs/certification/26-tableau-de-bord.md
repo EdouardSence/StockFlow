@@ -11,20 +11,21 @@ Trois outils, un rôle chacun, cohérents avec le flux tiré de la pièce 24 :
 
 | Outil | Rôle | Ce qu'il garantit |
 |---|---|---|
-| **GitHub Projects** (32 issues) | File de travail, un lot en cours | Rien n'est corrigé avant d'être qualifié en issue |
-| **`PROGRESS.md`** (510 lignes) | Journal chronologique, jamais réécrit | Traçabilité de ce qui a été fait *et vérifié*, avec le moyen de vérification |
-| **CI GitHub Actions** | Contrôle bloquant | lint → typecheck → tests → build ; un échec bloque la fusion |
+| **GitHub Projects** (board `projects/3`, 32 issues) | File de travail, un lot en cours | Rien n'est corrigé avant d'être qualifié en issue |
+| **`PROGRESS.md`** (510 lignes) | Journal chronologique versionné | Traçabilité de ce qui a été fait *et vérifié*, avec le moyen de vérification |
+| **CI GitHub Actions** | Contrôle automatique à chaque push | lint → typecheck → tests → build ; un échec rend le commit rouge et se voit (badge, depuis #26). Signal, pas barrière : `main` n'est pas protégée |
 
 Règle de tenue : une case n'est cochée dans `PROGRESS.md` que si la vérification a réellement
-été exécutée — build vert, test passant, requête jouée. Jamais par supposition. Les entrées
-passées ne sont jamais réécrites, ce qui rend le journal utilisable comme preuve.
+été exécutée — build vert, test passant, requête jouée. Jamais par supposition. Le journal est
+versionné : toute modification, y compris d'une entrée passée, reste visible dans l'historique git —
+c'est ce qui le rend utilisable comme preuve.
 
 ## 2. Avancement
 
 | Indicateur | Valeur au 31/08 | Source |
 |---|---|---|
-| Issues traitées et référencées en commit | 31 (#1 à #34, hors #6, #10, #20) | `git log` |
-| Lots livrés | 10 sur 10 du périmètre MVP | `PROGRESS.md` |
+| Issues fermées | 27 sur 32 (25 référencées en commit) ; les 5 ouvertes sont des limites assumées (pièce 31) | `gh issue list` |
+| Lots au journal | 14, dont 2 de documentation | `PROGRESS.md` |
 | Versions taguées | 3 — v0.2.0 (03/07), v0.3.0 (04/07), v0.4.0 (13/07) | `git tag` |
 | Migrations appliquées en production | 6 | `src/db/migrations/` |
 | Commits | 116 toutes branches, **114 sur `main`** | `git rev-list --count --all` / `--count HEAD` |
@@ -36,7 +37,7 @@ revérifiés par exécution le 31/08 :
 | Indicateur | Valeur | Vérification |
 |---|---|---|
 | Tests Vitest | **99** (84 purs + 15 intégration RLS) | `vitest run` : 84 passés, 8 fichiers, 0 échec |
-| Scénarios e2e Playwright | 36 | 11 fichiers `.spec.ts` |
+| Scénarios e2e Playwright | 36 — 36/36 au dernier run, le 13/07 | 11 fichiers `.spec.ts`, cahier de recettes |
 | Couverture globale | **44,77 %** | `vitest run --coverage` |
 | Couverture `auth-core.ts` | 92,15 % | idem |
 
@@ -45,15 +46,15 @@ Ces quatre valeurs ont été **rejouées le 09/09/2026** sur une installation pr
 44,77 %, `auth-core.ts` à 92,15 %. Identiques au relevé du 31/08 — les chiffres du support
 sont reproductibles par un tiers qui clone le dépôt.
 
-> **Écart de couverture levé le 11/09.** Les deux fichiers du domaine Effect
-> (`equipment-domain.ts`, `incidents-domain.ts`) n'apparaissaient pas dans le tableau de
-> couverture affiché au terminal, alors que leurs 14 tests passaient. Relevé le 31/08, cause
-> trouvée le 11/09 : **ils étaient mesurés, à 100 %** — présents dans `coverage-final.json` et
-> dans le rapport HTML — mais le reporter texte masque par défaut les fichiers intégralement
-> couverts. Une ligne de configuration (`skipFull: false`, `vitest.config.ts`) les rend visibles :
-> 100 % en instructions, branches, fonctions et lignes sur les deux domaines, couverture globale
-> inchangée à 44,77 %. L'affirmation du dossier Bloc 2 était donc exacte ; elle est désormais
-> démontrable à l'écran par la commande standard.
+> **Écart de couverture levé le 11/09 : un artefact de mesure par agent.** Les deux fichiers du
+> domaine Effect (`equipment-domain.ts`, `incidents-domain.ts`) n'apparaissaient pas dans le
+> tableau de couverture relevé le 31/08. Cause trouvée le 11/09 : ils étaient mesurés, **à 100 %**
+> (présents dans `coverage-final.json` et dans le rapport HTML), mais Vitest masque les fichiers
+> intégralement couverts **quand il détecte qu'il tourne sous un agent IA** — or le relevé avait
+> été fait par un agent. Dans un terminal humain, les deux domaines ont toujours affiché 100 %.
+> `skipFull: false` dans `vitest.config.ts` les rend visibles dans tous les cas ; couverture
+> globale inchangée à 44,77 %. L'affirmation du dossier Bloc 2 était exacte : l'écart n'existait
+> que dans le rapport vu par l'agent.
 
 ## 3. Délais
 
@@ -110,6 +111,11 @@ L'ordre de grandeur du Bloc 1 (30 €/mois d'hébergement) était donc juste. Ra
 récurrent estimé de ~4 500 €/an, le coût de possession absorbe environ un dixième du bénéfice
 annuel — et il faut y ajouter la maintenance, qui est le poste que le jury du Bloc 1 avait
 relevé comme manquant.
+
+**Effet sur le payback.** Le retour sur investissement annoncé au cadrage, ≈ 3,2 ans
+(14 536 € / 4 500 €), est **brut**. Net du coût d'infrastructure (de l'ordre de 500 €/an), il
+passe à **≈ 3,6 ans** (14 536 € / 4 000 €), maintenance non comptée. Les deux chiffres se
+donnent ensemble.
 
 ### Coût de charge
 
@@ -169,8 +175,8 @@ délibérément — pas un risque oublié.
 
 Le tableau de bord se met à jour à chaque fin de lot : `PROGRESS.md` est complété et commité
 avant la clôture de session. Les indicateurs de qualité sont recalculés par exécution avant
-chaque jalon — c'est ce qui a permis, le 31/08, de découvrir l'écart de couverture signalé
-au §2 plutôt que de le laisser au jury.
+chaque jalon — c'est ce qui a permis, le 31/08, de relever l'écart de couverture signalé au §2 —
+qui s'est révélé propre à une mesure lancée par un agent.
 
 **Recommandation d'amélioration, pour un projet équivalent** : tenir un relevé de temps par
 lot dès le premier jour. Son absence ici empêche de mesurer la productivité réelle, de

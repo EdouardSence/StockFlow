@@ -93,17 +93,19 @@ silence. Trois conditions ont rendu cette décision acceptable :
 
 1. **Elle est réversible.** Le code n'est pas verrouillé sur Vercel — le build Nitro accepte le
    preset `node-server`, l'applicatif est inchangé. Une annexe « Portabilité Scalingo »
-   documente les cinq étapes du retour arrière, chiffrées : runtime, base, variables, en-têtes
+   documente les cinq étapes du retour arrière, une à une : runtime, base, variables, en-têtes
    de sécurité, et ce qui serait perdu.
 2. **Elle est tracée.** Issue #21, manuel de déploiement, journal. Le commanditaire n'aurait
    pas à la découvrir.
 3. **Elle est bornée.** Elle vaut pour le MVP. Si le client fait de la souveraineté une
-   exigence contractuelle, l'option A redevient la bonne — et son coût est déjà chiffré.
+   exigence contractuelle, l'option A redevient la bonne — et son chemin est déjà documenté.
 
 ## 5. Ce que la décision coûte, et qu'il faut dire
 
 L'argument environnemental du cadrage n'est **pas** tenu, et l'honnêteté impose de ne pas le
-recycler en avantage. Ce qui a été privilégié, c'est la fiabilité du livrable à trois sessions
+recycler en avantage. L'argument de souveraineté non plus, et moins encore qu'on ne le croyait
+en juillet : relevé le 11/09, les fonctions Vercel s'exécutent dans la région par défaut, aux
+États-Unis (V14, pièce 31). Ce qui a été privilégié, c'est la fiabilité du livrable à trois sessions
 d'une échéance non négociable, contre un bénéfice réel mais non fonctionnel.
 
 C'est le type même de l'arbitrage de fin de projet : **on ne choisit pas entre une bonne et une

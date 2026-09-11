@@ -18,7 +18,7 @@ C'est un leadership situationnel appliqué à une équipe d'un type nouveau.
 | Style | Quand | Exemple réel | Trace |
 |---|---|---|---|
 | **Directif** | Enjeu de sécurité, effet irréversible, ou échec silencieux possible | Migrations de schéma en production, architecture RLS, gestion des secrets. Consigne précise, aucune latitude, vérification systématique en base | `CLAUDE.md` (règles permanentes), migrations 004-006 |
-| **Persuasif** | La décision est prise, mais son exécution correcte suppose d'en comprendre la raison | La règle « toute anomalie devient une issue qualifiée **avant** correction » : imposée *et* expliquée, sinon elle est contournée dès qu'elle coûte du temps | 31 issues qualifiées avant correction |
+| **Persuasif** | La décision est prise, mais son exécution correcte suppose d'en comprendre la raison | La règle « toute anomalie devient une issue qualifiée **avant** correction » : imposée *et* expliquée, sinon elle est contournée dès qu'elle coûte du temps | 27 issues fermées, qualifiées avant correction |
 | **Participatif** | Plusieurs options défendables, décision non délégable | Architecture RLS : `SET LOCAL` avec claims, Supabase Auth, ou rôle Postgres par connexion. Les options et leurs limites ont été produites par l'agent, l'arbitrage est resté humain | `09-securisation.md` |
 | **Délégatif** | Patron établi, résultat vérifiable mécaniquement | Mise en conformité lint (13 → 0), génération de tests sur patron existant, assemblage documentaire | Lot Init, harnais de tests |
 
@@ -34,15 +34,15 @@ qui rend le pilotage vérifiable par un tiers.
 | Outil | Fonction | Équivalent en équipe humaine |
 |---|---|---|
 | `CLAUDE.md` | Règles permanentes du projet, lues à chaque session | Charte d'équipe / conventions |
-| `PROGRESS.md` | Journal chronologique, **jamais réécrit** | Compte rendu de réunion |
+| `PROGRESS.md` | Journal chronologique **versionné** | Compte rendu de réunion |
 | Issues GitHub | Qualification avant correction, fermeture avec résumé vérifié | Tickets |
-| Spécifications `docs/superpowers/` | Le lot est écrit avant d'être exécuté | Spécification fonctionnelle |
-| Commits conventionnels en français | Historique lisible et parsable, jamais réécrit | Traçabilité |
+| Spécifications `docs/superpowers/` | Écrites pour le lot le plus risqué (PWA offline : spec + plan) ; les autres lots partent d'une issue qualifiée | Spécification fonctionnelle |
+| Commits conventionnels en français | Historique lisible et parsable, versionné | Traçabilité |
 
 Deux propriétés méritent d'être soulignées à l'oral, parce qu'elles portent le critère
 « outils collaboratifs intégrant le partage de ressources » : **tout vit dans le dépôt**, donc
-tout est accessible à quiconque le clone ; et **rien n'est jamais réécrit**, donc l'historique
-est une preuve et pas une reconstruction.
+tout est accessible à quiconque le clone ; et **tout est versionné** — même ce qui a été modifié laisse sa trace —, donc
+l'historique est une preuve et pas une reconstruction.
 
 ## 3. Analyse critique : l'incident CI de neuf jours
 

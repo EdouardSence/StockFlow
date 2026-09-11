@@ -59,11 +59,11 @@ d'un cycle itératif, pas un défaut de découpage.
 |---|---|---|---|
 | **Étude** | mai — juin | Cadrage, analyse de la demande, audit de l'existant, veille technique et réglementaire, étude comparative des solutions | Support Bloc 1 (hors dépôt) |
 | **Conception** | 7-10 mai | Modèle de données, architecture logicielle, prototype initial | 18 commits, ~11 000 insertions |
-| **Réalisation** | 3-15 juillet | 10 lots livrés : retrofit qualité, auth, RLS, incidents, sécurité, accessibilité, PWA offline | 90 commits, 3 tags |
+| **Réalisation** | 3-15 juillet | Lots auth, RLS, revue de sécurité, pannes & assignation, tests, OWASP + RGAA, PWA offline | 90 commits, 3 tags |
 | **Mesure** | continue, juillet | Harnais de tests, cahier de recettes, audits RGAA et OWASP, couverture, supervision | 99 tests, 36 e2e, Sentry, sonde uptime |
 | **Restitution** | juin — septembre | Les cinq jalons de certification | 8 commits de finition dossiers |
 
-La phase de mesure n'est pas séquentielle : elle est intégrée à la réalisation (CI bloquante,
+La phase de mesure n'est pas séquentielle : elle est intégrée à la réalisation (CI rejouée à chaque push,
 tests exigés avant fermeture d'issue). C'est un choix — le contrôle qualité en fin de chaîne
 sur un projet solo produit une dette qu'il n'y a personne pour absorber.
 

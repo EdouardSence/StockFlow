@@ -18,7 +18,7 @@ intérêts divergents — le responsable de projet a tranché contre l'envie du 
 
 | Rôle | Porté par | Compétences mobilisées |
 |---|---|---|
-| **Commanditaire** | Persona TPE/PME construit au Bloc 1 | Expression du besoin, priorisation métier, recette fonctionnelle |
+| **Commanditaire** | Profil-type TPE/PME construit au Bloc 1 — une référence, pas une personne | Besoins et critères d'acceptation, consultés au cadrage et à la recette |
 | **Responsable de projet** | Édouard Sence | Planification, arbitrage, contrôle qualité, redevabilité |
 | **Développeur** | Édouard Sence | Architecture, code, tests, sécurité |
 | **Agent d'exécution** | Claude Code (Sonnet / Opus selon la tâche) | Production sur spécification bornée, audit, assemblage documentaire |
@@ -30,7 +30,7 @@ intérêts divergents — le responsable de projet a tranché contre l'envie du 
 
 | Activité | Commanditaire | Resp. projet | Développeur | Agent | Pédagogique |
 |---|---|---|---|---|---|
-| Cadrage du besoin et périmètre | R | A | C | — | I |
+| Cadrage du besoin et périmètre | C | **A/R** | C | — | I |
 | Choix d'architecture technique | C | A | R | C | I |
 | Planification et jalons | I | **A/R** | C | — | C |
 | Spécification d'un lot | C | A | R | C | — |
@@ -42,7 +42,7 @@ intérêts divergents — le responsable de projet a tranché contre l'envie du 
 | Revue de code et validation de correctif | — | **A/R** | R | — | — |
 | Documentation technique et pièces | — | A | C | R | I |
 | Arbitrage sur écart ou dérive | C | **A/R** | C | — | I |
-| Recette fonctionnelle | **R** | A | C | — | — |
+| Recette fonctionnelle | C | A | **R** | — | — |
 | Dépôt des livrables de certification | — | **A/R** | — | — | R |
 
 ## 3. La règle d'affectation, et pourquoi elle tient
@@ -52,7 +52,7 @@ dans l'historique des commits.
 
 **L'agent n'est jamais A.** Il est R sur une mission bornée, jamais redevable du résultat. La
 redevabilité ne se délègue pas à une ressource qui ne peut ni être tenue pour responsable, ni
-répondre devant un client. Concrètement : aucun commit n'entre sans relecture, et une case de
+répondre devant un client. Concrètement : le contrôle passe par l'exécution, pas par une relecture ligne à ligne — une case de
 `PROGRESS.md` n'est cochée que si la vérification a été exécutée — build vert, test passant —
 jamais sur déclaration de l'agent.
 
