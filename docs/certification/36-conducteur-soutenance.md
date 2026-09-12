@@ -90,8 +90,8 @@ semaines ; l'historique git le démentirait en trente secondes.
 
 ### Slide 4 — Rétroplanning et phases · 1:45 · cumul 4:45
 
-**Écran** : le diagramme — cinq phases, cinq jalons — et en bas le bandeau « 16 journées de
-production, dont 9 en deux semaines de juillet ».
+**Écran** : le diagramme — cinq phases, cinq jalons — les trois versions taguées repérées sur
+l'axe, et en bas le bandeau « 16 journées de production, dont 9 en deux semaines de juillet ».
 
 **À dire**
 - Le planning directeur, ce sont les cinq jalons. Tout le reste s'y ordonnance.
@@ -106,6 +106,9 @@ production, dont 9 en deux semaines de juillet ».
   annoncée, non. »
 - La leçon : **un plan de charge crédible part de la capacité constatée, pas de la capacité
   souhaitée.**
+- *Les trois repères orange sur l'axe sont les versions taguées : v0.2.0 et v0.3.0 les 3 et
+  4 juillet, v0.4.0 le 13. Ne pas les commenter — ils servent si on demande à quel rythme le
+  logiciel a été livré.*
 
 **Piège** : ne pas laisser le jury découvrir la concentration. Le dire soi-même désarme la
 question.
@@ -499,6 +502,14 @@ disjointes », et la lacune à 1 sur 4 qui amène la slide suivante.
 - Le format des comptes rendus : cinq rubriques, et la plus utile est celle qu'on est le plus
   tenté d'omettre — **« ce qui a changé par rapport à l'annoncé ».**
 
+**Si on relève le RBAC passé de trois rôles à deux** — c'est l'incohérence que le jury du Bloc 1
+avait signalée, elle peut revenir. La réponse est une décision de périmètre, pas un oubli :
+« Le cadrage prévoyait un troisième profil, en consultation seule. Aucun usage ne le justifiait
+dans un parc de dix à cent postes, et chaque profil supplémentaire ajoute une surface à tester
+et à sécuriser. Je l'ai retiré, c'est écrit au compte rendu de livraison, et il est
+réintroductible sans refonte. » **Ne pas dire « c'est resté à deux » comme un constat** : c'est
+un arbitrage, il se présente comme tel.
+
 ---
 
 ### Slide 23 ⤓ — Indicateurs de satisfaction · 0:45 · cumul 27:25
@@ -510,8 +521,9 @@ disjointes », et la lacune à 1 sur 4 qui amène la slide suivante.
   temps d'inventaire.
 - **Aucun n'a été mesuré, et la raison se dit sans détour : mesurer une satisfaction suppose des
   utilisateurs, et le projet n'a pas eu de pilote client.**
-- Ce qui a été mesuré relève de la conformité, pas de la satisfaction : 36 recettes sur 36 au 13 juillet, 99
-  tests verts. **Confondre les deux serait exactement l'affirmation surclamée que le retour du
+- Ce qui a été mesuré relève de la conformité, pas de la satisfaction : 36 recettes sur 36 au
+  13 juillet, 99 tests verts, l'audit RGAA outillé — trois violations corrigées — et la revue
+  OWASP Top 10. **Confondre les deux serait exactement l'affirmation surclamée que le retour du
   Bloc 1 sanctionnait.**
 
 **Compression** : citer deux indicateurs au lieu de quatre.
