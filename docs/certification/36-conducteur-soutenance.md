@@ -1,7 +1,12 @@
 # 36 — Conducteur de soutenance (pièce 12, Bloc 3)
 
-Plan slide par slide, minuté. **24 slides, 29 min 25 nominal**, compressible à 27 min 45 par les
+Plan slide par slide, minuté. **25 slides, 28 min 25 nominal**, compressible à 26 min 45 par les
 cinq slides marquées ⤓. Le règlement accorde 30 min de présentation et 15 min d'échanges.
+
+**Ce conducteur suit `StockFlow-Bloc3-captures.pptx`, la version à 25 slides** — celle qui porte
+en position 8 les captures du board et des exécutions de la chaîne d'intégration. La version
+initiale à 24 slides est conservée telle quelle ; sur celle-là, tous les numéros à partir de la
+huitième sont décalés d'un cran vers le bas.
 
 Le fil : *j'ai organisé → j'ai suivi → voici le résultat → j'ai décidé → j'ai piloté une équipe
 → j'ai rendu compte.* La démonstration est placée en position 4, à 11 minutes du début : assez
@@ -10,15 +15,15 @@ directement le cas d'arbitrage qui la suit.
 
 | Bloc | Slides | Durée | Cumul |
 |---|---|---|---|
-| Ouverture | 1-2 | 2:00 | 2:00 |
-| **C3.1** — planifier (éliminatoire) | 3-6 | 5:15 | 7:15 |
-| **C3.2.1** — piloter (éliminatoire) | 7-10 | 4:10 | 11:25 |
-| **C3.4.2** — démonstration (éliminatoire) | 11 | 6:00 | 17:25 |
-| C3.2.2 — arbitrer | 12-14 | 3:00 | 20:25 |
-| C3.3.1 — manager | 15-18 | 4:00 | 24:25 |
-| C3.3.2 — compétences | 19-20 | 2:00 | 26:25 |
-| C3.4.1 — rendre compte | 21-22 | 2:00 | 28:25 |
-| Clôture | 23-24 | 1:00 | 29:25 |
+| Ouverture | 1-2 | 1:30 | 1:30 |
+| **C3.1** — planifier (éliminatoire) | 3-6 | 5:15 | 6:45 |
+| **C3.2.1** — piloter (éliminatoire) | 7-11 | 4:30 | 11:15 |
+| **C3.4.2** — démonstration (éliminatoire) | 12 | 6:00 | 17:15 |
+| C3.2.2 — arbitrer | 13-15 | 3:00 | 20:15 |
+| C3.3.1 — manager | 16-19 | 3:40 | 23:55 |
+| C3.3.2 — compétences | 20-21 | 1:30 | 25:25 |
+| C3.4.1 — rendre compte | 22-23 | 2:00 | 27:25 |
+| Clôture | 24-25 | 1:00 | 28:25 |
 
 ---
 
@@ -34,7 +39,7 @@ directement le cas d'arbitrage qui la suit.
 
 ---
 
-### Slide 2 — Le projet et la règle du jeu · 1:45 · cumul 2:00
+### Slide 2 — Le projet et la règle du jeu · 1:15 · cumul 1:30
 
 **Écran** : trois blocs — le produit en une phrase · les chiffres · le fil de la présentation.
 
@@ -54,11 +59,16 @@ directement le cas d'arbitrage qui la suit.
 **Piège** : ne jamais y revenir. Reparler de la nature de l'équipe plus tard transforme un
 cadrage assumé en justification.
 
+**Ce qui a été coupé pour tenir 1:15** : le détail du relevé git (garder « 116 commits au
+31 août », laisser la ventilation pour les questions) et l'énoncé du fil en six temps, réduit à
+« six temps, la démonstration au quatrième ». La phrase de cadrage sur l'équipe, elle, ne se
+coupe pas.
+
 ---
 
 ## C3.1 — PLANIFIER L'EXÉCUTION · ÉLIMINATOIRE
 
-### Slide 3 — Méthodologie · 1:30 · cumul 3:30
+### Slide 3 — Méthodologie · 1:30 · cumul 3:00
 
 **Écran** : deux colonnes — *Cadre : rétroplanning à jalons fixes* / *Exécution : flux tiré,
 WIP 1*. En bas : les trois méthodes écartées avec une raison chacune.
@@ -78,7 +88,7 @@ semaines ; l'historique git le démentirait en trente secondes.
 
 ---
 
-### Slide 4 — Rétroplanning et phases · 1:45 · cumul 5:15
+### Slide 4 — Rétroplanning et phases · 1:45 · cumul 4:45
 
 **Écran** : le diagramme — cinq phases, cinq jalons — et en bas le bandeau « 16 journées de
 production, dont 9 en deux semaines de juillet ».
@@ -102,7 +112,7 @@ question.
 
 ---
 
-### Slide 5 — Affectation des missions et RACI · 1:15 · cumul 6:30
+### Slide 5 — Affectation des missions et RACI · 1:15 · cumul 6:00
 
 **Écran** : la matrice RACI, 12 activités × 5 rôles (la pièce 25 en détaille 14).
 
@@ -123,7 +133,7 @@ question.
 
 ---
 
-### Slide 6 ⤓ — Ressources et budget · 0:45 · cumul 7:15
+### Slide 6 ⤓ — Ressources et budget · 0:45 · cumul 6:45
 
 **Écran** : humaines / matérielles / financières, et le total de 14 536 € HT.
 
@@ -144,7 +154,7 @@ question.
 
 ## C3.2.1 — PILOTER L'AVANCEMENT · ÉLIMINATOIRE
 
-### Slide 7 — L'outil de suivi · 1:00 · cumul 8:15
+### Slide 7 — L'outil de suivi · 1:00 · cumul 7:45
 
 **Écran** : trois outils, un rôle chacun.
 
@@ -157,15 +167,36 @@ question.
   **versionné** : toute modification, même d'une entrée passée, reste visible dans git — c'est ce
   qui le rend utilisable comme preuve.
 - **Ne jamais dire que la CI bloque** : `main` n'est pas protégée, la CI signale. C'est exactement la
-  leçon de l'incident des neuf jours (slide 18).
-- *Le board GitHub Projects (`projects/3`) est **public** depuis le 12/09 : l'avoir ouvert dans un
-  onglet, vue tableau, pour le montrer sur demande. Il porte 31 fiches et non 32 — l'issue #3,
-  ouverte et fermée en trois minutes le 2 juillet, est antérieure au board et n'y a jamais été
-  ajoutée. Le dire avant que le jury ne compte.*
+  leçon de l'incident des neuf jours (slide 19).
+- *Ne pas décrire les outils en détail : la slide suivante les montre. Garder les deux règles de
+  tenue ici, la preuve arrive juste après.*
+- *Le board (`projects/3`) est **public** depuis le 12/09 : l'avoir aussi ouvert dans un onglet,
+  vue tableau — projeté, le détail de la capture reste petit.*
 
 ---
 
-### Slide 8 — Tableau de bord · 1:30 · cumul 9:45
+### Slide 8 — Ces outils, tels qu'un tiers les voit · 0:20 · cumul 8:05
+
+**Écran** : les deux captures — le board `projects/3` en vue tableau, les runs CI filtrés du 3 au
+13 juillet.
+
+**À dire**, vingt secondes, et on enchaîne. **Cette slide se montre, elle ne se raconte pas.**
+- « Les deux captures sont prises sans être connecté : la barre d'inscription de GitHub est
+  visible en haut. Vous pouvez les refaire. »
+- À gauche, les quatre fiches en **« Accepté (risque documenté) »** : ce sont les points de
+  vigilance V2, V11, V12 et V13. **Le board et le registre disent la même chose.**
+- À droite, le rouge du 4 au 12 juillet et le vert qui reprend à `fix(ci)` #24 — l'incident
+  repris en slide 19.
+
+**Si on demande pourquoi 31 fiches et non 32** : l'issue #3, ouverte et fermée en trois minutes
+le 2 juillet, est antérieure à la création du board. Mieux vaut le dire avant qu'on ne compte.
+
+**Si on demande le rouge des 4 et 6 juillet** : leurs exécutions sont en page 2 de la liste,
+la capture ne montre que la première. Le filtre de dates est visible, la liste est publique.
+
+---
+
+### Slide 9 — Tableau de bord · 1:30 · cumul 9:35
 
 **Écran** : les cinq tuiles — 5/5 jalons, 27/32 issues fermées (14 lots · 3 versions), 99 tests,
 36 e2e (36/36 au 13/07), 44,8 % de couverture.
@@ -189,7 +220,7 @@ d'afficher un pourcentage.
 
 ---
 
-### Slide 9 — Coûts : l'écart et ce qu'il cache · 1:00 · cumul 10:45
+### Slide 10 — Coûts : l'écart et ce qu'il cache · 1:00 · cumul 10:35
 
 **Écran** : tableau budget / dépensé, et le TCO à 45 $/mois.
 
@@ -210,7 +241,7 @@ d'infrastructure : ≈ 3,6 ans, maintenance non comptée. Donner les deux si la 
 
 ---
 
-### Slide 10 ⤓ — Points de vigilance · 0:40 · cumul 11:25
+### Slide 11 ⤓ — Points de vigilance · 0:40 · cumul 11:15
 
 **Écran** : le registre des dix points — V5 et V10 clos, V9 seul ouvert.
 
@@ -236,7 +267,7 @@ limite reste visible, pas archivée. Aucune anomalie fonctionnelle n'est ouverte
 
 ## C3.4.2 — DÉMONSTRATION · ÉLIMINATOIRE
 
-### Slide 11 — Démonstration du logiciel · 6:00 · cumul 17:25
+### Slide 12 — Démonstration du logiciel · 6:00 · cumul 17:15
 
 **Écran** : une slide d'accroche 15 s (« le cycle de vie d'un poste, de son entrée dans le parc
 à sa panne sur le terrain »), puis on bascule sur l'application.
@@ -265,7 +296,7 @@ simplement, enchaîner. Deux tentatives de rechargement maximum, pas plus.
 
 ## C3.2.2 — ARBITRER
 
-### Slide 12 — L'écart constaté · 0:45 · cumul 18:10
+### Slide 13 — L'écart constaté · 0:45 · cumul 18:00
 
 **Écran** : deux blocs face à face — *annoncé au cadrage : Scalingo* / *en production depuis
 mai : Vercel + Supabase*.
@@ -279,7 +310,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ---
 
-### Slide 13 — Le logigramme · 1:15 · cumul 19:25
+### Slide 14 — Le logigramme · 1:15 · cumul 19:15
 
 **Écran** : le logigramme — quatre questions, deux options éliminées, la décision.
 
@@ -296,7 +327,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ---
 
-### Slide 14 — La décision et ce qu'elle coûte · 1:00 · cumul 20:25
+### Slide 15 — La décision et ce qu'elle coûte · 1:00 · cumul 20:15
 
 **Écran** : la décision, ses trois conditions, et la leçon.
 
@@ -316,7 +347,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ## C3.3.1 — PILOTER L'ÉQUIPE
 
-### Slide 15 — Affecter et déléguer · 1:00 · cumul 21:25
+### Slide 16 — Affecter et déléguer · 1:00 · cumul 21:15
 
 **Écran** : la règle d'affectation en trois principes.
 
@@ -335,7 +366,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ---
 
-### Slide 16 — Les quatre styles · 1:20 · cumul 22:45
+### Slide 17 — Les quatre styles · 1:00 · cumul 22:15
 
 **Écran** : les quatre styles nommés par le référentiel, un exemple réel chacun.
 
@@ -350,9 +381,13 @@ tourner n'est pas celle que j'avais annoncée. »
   documentaire.
 - La règle transverse : **quel que soit le style, la redevabilité reste humaine.**
 
+**Ce qui a été coupé pour tenir 1:00** : un exemple par style, pas deux, et la justification du
+persuasif ramenée à sa moitié — « imposée et expliquée, sinon contournée ». Les quatre mots du
+référentiel doivent être prononcés, c'est la seule chose qui ne se coupe pas.
+
 ---
 
-### Slide 17 ⤓ — Outils de communication · 0:40 · cumul 23:25
+### Slide 18 ⤓ — Outils de communication · 0:40 · cumul 22:55
 
 **Écran** : les cinq outils et leur équivalent en équipe humaine.
 
@@ -366,7 +401,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ---
 
-### Slide 18 — Analyse critique · 1:00 · cumul 24:25
+### Slide 19 — Analyse critique · 1:00 · cumul 23:55
 
 **Écran** : les deux défaillances, la formule de chacune.
 
@@ -387,7 +422,7 @@ tourner n'est pas celle que j'avais annoncée. »
 
 ## C3.3.2 — COMPÉTENCES
 
-### Slide 19 — Grille de compétences · 1:10 · cumul 25:35
+### Slide 20 — Grille de compétences · 0:40 · cumul 24:35
 
 **Écran** : la grille à deux axes — *niveau atteint* (toutes expériences confondues) et *apport
 de StockFlow*, avec la ligne rouge à 1 en évidence.
@@ -409,9 +444,14 @@ de StockFlow*, avec la ligne rouge à 1 en évidence.
 **Piège** : ne pas présenter les lignes à apport nul comme des faiblesses. Elles sont à 3 ;
 c'est la colonne de droite qui est à zéro, pas le niveau.
 
+**Ce qui a été coupé pour tenir 0:40** : l'énumération des quatre premières fois et des trois
+apports nuls — la grille est à l'écran, le jury la lit. Garder trois choses : les deux colonnes
+et pourquoi elles diffèrent, « StockFlow et l'alternance ont développé des compétences quasi
+disjointes », et la lacune à 1 sur 4 qui amène la slide suivante.
+
 ---
 
-### Slide 20 ⤓ — Plan de développement et renforts · 0:50 · cumul 26:25
+### Slide 21 ⤓ — Plan de développement et renforts · 0:50 · cumul 25:25
 
 **Écran** : l'encadré rouge du défaut commun, le plan en cinq lignes, les trois renforts.
 
@@ -440,7 +480,7 @@ c'est la colonne de droite qui est à zéro, pas le niveau.
 
 ## C3.4.1 — RENDRE COMPTE
 
-### Slide 21 — Points de validation et retour obtenu · 1:15 · cumul 27:40
+### Slide 22 — Points de validation et retour obtenu · 1:15 · cumul 26:40
 
 **Écran** : les cinq points de validation, et les quatre remarques du retour PV1 avec leur suite.
 
@@ -461,7 +501,7 @@ c'est la colonne de droite qui est à zéro, pas le niveau.
 
 ---
 
-### Slide 22 ⤓ — Indicateurs de satisfaction · 0:45 · cumul 28:25
+### Slide 23 ⤓ — Indicateurs de satisfaction · 0:45 · cumul 27:25
 
 **Écran** : les quatre indicateurs, tous marqués « cible, non mesuré ».
 
@@ -480,7 +520,7 @@ c'est la colonne de droite qui est à zéro, pas le niveau.
 
 ## CLÔTURE
 
-### Slide 23 — Synthèse · 1:00 · cumul 29:25
+### Slide 24 — Synthèse · 1:00 · cumul 28:25
 
 **Écran** : six affirmations, une par compétence, chacune adossée à une preuve.
 
@@ -498,7 +538,7 @@ d'exécution. C'est ce que j'en retiens comme chef de projet. »**
 
 ---
 
-### Slide 24 — Questions · cumul 29:25 → 15 min d'échanges
+### Slide 25 — Questions · cumul 28:25 → 15 min d'échanges
 
 **Écran** : Q&R, coordonnées du dépôt et de la production, cinq points clés.
 
@@ -524,7 +564,7 @@ point » assumé vaut mieux qu'une réponse inventée.
 
 ## Calibrage
 
-29 min 25 nominal à 135 mots/minute ≈ **3 900 mots de script**. Les cinq slides ⤓ libèrent
+28 min 25 nominal à 135 mots/minute ≈ **3 800 mots de script**. Les cinq slides ⤓ libèrent
 1 min 40 si la démonstration déborde — et elle débordera. Répéter **deux fois à voix haute,
 chronomètre en main, dont au moins une fois avec la démonstration réelle sur le téléphone**, pas
 en la mimant.
