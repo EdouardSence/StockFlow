@@ -149,7 +149,7 @@ question.
 **Écran** : trois outils, un rôle chacun.
 
 **À dire**
-- GitHub Projects (32 issues) pour la file de travail ; `PROGRESS.md`, 510 lignes, pour le
+- GitHub Projects (31 des 32 issues) pour la file de travail ; `PROGRESS.md`, 510 lignes, pour le
   journal ; la CI GitHub Actions, rejouée à chaque push.
 - L'outil est cohérent avec la méthode : **un tableau Kanban est l'outil natif du flux tiré.**
 - Deux règles de tenue qui font la valeur du dispositif : une case n'est cochée que si la
@@ -158,8 +158,10 @@ question.
   qui le rend utilisable comme preuve.
 - **Ne jamais dire que la CI bloque** : `main` n'est pas protégée, la CI signale. C'est exactement la
   leçon de l'incident des neuf jours (slide 18).
-- *Le board GitHub Projects (`projects/3`) est privé : l'avoir ouvert dans un onglet si le jury
-  demande à le voir.*
+- *Le board GitHub Projects (`projects/3`) est **public** depuis le 12/09 : l'avoir ouvert dans un
+  onglet, vue tableau, pour le montrer sur demande. Il porte 31 fiches et non 32 — l'issue #3,
+  ouverte et fermée en trois minutes le 2 juillet, est antérieure au board et n'y a jamais été
+  ajoutée. Le dire avant que le jury ne compte.*
 
 ---
 

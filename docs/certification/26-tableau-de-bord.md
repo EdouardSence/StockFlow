@@ -11,7 +11,7 @@ Trois outils, un rôle chacun, cohérents avec le flux tiré de la pièce 24 :
 
 | Outil | Rôle | Ce qu'il garantit |
 |---|---|---|
-| **GitHub Projects** (board `projects/3`, 32 issues) | File de travail, un lot en cours | Rien n'est corrigé avant d'être qualifié en issue |
+| **GitHub Projects** (board `projects/3`, public, 31 des 32 issues) | File de travail, un lot en cours | Rien n'est corrigé avant d'être qualifié en issue |
 | **`PROGRESS.md`** (510 lignes) | Journal chronologique versionné | Traçabilité de ce qui a été fait *et vérifié*, avec le moyen de vérification |
 | **CI GitHub Actions** | Contrôle automatique à chaque push | lint → typecheck → tests → build ; un échec rend le commit rouge et se voit (badge, depuis #26). Signal, pas barrière : `main` n'est pas protégée |
 

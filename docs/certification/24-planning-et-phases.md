@@ -38,8 +38,8 @@ Deux régimes de planification cohabitent donc, et c'est délibéré.
   commencé seulement quand le précédent est fermé. Bénéfice attendu : sur une ressource
   unique, le multitâche est le principal facteur de dérive ; le limiter à un lot en cours
   supprime le coût de reprise de contexte.
-- **Outil de planification** : rétroplanning à jalons pour le cadre, **GitHub Projects** (32
-  issues) pour l'exécution, **`PROGRESS.md`** pour le journal chronologique. L'outil est
+- **Outil de planification** : rétroplanning à jalons pour le cadre, **GitHub Projects** (31
+  des 32 issues) pour l'exécution, **`PROGRESS.md`** pour le journal chronologique. L'outil est
   compatible avec la méthode : un tableau Kanban est l'outil natif du flux tiré, là où un
   Gantt d'enchaînement serait faux sur un projet à une seule ressource — aucune tâche n'est
   jamais parallèle.

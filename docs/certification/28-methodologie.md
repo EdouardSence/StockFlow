@@ -71,7 +71,8 @@ Le critère l'exige explicitement, et c'est ce qui explique l'absence de diagram
 d'enchaînement dans ce dossier.
 
 - **Un tableau Kanban** est l'outil natif du flux tiré : il montre l'état, pas la date.
-  GitHub Projects, avec les 32 issues du projet, remplit ce rôle.
+  GitHub Projects, avec 31 des 32 issues du projet, remplit ce rôle — l'issue #3, ouverte et
+  fermée en trois minutes avant la création du board, n'y a jamais été portée.
 - **Un rétroplanning à jalons** est l'outil natif d'un calendrier imposé : il montre les dates
   butoirs et ce qui doit être prêt avant.
 - **Un Gantt d'enchaînement de tâches serait faux ici.** Il représente des dépendances entre
