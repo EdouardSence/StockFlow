@@ -99,8 +99,11 @@ def build_slide(slide7):
         pic(62, "Runs CI juillet", "rIdImg2", cx_, cy_, cw, ch),
         textbox(
             63, "Legende board", 566928, 5620000, 5413248, 700000,
-            ["Board projects/3, vue tableau. 31 fiches — quatre portent « Accepté (risque documenté) », "
-             "ce sont les points de vigilance V2, V11, V12 et V13 du registre."],
+            # pas de référence Vn ici : la slide du registre n'affiche que V1 à V10, et trois
+            # de ces quatre fiches sont des limites d'authentification qui n'y figurent pas
+            ["Board projects/3, vue tableau. 31 fiches — quatre portent « Accepté (risque "
+             "documenté) » : les limites d&apos;authentification, laissées visibles au suivi "
+             "public plutôt qu&apos;archivées."],
             size=1000,
         ),
         textbox(
@@ -141,6 +144,18 @@ def patch_retroplanning(xml):
     return xml.replace("</p:spTree>", marques + legende + "</p:spTree>")
 
 
+def patch_registre(xml):
+    """Le bandeau du registre disait l'état de départ, pas celui d'aujourd'hui."""
+    avant = ("<a:t>Sept sur dix sont acceptés : connus, chiffrés dans leurs conséquences, "
+             "laissés ouverts délibérément. La différence entre un risque accepté et un risque "
+             "oublié se voit exactement à l&apos;existence de ce tableau.</a:t>")
+    apres = ("<a:t>Sept acceptés, deux clos en septembre, un seul ouvert : ce registre a bougé "
+             "depuis le 31 août. La différence entre un risque accepté et un risque oublié se "
+             "voit exactement à l&apos;existence de ce tableau.</a:t>")
+    assert avant in xml, "bandeau du registre introuvable"
+    return xml.replace(avant, apres)
+
+
 def patch_conformite(xml):
     """Ajoute les audits à la case « ce qui a été mesuré » de la slide 22."""
     avant = ("<a:t>36 recettes sur 36, 99 tests verts — de la conformité livrée, "
@@ -179,6 +194,8 @@ def main():
             xml = renumber(xml, n, n if n < NEW_POS else n + 1)
             if n == 4:
                 xml = patch_retroplanning(xml)
+            if n == 10:
+                xml = patch_registre(xml)
             if n == 22:
                 xml = patch_conformite(xml)
             if n == 7:

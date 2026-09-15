@@ -186,8 +186,14 @@ question.
 **À dire**, vingt secondes, et on enchaîne. **Cette slide se montre, elle ne se raconte pas.**
 - « Les deux captures sont prises sans être connecté : la barre d'inscription de GitHub est
   visible en haut. Vous pouvez les refaire. »
-- À gauche, les quatre fiches en **« Accepté (risque documenté) »** : ce sont les points de
-  vigilance V2, V11, V12 et V13. **Le board et le registre disent la même chose.**
+- À gauche, les quatre fiches en **« Accepté (risque documenté) »** : les limites
+  d'authentification, laissées ouvertes exprès pour rester visibles. **Le board et le dossier
+  disent la même chose.**
+- ⚠︎ **Ne pas citer « V11, V12, V13 » devant cet écran.** Le tableau de la slide 11 porte les dix
+  points de pilotage, V1 à V10 ; ces trois limites-là sont au dossier, pièce 31, pas à l'écran.
+  Nommer une référence que le jury ne trouve pas, c'est exactement l'incohérence transversale que
+  le Bloc 1 avait sanctionnée. Si la question vient : « elles sont détaillées au registre du
+  dossier, sous V11 à V13. »
 - À droite, le rouge du 4 au 12 juillet et le vert qui reprend à `fix(ci)` #24 — l'incident
   repris en slide 19.
 
@@ -251,8 +257,9 @@ d'infrastructure : ≈ 3,6 ans, maintenance non comptée. Donner les deux si la 
 **À dire**
 - Un point de vigilance n'est pas un bug : c'est une limite connue, laissée en l'état
   délibérément, avec sa conséquence.
-- Sept des dix sont **acceptés**. **La différence entre un risque accepté et un risque oublié se
-  voit exactement à l'existence de ce tableau.**
+- **Sept acceptés, deux clos en septembre, un seul ouvert** — le dire dans cet ordre : c'est ce
+  qui montre un registre vivant plutôt qu'un tableau décoratif. **La différence entre un risque
+  accepté et un risque oublié se voit exactement à l'existence de ce tableau.**
 - **Un seul** reste ouvert, le relevé de temps. Deux ont été clos en septembre : les
   dépendances non figées (9/09), et l'écart de couverture relevé le 31 août — qui s'est révélé un
   **artefact de mesure par agent** : Vitest masque les fichiers couverts à 100 % quand il tourne
@@ -557,6 +564,35 @@ d'exécution. C'est ce que j'en retiens comme chef de projet. »**
 **Posture Q/R** : reformuler la question → donner le choix fait → pourquoi il colle à la
 contrainte du projet → reconnaître honnêtement l'alternative. Un « je n'ai pas tranché ce
 point » assumé vaut mieux qu'une réponse inventée.
+
+### La question qu'il faut attendre : « région US » et le RGPD
+
+La slide 6 affiche **« Supabase · Sentry en UE · Vercel : région US »**. C'est honnête, et ça
+ouvre une porte que le jury peut pousser — le Bloc 1 annonçait l'hébergement UE comme mitigation
+RGPD, et l'assignation d'un équipement à une personne est une donnée nominative.
+
+**Ne pas répondre « la base est en Europe ».** C'est vrai et c'est une esquive : les données
+seraient au repos en Irlande, mais les fonctions applicatives les traitent à Washington, donc
+elles traversent l'Atlantique **à chaque requête**. Dire l'un sans l'autre, c'est se faire
+reprendre sur le second.
+
+**La réponse, en trois temps :**
+1. **Le fait, entier.** « Les données au repos sont en Irlande, chez Supabase. Mais le rendu
+   serveur et les fonctions applicatives tournent dans la région Vercel par défaut, aux
+   États-Unis. Les données nominatives — nom, courriel, qui détient quel poste — y transitent et
+   y sont traitées à chaque requête. C'est un transfert hors UE, au sens du chapitre V. »
+2. **Ce que ça vaut aujourd'hui.** Le transfert repose sur les clauses contractuelles types du
+   fournisseur, pas sur un choix d'architecture : personne ne l'a décidé, c'est la valeur par
+   défaut qui s'est appliquée. **C'est un défaut de contrôle, le même que les deux autres du
+   projet** — et c'est pour ça qu'il est au registre plutôt que caché.
+3. **Le correctif, chiffré.** Une ligne dans `vercel.json` — `"regions": ["dub1"]`, Dublin — et
+   un redéploiement. Différé volontairement : on ne touche pas à la production dans la semaine
+   d'une démonstration. Prévu juste après cet oral.
+
+**Si on demande pourquoi ce n'est pas corrigé si c'est une ligne** : « Parce qu'une ligne qui
+redéploie la production reste un changement de production. La règle du projet est de ne pas en
+faire à la veille d'une échéance ferme. C'est le même arbitrage que pour l'hébergeur, et il est
+tracé au même endroit. »
 
 ---
 
