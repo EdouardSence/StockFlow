@@ -25,6 +25,35 @@ directement le cas d'arbitrage qui la suit.
 | C3.4.1 — rendre compte | 22-23 | 2:00 | 27:25 |
 | Clôture | 24-25 | 1:00 | 28:25 |
 
+## Les quatorze livrables attendus, et la slide qui les porte
+
+Le règlement spécial (v. 1.01 du 15/09/2025) énumère quatorze livrables que « la présentation
+comprend ». Le jury coche une grille : chaque slide concernée affiche désormais son numéro, et
+les quatorze sont couverts. **Si on demande où se trouve tel livrable, répondre par le numéro de
+slide, pas par une paraphrase.**
+
+| # | Livrable attendu | Slide |
+|---|---|---|
+| 1 | Une présentation de la méthodologie choisie | 3 |
+| 2 | Le planning détaillé du projet | 4 |
+| 3 | Les ressources nécessaires | 6 |
+| 4 | L'outil de suivi de projet | 7, étayé par 8 à 11 |
+| 5 | Un cas d'arbitrage rencontré au cours du projet | 13, déroulé jusqu'à 15 |
+| 6 | L'affectation des missions réalisée au cours du projet | 5, complétée par 16 |
+| 7 | Le style ou les styles managériaux utilisés | 17 |
+| 8 | Les outils de communication utilisés et leurs objectifs | 18 |
+| 9 | L'évaluation des besoins en compétences, via grille | 20 |
+| 10 | Le plan de développement des compétences | 21 |
+| 11 | Les comptes rendus sur les évolutions et améliorations | 22 |
+| 12 | La planification des points de validation réalisés | 22 |
+| 13 | Les indicateurs de satisfaction mis en place | 23 |
+| 14 | La démonstration des fonctionnalités devant le jury | 12 |
+
+**Les trois compétences éliminatoires du bloc, vérifiées au règlement** : C3.1 (planifier),
+C3.2.1 (piloter l'avancement), C3.4.2 (démonstration). Un bloc est validé si la moitié des
+compétences est acquise **et** qu'aucune éliminatoire ne manque. Les slides 3 à 12 portent donc
+tout le risque.
+
 ---
 
 ## OUVERTURE

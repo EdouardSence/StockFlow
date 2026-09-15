@@ -172,6 +172,42 @@ def patch_conformite(xml):
     return xml.replace('<a:ext cx="5413248" cy="932688"/>', '<a:ext cx="5413248" cy="1005840"/>')
 
 
+# Les quatorze livrables attendus, dans l'ordre du règlement spécial (v. 1.01 du 15/09/2025,
+# « Évaluation du Bloc 3 · La présentation comprend »). Un badge par livrable, posé sur la slide
+# qui le porte — pas sur celles qui l'étayent, sinon le repère devient du bruit.
+ELEMENTS = {
+    3: "1/14",       # une présentation de la méthodologie choisie
+    4: "2/14",       # le planning détaillé du projet
+    5: "6/14",       # l'affectation des missions réalisée au cours du projet
+    6: "3/14",       # les ressources nécessaires
+    7: "4/14",       # l'outil de suivi de projet
+    11: "14/14",     # la démonstration des fonctionnalités devant le jury
+    12: "5/14",      # un cas d'arbitrage rencontré au cours du projet
+    16: "7/14",      # les styles managériaux
+    17: "8/14",      # les outils de communication et leurs objectifs
+    19: "9/14",      # la grille d'évaluation des compétences
+    20: "10/14",     # le plan de développement des compétences
+    21: "11 et 12/14",  # les comptes rendus, et la planification des points de validation
+    22: "13/14",     # les indicateurs de satisfaction
+}
+
+
+def patch_element(xml, badge):
+    """Ajoute le numéro de livrable attendu au sous-titre de compétence.
+
+    La slide de démonstration n'a pas de sous-titre C3.x — elle nomme la compétence
+    dans son surtitre, c'est donc lui qui porte le repère.
+    """
+    m = re.search(r"<a:t>(C3[^<]*)</a:t>", xml)
+    if m:
+        return xml.replace(m.group(0), f"<a:t>{m.group(1)} · LIVRABLE ATTENDU {badge}</a:t>", 1)
+    demo = "<a:t>03 — DÉMONSTRATION</a:t>"
+    assert demo in xml, "ni sous-titre de compétence, ni surtitre de démonstration"
+    return xml.replace(
+        demo,
+        f"<a:t>03 — DÉMONSTRATION · C3.4.2 ÉLIMINATOIRE · LIVRABLE ATTENDU {badge}</a:t>", 1)
+
+
 def renumber(xml, old, new):
     return xml.replace(f"<a:t>{old} / 24</a:t>", f"<a:t>{new} / {TOTAL}</a:t>")
 
@@ -192,6 +228,8 @@ def main():
             n = int(m.group(1))
             xml = data.decode("utf-8")
             xml = renumber(xml, n, n if n < NEW_POS else n + 1)
+            if n in ELEMENTS:
+                xml = patch_element(xml, ELEMENTS[n])
             if n == 4:
                 xml = patch_retroplanning(xml)
             if n == 10:
